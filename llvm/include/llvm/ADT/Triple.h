@@ -105,6 +105,7 @@ public:
     renderscript32, // 32-bit RenderScript
     renderscript64, // 64-bit RenderScript
     ve,             // NEC SX-Aurora Vector Engine
+    sigma16,        // Sigma16 Architecture
     LastArchType = ve
   };
   enum SubArchType {

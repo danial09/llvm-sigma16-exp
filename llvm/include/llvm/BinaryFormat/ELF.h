@@ -320,6 +320,7 @@ enum {
   EM_VE = 251,            // NEC SX-Aurora VE
   EM_CSKY = 252,          // C-SKY 32-bit processor
   EM_LOONGARCH = 258,     // LoongArch
+  EM_SIGMA16 = 999,       // Sigma16
 };
 
 // Object file classes.
@@ -922,6 +923,12 @@ enum : unsigned {
 // ELF Relocation types for LoongArch
 enum {
 #include "ELFRelocs/LoongArch.def"
+};
+
+// TODO: Complete Elf Relocation types for Sigma16
+// ELF Relocation types for Sigma16
+enum {
+#include "ELFRelocs/Sigma16.def"
 };
 
 #undef ELF_RELOC
