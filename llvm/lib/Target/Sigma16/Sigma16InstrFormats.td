@@ -27,13 +27,13 @@
 
 // Format specifies the encoding used by the instruction. To be used by
 // code emitter to determine which form of fixup to use.
-class InstFormat<bits<3> val> {
+class InstFormat<bits<5> val> {
   bits<5> Value = val;
 }
 def InstFormatPseudo : InstFormat<0>;
 def InstFormatRRR    : InstFormat<1>;
-def InstFormatRX     : InstFormat<2>
-def InstFormatOther  : InstFormat<3>
+def InstFormatRX     : InstFormat<2>;
+def InstFormatOther  : InstFormat<3>;
 
 // Generic Sigma16 Format
 class Sigma16Inst<dag outs, dag ins, int size, string asmstr, 
@@ -50,6 +50,8 @@ class Sigma16Inst<dag outs, dag ins, int size, string asmstr,
 
     let Namespace = "Sigma16";
 
+    bits<4> Opcode;
+
     dag OutOperandList = outs;
     dag InOperandList  = ins;
 
@@ -63,37 +65,39 @@ class Sigma16Inst<dag outs, dag ins, int size, string asmstr,
 // Format RRR Instruction : <|op|d|a|b|>
 //===----------------------------------------------------------------------===//
 
-class FRRR<bits<4> op, dag outs, dag ins, string asmstr, list<dag> pattern
+class FRRR<bits<4> op, dag outs, dag ins, string asmstr, list<dag> pattern,
 	InstrItinClass itin>: 
 		Sigma16Inst<outs, ins, 2, asmstr, pattern, itin, InstFormatRRR> {
 
-    bits<4> = d;
-    bits<4> = a;
-    bits<4> = b;
+    bits<4> d;
+    bits<4> a;
+    bits<4> b;
 
-    let Opcode<15-12> = op; 
-    let Inst<11-8> = d;
-    let Inst <7-4> = a;
-    let Inst<3-0> = b;
+    let Opcode = op;
+
+    let Inst{15-12} = op; 
+    let Inst{11-8} = d;
+    let Inst{7-4} = a;
+    let Inst{3-0} = b;
 }
 
 //===----------------------------------------------------------------------===//
 // Format RX Instruction : <|op|d|a|b|disp|>
 //===----------------------------------------------------------------------===//
 
-class FRX<dag outs, dag ins, string asmstr, list<dag> pattern
+class FRX<dag outs, dag ins, string asmstr, list<dag> pattern,
 	InstrItinClass itin>:
     	Sigma16Inst<outs, ins, 2, asmstr, pattern, itin, InstFormatRX> {
 	
-	bits<4> = f;
-	bits<4> = a;
-	bits<4> = b;
-	bits<16> = disp;
+	bits<4> d;
+	bits<4> a;
+	bits<4> b;
+	bits<16> disp;
 
-	let Opcode<31-28> = 0b1111;
-    let Inst<27-24> = d;
-    let Inst <23-20> = a;
-    let Inst<19-16> = b;
-	let Int<15-0> = disp;
+	let Inst{31-28} = 0b1111;
+  let Inst{27-24} = d;
+  let Inst{23-20} = a;
+  let Inst{19-16} = b;
+	let Inst{15-0} = disp;
 }
 

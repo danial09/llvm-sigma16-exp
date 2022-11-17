@@ -11,6 +11,9 @@
 // Calling Conv, Instruction Descriptions
 //===----------------------------------------------------------------------===//
 
+include "llvm/Target/Target.td"
+
+include "Sigma16RegisterInfo.td"
 include "Sigma16Schedule.td"
 include "Sigma16InstrInfo.td"
 
