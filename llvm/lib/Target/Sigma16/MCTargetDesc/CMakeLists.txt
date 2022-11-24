@@ -1,5 +1,6 @@
 # MCTargetDesc/CMakeLists.txt
 add_llvm_component_library(LLVMSigma16Desc
+  Sigma16ABIInfo.cpp
   Sigma16MCTargetDesc.cpp
 
   LINK_COMPONENTS

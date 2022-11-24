@@ -23,7 +23,7 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/FormattedStream.h"
-#include "llvm/Support/TargetRegistry.h"
+#include "llvm/MC/TargetRegistry.h"
 
 using namespace llvm;
 
@@ -38,7 +38,6 @@ using namespace llvm;
 
 //@2 {
 extern "C" void LLVMInitializeSigma16TargetMC() {
-    RegisterTargetMachine<Sigma16ebTargetMachine> X(TheSigma16Target);
 }
 //@2 }
 

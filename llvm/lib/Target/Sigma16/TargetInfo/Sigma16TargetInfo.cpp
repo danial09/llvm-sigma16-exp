@@ -9,11 +9,11 @@
 
 #include "Sigma16.h"
 #include "llvm/IR/Module.h"
-#include "llvm/Support/TargetRegistry.h"
+#include "llvm/MC/TargetRegistry.h"
 using namespace llvm;
 
 Target llvm::TheSigma16Target;
 
 extern "C" void LLVMInitializeSigma16TargetInfo() {
-  RegisterTarget<Triple::sigma16,> X(TheSigma16Target, "sigma16", "The Sigma16 Architecture", "Sigma16");
+  RegisterTarget<Triple::sigma16> X(TheSigma16Target, "sigma16", "The Sigma16 Architecture", "Sigma16");
 }
