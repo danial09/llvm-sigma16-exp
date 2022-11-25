@@ -31,7 +31,7 @@
         }
     },
     "UseCCache": {
-        "default": "No CCache",
+        "default": "no",
         "choices": {
             "yes": {
                 "short": "CCache",
