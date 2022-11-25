@@ -39,11 +39,11 @@ void Sigma16Subtarget::anchor() {}
 //@1 {
 Sigma16Subtarget::Sigma16Subtarget(const Triple &TT, StringRef CPU,
                                    StringRef FS,
-                                   const Sigma16TargetMachine &_TM)
+                                   const Sigma16TargetMachine &Tm)
     : //@1 }
       // Sigma16GenSubtargetInfo will display features by llc -march=sigma16
       // -mcpu=help
-      Sigma16GenSubtargetInfo(TT, CPU, /*TuneCPU*/ CPU, FS), TM(_TM),
+      Sigma16GenSubtargetInfo(TT, CPU, /*TuneCPU*/ CPU, FS), TM(Tm),
       TargetTriple(TT), TSInfo(),
       InstrInfo(Sigma16InstrInfo::create(
           initializeSubtargetDependencies(CPU, FS, TM))),
