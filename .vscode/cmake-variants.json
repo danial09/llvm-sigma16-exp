@@ -92,6 +92,9 @@
                 "settings": {
                     "LLVM_TARGETS_TO_BUILD": [
                         "X86"
+                    ],
+                    "LLVM_EXPERIMENTAL_TARGETS_TO_BUILD": [
+                        "Sigma16"
                     ]
                 }
             }
