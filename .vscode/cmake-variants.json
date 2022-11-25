@@ -1,0 +1,79 @@
+{
+    "buildType": {
+        "default": "Debug",
+        "choices": {
+            "Debug": {
+                "short": "Debug",
+                "long": "Emit debug information without performing optimizations",
+                "buildType": "Debug",
+                "settings": {
+                    "LLVM_OPTIMIZED_TABLEGEN": "ON"
+                }
+            },
+            "Release": {
+                "short": "Release",
+                "long": "Standard build with performing optimizations",
+                "buildType": "Release",
+                "settings": {
+                    "LLVM_ENABLE_ASSERTIONS": "OFF"
+                }
+            },
+            "Minsize": {
+                "short": "MinSizeRel",
+                "long": "Optimize for smallest binary size",
+                "buildType": "MinSizeRel"
+            },
+            "Reldeb": {
+                "short": "RelWithDebInfo",
+                "long": "Perform optimizations AND include debugging information",
+                "buildType": "RelWithDebInfo"
+            }
+        }
+    },
+    "platform": {
+        "default": "host-windows",
+        "description": "Select the platform",
+        "choices": {
+            "host-windows": {
+                "short": "host-windows",
+                "long": "Native build for Windows"
+            }
+        }
+    },
+    "targets": {
+        "default": "X86",
+        "description": "Select the target architecture(s)",
+        "choices": {
+            "X86": {
+                "short": "X86",
+                "long": "The X86 Architecture",
+                "settings": {
+                    "LLVM_TARGETS_TO_BUILD": [
+                        "X86"
+                    ]
+                }
+            },
+            "MIPS-RISCV": {
+                "short": "MIPS-RISCV",
+                "long": "The MIPS and RISC-V Architectures",
+                "settings": {
+                    "LLVM_TARGETS_TO_BUILD": [
+                        "Mips"
+                    ],
+                    "LLVM_EXPERIMENTAL_TARGETS_TO_BUILD": [
+                        "RISCV"
+                    ]
+                }
+            },
+            "Sigma16": {
+                "short": "Sigma16",
+                "long": "The Sigma16 Architecture",
+                "settings": {
+                    "LLVM_EXPERIMENTAL_TARGETS_TO_BUILD": [
+                        "Sigma16"
+                    ]
+                }
+            }
+        }
+    }
+}
