@@ -30,13 +30,34 @@
             }
         }
     },
-    "platform": {
-        "default": "host-windows",
-        "description": "Select the platform",
+    "UseCCache": {
+        "default": "No CCache",
         "choices": {
-            "host-windows": {
-                "short": "host-windows",
-                "long": "Native build for Windows"
+            "yes": {
+                "short": "CCache",
+                "long": "Use CCache to cache the build",
+                "settings": {
+                    "LLVM_CCACHE_BUILD": true,
+                    "LLVM_CCACHE_DIR": "${workspaceFolder}/build/.ccache"
+                }
+            },
+            "no": {
+                "short": "No CCache",
+                "long": "Do not use CCache",
+                "settings": {
+                    "LLVM_CCACHE_BUILD": false
+                }
+            },
+            "env": {
+                "short": "CCache-Env",
+                "long": "Use CCache through environment variables (not LLVM)",
+                "settings": {
+                    "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+                    "LLVM_CCACHE_BUILD": false
+                },
+                "env": {
+                    "CCACHE_DIR": "${workspaceFolder}/build/.ccache"
+                }
             }
         }
     },
