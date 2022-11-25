@@ -22,6 +22,7 @@ add_llvm_target(Sigma16CodeGen
   Sigma16InstrInfo.cpp
   Sigma16ISelLowering.cpp
   Sigma16MachineFunction.cpp
+  Sigma16MCInstLower.cpp
   Sigma16RegisterInfo.cpp
   Sigma16SEFrameLowering.cpp
   Sigma16SEInstrInfo.cpp
