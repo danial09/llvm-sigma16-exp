@@ -508,11 +508,11 @@ void vector::ContractionOp::build(OpBuilder &builder, OperationState &result,
                                   ArrayRef<IteratorType> iteratorTypes) {
   result.addOperands({lhs, rhs, acc});
   result.addTypes(acc.getType());
-  result.addAttribute(::mlir::getIndexingMapsAttrName(),
+  result.addAttribute(getIndexingMapsAttrName(result.name),
                       builder.getAffineMapArrayAttr(
                           AffineMap::inferFromExprList(indexingExprs)));
   result.addAttribute(
-      ::mlir::getIteratorTypesAttrName(),
+      getIteratorTypesAttrName(result.name),
       builder.getArrayAttr(llvm::to_vector(llvm::map_range(
           iteratorTypes, [&](IteratorType t) -> mlir::Attribute {
             return IteratorTypeAttr::get(builder.getContext(), t);
@@ -533,9 +533,9 @@ void vector::ContractionOp::build(OpBuilder &builder, OperationState &result,
                                   ArrayAttr iteratorTypes, CombiningKind kind) {
   result.addOperands({lhs, rhs, acc});
   result.addTypes(acc.getType());
-  result.addAttribute(::mlir::getIndexingMapsAttrName(), indexingMaps);
-  result.addAttribute(::mlir::getIteratorTypesAttrName(), iteratorTypes);
-  result.addAttribute(ContractionOp::getKindAttrStrName(),
+  result.addAttribute(getIndexingMapsAttrName(result.name), indexingMaps);
+  result.addAttribute(getIteratorTypesAttrName(result.name), iteratorTypes);
+  result.addAttribute(getKindAttrName(result.name),
                       CombiningKindAttr::get(builder.getContext(), kind));
 }
 
@@ -570,7 +570,8 @@ ParseResult ContractionOp::parse(OpAsmParser &parser, OperationState &result) {
   // represented as an array of strings.
   // TODO: Remove this conversion once tests are fixed.
   ArrayAttr iteratorTypes =
-      result.attributes.get("iterator_types").cast<ArrayAttr>();
+      result.attributes.get(getIteratorTypesAttrName(result.name))
+          .cast<ArrayAttr>();
 
   SmallVector<Attribute> iteratorTypeAttrs;
 
@@ -579,15 +580,15 @@ ParseResult ContractionOp::parse(OpAsmParser &parser, OperationState &result) {
     if (!maybeIteratorType.has_value())
       return parser.emitError(loc) << "unexpected iterator_type (" << s << ")";
 
-    iteratorTypeAttrs.push_back(IteratorTypeAttr::get(
-        parser.getContext(), maybeIteratorType.value()));
+    iteratorTypeAttrs.push_back(
+        IteratorTypeAttr::get(parser.getContext(), maybeIteratorType.value()));
   }
-  result.attributes.set("iterator_types",
+  result.attributes.set(getIteratorTypesAttrName(result.name),
                         parser.getBuilder().getArrayAttr(iteratorTypeAttrs));
 
-  if (!result.attributes.get(ContractionOp::getKindAttrStrName())) {
+  if (!result.attributes.get(getKindAttrName(result.name))) {
     result.addAttribute(
-        ContractionOp::getKindAttrStrName(),
+        getKindAttrName(result.name),
         CombiningKindAttr::get(result.getContext(),
                                ContractionOp::getDefaultKind()));
   }
@@ -822,11 +823,9 @@ LogicalResult ContractionOp::verify() {
   return success();
 }
 
-ArrayRef<StringRef> ContractionOp::getTraitAttrNames() {
-  static constexpr StringRef names[3] = {::mlir::getIndexingMapsAttrName(),
-                                         ::mlir::getIteratorTypesAttrName(),
-                                         ContractionOp::getKindAttrStrName()};
-  return llvm::makeArrayRef(names);
+SmallVector<StringRef> ContractionOp::getTraitAttrNames() {
+  return SmallVector<StringRef>{getIndexingMapsAttrName(),
+                                getIteratorTypesAttrName(), getKindAttrName()};
 }
 
 static int64_t getResultIndex(AffineMap map, AffineExpr targetExpr) {
@@ -1624,7 +1623,6 @@ public:
       return failure();
 
     auto vecTy = sourceVector.getType().cast<VectorType>();
-    Type elemTy = vecTy.getElementType();
     ArrayAttr positions = extractOp.getPosition();
     if (vecTy.isScalable())
       return failure();
@@ -1632,36 +1630,17 @@ public:
     // constants.
     if (vecTy.getRank() != static_cast<int64_t>(positions.size()))
       return failure();
-    // TODO: Handle more element types, e.g., complex values.
-    if (!elemTy.isIntOrIndexOrFloat())
-      return failure();
 
     // The splat case is handled by `ExtractOpSplatConstantFolder`.
     auto dense = vectorCst.dyn_cast<DenseElementsAttr>();
     if (!dense || dense.isSplat())
       return failure();
 
-    // Calculate the flattened position.
-    int64_t elemPosition = 0;
-    int64_t innerElems = 1;
-    for (auto [dimSize, positionInDim] :
-         llvm::reverse(llvm::zip(vecTy.getShape(), positions))) {
-      int64_t positionVal = positionInDim.cast<IntegerAttr>().getInt();
-      elemPosition += positionVal * innerElems;
-      innerElems *= dimSize;
-    }
-
-    Attribute newAttr;
-    if (vecTy.getElementType().isIntOrIndex()) {
-      auto values = to_vector(dense.getValues<APInt>());
-      newAttr = IntegerAttr::get(extractOp.getType(), values[elemPosition]);
-    } else if (vecTy.getElementType().isa<FloatType>()) {
-      auto values = to_vector(dense.getValues<APFloat>());
-      newAttr = FloatAttr::get(extractOp.getType(), values[elemPosition]);
-    }
-    assert(newAttr && "Unhandled case");
-
-    rewriter.replaceOpWithNewOp<arith::ConstantOp>(extractOp, newAttr);
+    // Calculate the linearized position.
+    int64_t elemPosition =
+        linearize(getI64SubArray(positions), computeStrides(vecTy.getShape()));
+    Attribute elementValue = *(dense.value_begin<Attribute>() + elemPosition);
+    rewriter.replaceOpWithNewOp<arith::ConstantOp>(extractOp, elementValue);
     return success();
   }
 };

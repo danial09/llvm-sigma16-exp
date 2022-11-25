@@ -180,6 +180,9 @@ protected:
   MCSection *PseudoProbeSection = nullptr;
   MCSection *PseudoProbeDescSection = nullptr;
 
+  // Section for metadata of llvm statistics.
+  MCSection *LLVMStatsSection = nullptr;
+
   // ELF specific sections.
   MCSection *DataRelROSection = nullptr;
   MCSection *MergeableConst4Section = nullptr;
@@ -366,6 +369,8 @@ public:
 
   MCSection *getPseudoProbeDescSection(StringRef FuncName) const;
 
+  MCSection *getLLVMStatsSection() const;
+
   MCSection *getPCSection(StringRef Name, const MCSection *TextSec) const;
 
   // ELF specific sections.
@@ -479,8 +484,7 @@ public:
   }
 
   const Triple *getDarwinTargetVariantTriple() const {
-    return DarwinTargetVariantTriple ? DarwinTargetVariantTriple.getPointer()
-                                     : nullptr;
+    return DarwinTargetVariantTriple ? &*DarwinTargetVariantTriple : nullptr;
   }
 
   void setDarwinTargetVariantSDKVersion(const VersionTuple &TheSDKVersion) {

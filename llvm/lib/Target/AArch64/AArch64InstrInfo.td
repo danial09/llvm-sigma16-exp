@@ -13,6 +13,8 @@
 //===----------------------------------------------------------------------===//
 // ARM Instruction Predicate Definitions.
 //
+def HasV8_0a         : Predicate<"Subtarget->hasV8_0aOps()">,
+                                 AssemblerPredicate<(all_of HasV8_0aOps), "armv8.0a">;
 def HasV8_1a         : Predicate<"Subtarget->hasV8_1aOps()">,
                                  AssemblerPredicateWithAll<(all_of HasV8_1aOps), "armv8.1a">;
 def HasV8_2a         : Predicate<"Subtarget->hasV8_2aOps()">,
@@ -27,6 +29,10 @@ def HasV8_6a         : Predicate<"Subtarget->hasV8_6aOps()">,
                                  AssemblerPredicateWithAll<(all_of HasV8_6aOps), "armv8.6a">;
 def HasV8_7a         : Predicate<"Subtarget->hasV8_7aOps()">,
                                  AssemblerPredicateWithAll<(all_of HasV8_7aOps), "armv8.7a">;
+def HasV8_8a         : Predicate<"Subtarget->hasV8_8aOps()">,
+                                 AssemblerPredicateWithAll<(all_of HasV8_8aOps), "armv8.8a">;
+def HasV8_9a         : Predicate<"Subtarget->hasV8_9aOps()">,
+                                 AssemblerPredicateWithAll<(all_of HasV8_9aOps), "armv8.9a">;
 def HasV9_0a         : Predicate<"Subtarget->hasV9_0aOps()">,
                                  AssemblerPredicateWithAll<(all_of HasV9_0aOps), "armv9-a">;
 def HasV9_1a         : Predicate<"Subtarget->hasV9_1aOps()">,
@@ -35,6 +41,8 @@ def HasV9_2a         : Predicate<"Subtarget->hasV9_2aOps()">,
                                  AssemblerPredicateWithAll<(all_of HasV9_2aOps), "armv9.2a">;
 def HasV9_3a         : Predicate<"Subtarget->hasV9_3aOps()">,
                                  AssemblerPredicateWithAll<(all_of HasV9_3aOps), "armv9.3a">;
+def HasV9_4a         : Predicate<"Subtarget->hasV9_4aOps()">,
+                                 AssemblerPredicateWithAll<(all_of HasV9_4aOps), "armv9.4a">;
 def HasV8_0r         : Predicate<"Subtarget->hasV8_0rOps()">,
                                  AssemblerPredicateWithAll<(all_of HasV8_0rOps), "armv8-r">;
 
@@ -107,6 +115,8 @@ def HasDotProd       : Predicate<"Subtarget->hasDotProd()">,
                                  AssemblerPredicateWithAll<(all_of FeatureDotProd), "dotprod">;
 def HasCRC           : Predicate<"Subtarget->hasCRC()">,
                                  AssemblerPredicateWithAll<(all_of FeatureCRC), "crc">;
+def HasCSSC           : Predicate<"Subtarget->hasCSSC()">,
+                                 AssemblerPredicateWithAll<(all_of FeatureCSSC), "cssc">;
 def HasLSE           : Predicate<"Subtarget->hasLSE()">,
                                  AssemblerPredicateWithAll<(all_of FeatureLSE), "lse">;
 def HasNoLSE         : Predicate<"!Subtarget->hasLSE()">;
@@ -138,18 +148,25 @@ def HasSVE2SHA3      : Predicate<"Subtarget->hasSVE2SHA3()">,
                                  AssemblerPredicateWithAll<(all_of FeatureSVE2SHA3), "sve2-sha3">;
 def HasSVE2BitPerm   : Predicate<"Subtarget->hasSVE2BitPerm()">,
                                  AssemblerPredicateWithAll<(all_of FeatureSVE2BitPerm), "sve2-bitperm">;
+def HasB16B16        : Predicate<"Subtarget->hasB16B16()">,
+                                 AssemblerPredicateWithAll<(all_of FeatureB16B16), "b16b16">;
 def HasSME           : Predicate<"Subtarget->hasSME()">,
                                  AssemblerPredicateWithAll<(all_of FeatureSME), "sme">;
 def HasSMEF64F64     : Predicate<"Subtarget->hasSMEF64F64()">,
                                  AssemblerPredicateWithAll<(all_of FeatureSMEF64F64), "sme-f64f64">;
+def HasSMEF16F16     : Predicate<"Subtarget->hasSMEF16F16()">,
+                                 AssemblerPredicateWithAll<(all_of FeatureSMEF16F16), "sme-f16f16">;
 def HasSMEI16I64     : Predicate<"Subtarget->hasSMEI16I64()">,
                                  AssemblerPredicateWithAll<(all_of FeatureSMEI16I64), "sme-i16i64">;
 def HasSME2          : Predicate<"Subtarget->hasSME2()">,
                                  AssemblerPredicateWithAll<(all_of FeatureSME2), "sme2">;
+def HasSME2p1        : Predicate<"Subtarget->hasSME2p1()">,
+                                 AssemblerPredicateWithAll<(all_of FeatureSME2p1), "sme2p1">;
+
 // A subset of SVE(2) instructions are legal in Streaming SVE execution mode,
 // they should be enabled if either has been specified.
 def HasSVEorSME
-    : Predicate<"Subtarget->hasSVE() || Subtarget->hasSME()">,
+    : Predicate<"Subtarget->hasSVEorSME()">,
                 AssemblerPredicateWithAll<(any_of FeatureSVE, FeatureSME),
                 "sve or sme">;
 def HasSVE2orSME
@@ -158,10 +175,13 @@ def HasSVE2orSME
                 "sve2 or sme">;
 def HasSVE2p1_or_HasSME
     : Predicate<"Subtarget->hasSVE2p1() || Subtarget->hasSME()">,
-                 AssemblerPredicate<(any_of FeatureSME, FeatureSVE2p1), "sme or sve2p1">;
+                 AssemblerPredicateWithAll<(any_of FeatureSME, FeatureSVE2p1), "sme or sve2p1">;
 def HasSVE2p1_or_HasSME2
     : Predicate<"Subtarget->hasSVE2p1() || Subtarget->hasSME2()">,
-                 AssemblerPredicate<(any_of FeatureSME2, FeatureSVE2p1), "sme2 or sve2p1">;
+                 AssemblerPredicateWithAll<(any_of FeatureSME2, FeatureSVE2p1), "sme2 or sve2p1">;
+def HasSVE2p1_or_HasSME2p1
+    : Predicate<"Subtarget->hasSVE2p1() || Subtarget->hasSME2p1()">,
+                 AssemblerPredicateWithAll<(any_of FeatureSME2p1, FeatureSVE2p1), "sme2p1 or sve2p1">;
 // A subset of NEON instructions are legal in Streaming SVE execution mode,
 // they should be enabled if either has been specified.
 def HasNEONorSME
@@ -170,8 +190,6 @@ def HasNEONorSME
                 "neon or sme">;
 def HasRCPC          : Predicate<"Subtarget->hasRCPC()">,
                                  AssemblerPredicateWithAll<(all_of FeatureRCPC), "rcpc">;
-def HasLDAPR         : Predicate<"Subtarget->hasLDAPR()">,
-                                 AssemblerPredicateWithAll<(all_of FeatureLDAPR), "ldapr">;
 def HasAltNZCV       : Predicate<"Subtarget->hasAlternativeNZCV()">,
                        AssemblerPredicateWithAll<(all_of FeatureAltFPCmp), "altnzcv">;
 def HasFRInt3264     : Predicate<"Subtarget->hasFRInt3264()">,
@@ -214,6 +232,8 @@ def HasHBC           : Predicate<"Subtarget->hasHBC()">,
                        AssemblerPredicateWithAll<(all_of FeatureHBC), "hbc">;
 def HasMOPS          : Predicate<"Subtarget->hasMOPS()">,
                        AssemblerPredicateWithAll<(all_of FeatureMOPS), "mops">;
+def HasITE           : Predicate<"Subtarget->hasITE()">,
+                       AssemblerPredicateWithAll<(all_of FeatureITE), "ite">;
 def IsLE             : Predicate<"Subtarget->isLittleEndian()">;
 def IsBE             : Predicate<"!Subtarget->isLittleEndian()">;
 def IsWindows        : Predicate<"Subtarget->isTargetWindows()">;
@@ -1492,8 +1512,16 @@ let Predicates = [HasPerfMon] in
 def : Pat<(readcyclecounter), (MRS 0xdce8)>;
 
 // FPCR register
-def : Pat<(i64 (int_aarch64_get_fpcr)), (MRS 0xda20)>;
-def : Pat<(int_aarch64_set_fpcr i64:$val), (MSR 0xda20, GPR64:$val)>;
+let Uses = [FPCR] in
+def MRS_FPCR : Pseudo<(outs GPR64:$dst), (ins),
+                      [(set GPR64:$dst, (int_aarch64_get_fpcr))]>,
+               PseudoInstExpansion<(MRS GPR64:$dst, 0xda20)>,
+               Sched<[WriteSys]>;
+let Defs = [FPCR] in
+def MSR_FPCR : Pseudo<(outs), (ins GPR64:$val),
+                      [(int_aarch64_set_fpcr i64:$val)]>,
+               PseudoInstExpansion<(MSR 0xda20, GPR64:$val)>,
+               Sched<[WriteSys]>;
 
 // Generic system instructions
 def SYSxt  : SystemXtI<0, "sys">;
@@ -1987,12 +2015,11 @@ defm : STOPregister<"stumin","LDUMIN">;// STUMINx
 // v8.5 Memory Tagging Extension
 let Predicates = [HasMTE] in {
 
-def IRG   : BaseTwoOperand<0b0100, GPR64sp, "irg", int_aarch64_irg, GPR64sp, GPR64>,
-            Sched<[]>{
-  let Inst{31} = 1;
-}
-def GMI   : BaseTwoOperand<0b0101, GPR64, "gmi", int_aarch64_gmi, GPR64sp>, Sched<[]>{
-  let Inst{31} = 1;
+def IRG   : BaseTwoOperandRegReg<0b1, 0b0, 0b000100, GPR64sp, "irg",
+                                 int_aarch64_irg, GPR64sp, GPR64>, Sched<[]>;
+
+def GMI   : BaseTwoOperandRegReg<0b1, 0b0, 0b000101, GPR64, "gmi",
+                                 int_aarch64_gmi, GPR64sp>, Sched<[]> {
   let isNotDuplicable = 1;
 }
 def ADDG  : AddSubG<0, "addg", null_frag>;
@@ -2158,13 +2185,13 @@ def : Pat<(not GPR64:$Xm), (ORNXrr XZR, GPR64:$Xm)>;
 // One operand data processing instructions.
 //===----------------------------------------------------------------------===//
 
-defm CLS    : OneOperandData<0b101, "cls">;
-defm CLZ    : OneOperandData<0b100, "clz", ctlz>;
-defm RBIT   : OneOperandData<0b000, "rbit", bitreverse>;
+defm CLS    : OneOperandData<0b000101, "cls">;
+defm CLZ    : OneOperandData<0b000100, "clz", ctlz>;
+defm RBIT   : OneOperandData<0b000000, "rbit", bitreverse>;
 
-def  REV16Wr : OneWRegData<0b001, "rev16",
-                                  UnOpFrag<(rotr (bswap node:$LHS), (i64 16))>>;
-def  REV16Xr : OneXRegData<0b001, "rev16", null_frag>;
+def  REV16Wr : OneWRegData<0b000001, "rev16",
+                                     UnOpFrag<(rotr (bswap node:$LHS), (i64 16))>>;
+def  REV16Xr : OneXRegData<0b000001, "rev16", null_frag>;
 
 def : Pat<(cttz GPR32:$Rn),
           (CLZWr (RBITWr GPR32:$Rn))>;
@@ -2182,10 +2209,10 @@ def : Pat<(int_aarch64_cls64 GPR64:$Rm), (EXTRACT_SUBREG (CLSXr GPR64:$Rm), sub_
 // Unlike the other one operand instructions, the instructions with the "rev"
 // mnemonic do *not* just different in the size bit, but actually use different
 // opcode bits for the different sizes.
-def REVWr   : OneWRegData<0b010, "rev", bswap>;
-def REVXr   : OneXRegData<0b011, "rev", bswap>;
-def REV32Xr : OneXRegData<0b010, "rev32",
-                                 UnOpFrag<(rotr (bswap node:$LHS), (i64 32))>>;
+def REVWr   : OneWRegData<0b000010, "rev", bswap>;
+def REVXr   : OneXRegData<0b000011, "rev", bswap>;
+def REV32Xr : OneXRegData<0b000010, "rev32",
+                                    UnOpFrag<(rotr (bswap node:$LHS), (i64 32))>>;
 
 def : InstAlias<"rev64 $Rd, $Rn", (REVXr GPR64:$Rd, GPR64:$Rn), 0>;
 
@@ -4162,6 +4189,15 @@ defm FMUL   : TwoOperandFPData<0b0000, "fmul", any_fmul>;
 defm FNMUL  : TwoOperandFPDataNeg<0b1000, "fnmul", any_fmul>;
 }
 defm FSUB   : TwoOperandFPData<0b0011, "fsub", any_fsub>;
+
+// Match reassociated forms of FNMUL.
+def : Pat<(fmul (fneg FPR16:$a), (f16 FPR16:$b)),
+          (FNMULHrr FPR16:$a, FPR16:$b)>,
+          Requires<[HasFullFP16]>;
+def : Pat<(fmul (fneg FPR32:$a), (f32 FPR32:$b)),
+          (FNMULSrr FPR32:$a, FPR32:$b)>;
+def : Pat<(fmul (fneg FPR64:$a), (f64 FPR64:$b)),
+          (FNMULDrr FPR64:$a, FPR64:$b)>;
 
 def : Pat<(v1f64 (fmaximum (v1f64 FPR64:$Rn), (v1f64 FPR64:$Rm))),
           (FMAXDrr FPR64:$Rn, FPR64:$Rm)>;
@@ -8450,6 +8486,47 @@ def StoreSwiftAsyncContext
 def AArch64AssertZExtBool : SDNode<"AArch64ISD::ASSERT_ZEXT_BOOL", SDT_assert>;
 def : Pat<(AArch64AssertZExtBool GPR32:$op),
           (i32 GPR32:$op)>;
+
+//===----------------------------===//
+// 2022 Architecture Extensions:
+//===----------------------------===//
+
+//===----------------------------------------------------------------------===//
+// General Data-Processing Instructions (FEAT_V94_DP)
+//===----------------------------------------------------------------------===//
+defm ABS : OneOperandData<0b001000, "abs">, Requires<[HasCSSC]>;
+defm CNT : OneOperandData<0b000111, "cnt">, Requires<[HasCSSC]>;
+defm CTZ : OneOperandData<0b000110, "ctz">, Requires<[HasCSSC]>;
+
+defm SMAX : ComparisonOp<0, 0, "smax">, Requires<[HasCSSC]>;
+defm SMIN : ComparisonOp<0, 1, "smin">, Requires<[HasCSSC]>;
+defm UMAX : ComparisonOp<1, 0, "umax">, Requires<[HasCSSC]>;
+defm UMIN : ComparisonOp<1, 1, "umin">, Requires<[HasCSSC]>;
+
+def RPRFM:
+    I<(outs), (ins rprfop:$Rt, GPR64:$Rm, GPR64sp:$Rn),
+      "rprfm", "\t$Rt, $Rm, [$Rn]", "", []>,
+    Sched<[]> {
+  bits<6> Rt;
+  bits<5> Rn;
+  bits<5> Rm;
+  let Inst{2-0} = Rt{2-0};
+  let Inst{4-3} = 0b11;
+  let Inst{9-5} = Rn;
+  let Inst{11-10} = 0b10;
+  let Inst{13-12} = Rt{4-3};
+  let Inst{14} = 0b1;
+  let Inst{15} = Rt{5};
+  let Inst{20-16} = Rm;
+  let Inst{31-21} = 0b11111000101;
+  let mayLoad = 0;
+  let mayStore = 0;
+  let hasSideEffects = 1;
+  // RPRFM overlaps with PRFM (reg), when the decoder method of PRFM returns
+  // Fail, the decoder should attempt to decode RPRFM. This requires setting
+  // the decoder namespace to "Fallback".
+  let DecoderNamespace = "Fallback";
+}
 
 include "AArch64InstrAtomics.td"
 include "AArch64SVEInstrInfo.td"

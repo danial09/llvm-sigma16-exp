@@ -10,14 +10,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+#ifdef OMPT_SUPPORT
+
 #include <assert.h>
 #include <atomic>
 #include <cstdlib>
 #include <cstring>
-#include <dlfcn.h>
 
 #include "omp-tools.h"
-#include "ompt-connector.h"
+#include "ompt_connector.h"
 #include "private.h"
 
 #define fnptr_to_ptr(x) ((void *)(uint64_t)x)
@@ -25,7 +26,6 @@
 /// Used to indicate whether OMPT was enabled for this library
 bool ompt_enabled = false;
 
-#ifdef OMPT_SUPPORT
 /// This is the function called by the higher layer (libomp) responsible
 /// for initializing OMPT in this library. This is passed to libomp
 /// as part of the OMPT connector object.
@@ -59,7 +59,7 @@ static void ompt_libomptarget_finalize(ompt_data_t *data) {
 __attribute__((constructor(102))) static void ompt_init(void) {
   DP("OMPT: Enter ompt_init\n");
   // Connect with libomp
-  static OmptLibraryConnectorTy LibompConnector("ompt_libomp");
+  static OmptLibraryConnectorTy LibompConnector("libomp");
   static ompt_start_tool_result_t OmptResult;
 
   // Initialize OmptResult with the init and fini functions that will be
@@ -72,4 +72,5 @@ __attribute__((constructor(102))) static void ompt_init(void) {
   LibompConnector.connect(&OmptResult);
   DP("OMPT: Exit ompt_init\n");
 }
-#endif
+
+#endif // OMPT_SUPPORT
