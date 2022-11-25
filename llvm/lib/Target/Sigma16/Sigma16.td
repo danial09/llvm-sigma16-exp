@@ -1,4 +1,4 @@
-//===-- Sigma16.td - Describe the Sigma16 Target Machine ---------*- tablegen -*-===//
+//===-- Sigma16.td - Describe the Sigma16 Target Machine ---*- tablegen -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //

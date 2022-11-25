@@ -1,4 +1,4 @@
-//===-- Sigma16TargetInfo.cpp - Sigma16 Target Implementation -------------------===//
+//===-- Sigma16TargetInfo.cpp - Sigma16 Target Implementation -------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -15,5 +15,6 @@ using namespace llvm;
 Target llvm::TheSigma16Target;
 
 extern "C" void LLVMInitializeSigma16TargetInfo() {
-  RegisterTarget<Triple::sigma16> X(TheSigma16Target, "sigma16", "The Sigma16 Architecture", "Sigma16");
+  RegisterTarget<Triple::sigma16> X(TheSigma16Target, "sigma16",
+                                    "The Sigma16 Architecture", "Sigma16");
 }

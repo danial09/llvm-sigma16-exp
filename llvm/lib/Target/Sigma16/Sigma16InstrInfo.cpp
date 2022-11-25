@@ -1,4 +1,4 @@
-//===-- Sigma16InstrInfo.cpp - Sigma16 Instruction Information ------------------===//
+//===-- Sigma16InstrInfo.cpp - Sigma16 Instruction Information ------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -13,12 +13,12 @@
 
 #include "Sigma16InstrInfo.h"
 
-#include "Sigma16TargetMachine.h"
 #include "Sigma16MachineFunction.h"
+#include "Sigma16TargetMachine.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
-#include "llvm/Support/ErrorHandling.h"
 #include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/ErrorHandling.h"
 
 using namespace llvm;
 
@@ -30,8 +30,7 @@ void Sigma16InstrInfo::anchor() {}
 
 //@Sigma16InstrInfo {
 Sigma16InstrInfo::Sigma16InstrInfo(const Sigma16Subtarget &STI)
-    : 
-      Subtarget(STI) {}
+    : Subtarget(STI) {}
 
 const Sigma16InstrInfo *Sigma16InstrInfo::create(Sigma16Subtarget &STI) {
   return llvm::createSigma16SEInstrInfo(STI);
@@ -40,10 +39,9 @@ const Sigma16InstrInfo *Sigma16InstrInfo::create(Sigma16Subtarget &STI) {
 //@GetInstSizeInBytes {
 /// Return the number of bytes of code the specified instruction may be.
 unsigned Sigma16InstrInfo::GetInstSizeInBytes(const MachineInstr &MI) const {
-//@GetInstSizeInBytes - body
+  //@GetInstSizeInBytes - body
   switch (MI.getOpcode()) {
   default:
     return MI.getDesc().getSize();
   }
 }
-

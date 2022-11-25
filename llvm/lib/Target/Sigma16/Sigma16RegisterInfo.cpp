@@ -1,4 +1,4 @@
-//===-- Sigma16RegisterInfo.cpp - SIGMA16 Register Information -== --------------===//
+//===-- Sigma16RegisterInfo.cpp - SIGMA16 Register Information -== --------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -7,7 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file contains the SIGMA16 implementation of the TargetRegisterInfo class.
+// This file contains the SIGMA16 implementation of the TargetRegisterInfo
+// class.
 //
 //===----------------------------------------------------------------------===//
 
@@ -16,8 +17,8 @@
 #include "Sigma16RegisterInfo.h"
 
 #include "Sigma16.h"
-#include "Sigma16Subtarget.h"
 #include "Sigma16MachineFunction.h"
+#include "Sigma16Subtarget.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Type.h"
 #include "llvm/Support/CommandLine.h"
@@ -33,7 +34,7 @@
 using namespace llvm;
 
 Sigma16RegisterInfo::Sigma16RegisterInfo(const Sigma16Subtarget &ST)
-  : Sigma16GenRegisterInfo(Sigma16::R1), Subtarget(ST) {}
+    : Sigma16GenRegisterInfo(Sigma16::R1), Subtarget(ST) {}
 
 //===----------------------------------------------------------------------===//
 // Callee Saved Registers methods
@@ -50,18 +51,17 @@ Sigma16RegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
 
 const uint32_t *
 Sigma16RegisterInfo::getCallPreservedMask(const MachineFunction &MF,
-                                       CallingConv::ID) const {
-  return CSR_O16_RegMask; 
+                                          CallingConv::ID) const {
+  return CSR_O16_RegMask;
 }
 
 // pure virtual method
 //@getReservedRegs {
-BitVector Sigma16RegisterInfo::
-getReservedRegs(const MachineFunction &MF) const {
-//@getReservedRegs body {
-  std::array<uint16_t, 3> ReservedCPURegs = {
-    Sigma16::R0, Sigma16::R14, Sigma16::R13
-  };
+BitVector
+Sigma16RegisterInfo::getReservedRegs(const MachineFunction &MF) const {
+  //@getReservedRegs body {
+  std::array<uint16_t, 3> ReservedCPURegs = {Sigma16::R0, Sigma16::R14,
+                                             Sigma16::R13};
 
   BitVector Reserved(getNumRegs());
 
@@ -72,32 +72,29 @@ getReservedRegs(const MachineFunction &MF) const {
 }
 
 //@eliminateFrameIndex {
-//- If no eliminateFrameIndex(), it will hang on run. 
+//- If no eliminateFrameIndex(), it will hang on run.
 // pure virtual method
 // FrameIndex represent objects inside a abstract stack.
 // We must replace FrameIndex with an stack/frame pointer
 // direct reference.
-void Sigma16RegisterInfo::
-eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
-                    unsigned FIOperandNum, RegScavenger *RS) const {
-}
+void Sigma16RegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
+                                              int SPAdj, unsigned FIOperandNum,
+                                              RegScavenger *RS) const {}
 //}
 
-bool
-Sigma16RegisterInfo::requiresRegisterScavenging(const MachineFunction &MF) const {
+bool Sigma16RegisterInfo::requiresRegisterScavenging(
+    const MachineFunction &MF) const {
   return true;
 }
 
-bool
-Sigma16RegisterInfo::trackLivenessAfterRegAlloc(const MachineFunction &MF) const {
+bool Sigma16RegisterInfo::trackLivenessAfterRegAlloc(
+    const MachineFunction &MF) const {
   return true;
 }
 
 // pure virtual method
-Register Sigma16RegisterInfo::
-getFrameRegister(const MachineFunction &MF) const {
+Register
+Sigma16RegisterInfo::getFrameRegister(const MachineFunction &MF) const {
   const TargetFrameLowering *TFI = MF.getSubtarget().getFrameLowering();
-  return TFI->hasFP(MF) ? (Sigma16::R13):
-                          (Sigma16::R14);
+  return TFI->hasFP(MF) ? (Sigma16::R13) : (Sigma16::R14);
 }
-

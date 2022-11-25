@@ -1,4 +1,4 @@
-//===-- Sigma16SEFrameLowering.h - Sigma1632/64 frame lowering --------*- C++ -*-===//
+//===-- Sigma16SEFrameLowering.h - Sigma1632/64 frame lowering --*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -26,10 +26,8 @@ public:
   /// the function.
   void emitPrologue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
   void emitEpilogue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
-
 };
 
-} // End llvm namespace
+} // namespace llvm
 
 #endif
-

@@ -1,4 +1,4 @@
-//===-- Sigma16SERegisterInfo.h - Sigma1632 Register Information ------*- C++ -*-===//
+//===- Sigma16SERegisterInfo.h - Sigma1632 Register Information -*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -30,4 +30,3 @@ public:
 } // end namespace llvm
 
 #endif
-

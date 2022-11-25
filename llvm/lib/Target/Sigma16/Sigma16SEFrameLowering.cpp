@@ -1,4 +1,4 @@
-//===-- Sigma16SEFrameLowering.cpp - Sigma16 Frame Information ------------------===//
+//===-- Sigma16SEFrameLowering.cpp - Sigma16 Frame Information ------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -34,18 +34,15 @@ Sigma16SEFrameLowering::Sigma16SEFrameLowering(const Sigma16Subtarget &STI)
 
 //@emitPrologue {
 void Sigma16SEFrameLowering::emitPrologue(MachineFunction &MF,
-                                       MachineBasicBlock &MBB) const {
-}
+                                          MachineBasicBlock &MBB) const {}
 //}
 
 //@emitEpilogue {
 void Sigma16SEFrameLowering::emitEpilogue(MachineFunction &MF,
-                                 MachineBasicBlock &MBB) const {
-}
+                                          MachineBasicBlock &MBB) const {}
 //}
 
 const Sigma16FrameLowering *
 llvm::createSigma16SEFrameLowering(const Sigma16Subtarget &ST) {
   return new Sigma16SEFrameLowering(ST);
 }
-

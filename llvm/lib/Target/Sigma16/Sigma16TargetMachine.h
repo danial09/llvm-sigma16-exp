@@ -1,4 +1,4 @@
-//===-- Sigma16TargetMachine.h - Define TargetMachine for Sigma16 -----*- C++ -*-===//
+//=== Sigma16TargetMachine.h - Define TargetMachine for Sigma16 -*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -33,16 +33,15 @@ class Sigma16TargetMachine : public LLVMTargetMachine {
   Sigma16Subtarget DefaultSubtarget;
 
   mutable StringMap<std::unique_ptr<Sigma16Subtarget>> SubtargetMap;
+
 public:
   Sigma16TargetMachine(const Target &T, const Triple &TT, StringRef CPU,
-                    StringRef FS, const TargetOptions &Options,
-                    Optional<Reloc::Model> RM, Optional<CodeModel::Model> CM,
-                    CodeGenOpt::Level OL, bool JIT);
+                       StringRef FS, const TargetOptions &Options,
+                       Optional<Reloc::Model> RM, Optional<CodeModel::Model> CM,
+                       CodeGenOpt::Level OL, bool JIT);
   ~Sigma16TargetMachine() override = default;
 
-  const Sigma16Subtarget *getSubtargetImpl() const {
-    return &DefaultSubtarget;
-  }
+  const Sigma16Subtarget *getSubtargetImpl() const { return &DefaultSubtarget; }
 
   const Sigma16Subtarget *getSubtargetImpl(const Function &F) const override;
 

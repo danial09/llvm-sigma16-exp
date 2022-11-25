@@ -1,4 +1,4 @@
-//===-- Sigma16InstrInfo.h - Sigma16 Instruction Information ----------*- C++ -*-===//
+//===-- Sigma16InstrInfo.h - Sigma16 Instruction Information ----*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -14,8 +14,6 @@
 #ifndef LLVM_LIB_TARGET_SIGMA16_SIGMA16INSTRINFO_H
 #define LLVM_LIB_TARGET_SIGMA16_SIGMA16INSTRINFO_H
 
-
-
 #include "Sigma16.h"
 #include "Sigma16RegisterInfo.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
@@ -28,8 +26,10 @@ namespace llvm {
 
 class Sigma16InstrInfo : public Sigma16GenInstrInfo {
   virtual void anchor();
+
 protected:
   const Sigma16Subtarget &Subtarget;
+
 public:
   explicit Sigma16InstrInfo(const Sigma16Subtarget &STI);
 
@@ -47,7 +47,6 @@ public:
 protected:
 };
 const Sigma16InstrInfo *createSigma16SEInstrInfo(const Sigma16Subtarget &STI);
-}
+} // namespace llvm
 
 #endif
-

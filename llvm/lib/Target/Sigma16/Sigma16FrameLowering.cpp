@@ -1,4 +1,4 @@
-//===-- Sigma16FrameLowering.cpp - Sigma16 Frame Information --------------------===//
+//===-- Sigma16FrameLowering.cpp - Sigma16 Frame Information --------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -28,7 +28,7 @@
 
 using namespace llvm;
 
-//- emitPrologue() and emitEpilogue must exist for main(). 
+//- emitPrologue() and emitEpilogue must exist for main().
 
 //===----------------------------------------------------------------------===//
 //
@@ -82,7 +82,8 @@ using namespace llvm;
 //
 //===----------------------------------------------------------------------===//
 
-const Sigma16FrameLowering *Sigma16FrameLowering::create(const Sigma16Subtarget &ST) {
+const Sigma16FrameLowering *
+Sigma16FrameLowering::create(const Sigma16Subtarget &ST) {
   return llvm::createSigma16SEFrameLowering(ST);
 }
 
@@ -95,7 +96,6 @@ bool Sigma16FrameLowering::hasFP(const MachineFunction &MF) const {
   const TargetRegisterInfo *TRI = STI.getRegisterInfo();
 
   return MF.getTarget().Options.DisableFramePointerElim(MF) ||
-      MFI.hasVarSizedObjects() || MFI.isFrameAddressTaken() ||
-      TRI->hasStackRealignment(MF);
+         MFI.hasVarSizedObjects() || MFI.isFrameAddressTaken() ||
+         TRI->hasStackRealignment(MF);
 }
-

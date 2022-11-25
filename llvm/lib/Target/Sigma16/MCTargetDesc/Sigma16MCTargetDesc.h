@@ -1,4 +1,4 @@
-//===-- Sigma16MCTargetDesc.h - Sigma16 Target Descriptions -----------*- C++ -*-===//
+//===-- Sigma16MCTargetDesc.h - Sigma16 Target Descriptions -----*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -23,7 +23,7 @@ class Target;
 class Triple;
 
 extern Target TheSigma16Target;
-} // End llvm namespace
+} // namespace llvm
 
 // Defines symbolic names for Sigma16 registers.  This defines a mapping from
 // register name to register number.
@@ -38,4 +38,3 @@ extern Target TheSigma16Target;
 #include "Sigma16GenSubtargetInfo.inc"
 
 #endif
-

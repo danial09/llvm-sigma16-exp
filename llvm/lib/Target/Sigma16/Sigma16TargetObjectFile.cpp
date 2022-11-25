@@ -1,4 +1,4 @@
-//===-- Sigma16TargetObjectFile.cpp - Sigma16 Object Files ----------------------===//
+//===-- Sigma16TargetObjectFile.cpp - Sigma16 Object Files ----------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -21,12 +21,13 @@
 #include "llvm/Target/TargetMachine.h"
 using namespace llvm;
 
-static cl::opt<unsigned>
-SSThreshold("sigma16-ssection-threshold", cl::Hidden,
-            cl::desc("Small data and bss section threshold size (default=8)"),
-            cl::init(8));
+static cl::opt<unsigned> SSThreshold(
+    "sigma16-ssection-threshold", cl::Hidden,
+    cl::desc("Small data and bss section threshold size (default=8)"),
+    cl::init(8));
 
-void Sigma16TargetObjectFile::Initialize(MCContext &Ctx, const TargetMachine &TM){
+void Sigma16TargetObjectFile::Initialize(MCContext &Ctx,
+                                         const TargetMachine &TM) {
   TargetLoweringObjectFileELF::Initialize(Ctx, TM);
   InitializeELF(TM.Options.UseInitArray);
 
@@ -37,4 +38,3 @@ void Sigma16TargetObjectFile::Initialize(MCContext &Ctx, const TargetMachine &TM
                                                ELF::SHF_WRITE | ELF::SHF_ALLOC);
   this->TM = &static_cast<const Sigma16TargetMachine &>(TM);
 }
-

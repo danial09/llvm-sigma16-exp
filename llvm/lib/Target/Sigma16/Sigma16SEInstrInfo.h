@@ -1,4 +1,4 @@
-//===-- Sigma16SEInstrInfo.h - Sigma1632/64 Instruction Information ---*- C++ -*-===//
+//=- Sigma16SEInstrInfo.h - Sigma16 Instruction Information ------*- C++ -*-==//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -7,17 +7,17 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file contains the Sigma1632/64 implementation of the TargetInstrInfo class.
+// This file contains the Sigma16 implementation of the TargetInstrInfo
+// class.
 //
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_LIB_TARGET_SIGMA16_SIGMA16SEINSTRINFO_H
 #define LLVM_LIB_TARGET_SIGMA16_SIGMA16SEINSTRINFO_H
 
-
 #include "Sigma16InstrInfo.h"
-#include "Sigma16SERegisterInfo.h"
 #include "Sigma16MachineFunction.h"
+#include "Sigma16SERegisterInfo.h"
 
 namespace llvm {
 
@@ -28,11 +28,8 @@ public:
   explicit Sigma16SEInstrInfo(const Sigma16Subtarget &STI);
 
   const Sigma16RegisterInfo &getRegisterInfo() const override;
-
-  
 };
 
-}
+} // namespace llvm
 
 #endif
-

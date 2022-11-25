@@ -1,4 +1,4 @@
-//===-- Sigma16ISelLowering.cpp - Sigma16 DAG Lowering Implementation -----------===//
+//===-- Sigma16ISelLowering.cpp - Sigma16 DAG Lowering Implementation -----===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -14,9 +14,9 @@
 #include "Sigma16ISelLowering.h"
 
 #include "Sigma16MachineFunction.h"
+#include "Sigma16Subtarget.h"
 #include "Sigma16TargetMachine.h"
 #include "Sigma16TargetObjectFile.h"
-#include "Sigma16Subtarget.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/CodeGen/CallingConvLower.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
@@ -40,24 +40,28 @@ using namespace llvm;
 //@3_1 1 {
 const char *Sigma16TargetLowering::getTargetNodeName(unsigned Opcode) const {
   switch (Opcode) {
-  case Sigma16ISD::JmpLink:           return "Sigma16ISD::JmpLink";
-  case Sigma16ISD::TailCall:          return "Sigma16ISD::TailCall";
-  case Sigma16ISD::Ret:               return "Sigma16ISD::Ret";
-  case Sigma16ISD::Wrapper:           return "Sigma16ISD::Wrapper";
-  default:                            return NULL;
+  case Sigma16ISD::JmpLink:
+    return "Sigma16ISD::JmpLink";
+  case Sigma16ISD::TailCall:
+    return "Sigma16ISD::TailCall";
+  case Sigma16ISD::Ret:
+    return "Sigma16ISD::Ret";
+  case Sigma16ISD::Wrapper:
+    return "Sigma16ISD::Wrapper";
+  default:
+    return NULL;
   }
 }
 //@3_1 1 }
 
 //@Sigma16TargetLowering {
 Sigma16TargetLowering::Sigma16TargetLowering(const Sigma16TargetMachine &TM,
-                                       const Sigma16Subtarget &STI)
-    : TargetLowering(TM), Subtarget(STI), ABI(TM.getABI()) {
+                                             const Sigma16Subtarget &STI)
+    : TargetLowering(TM), Subtarget(STI), ABI(TM.getABI()) {}
 
-}
-
-const Sigma16TargetLowering *Sigma16TargetLowering::create(const Sigma16TargetMachine &TM,
-                                                     const Sigma16Subtarget &STI) {
+const Sigma16TargetLowering *
+Sigma16TargetLowering::create(const Sigma16TargetMachine &TM,
+                              const Sigma16Subtarget &STI) {
   return llvm::createSigma16SETargetLowering(TM, STI);
 }
 
@@ -78,14 +82,10 @@ const Sigma16TargetLowering *Sigma16TargetLowering::create(const Sigma16TargetMa
 //@LowerFormalArguments {
 /// LowerFormalArguments - transform physical registers into virtual registers
 /// and generate load operations for arguments places on the stack.
-SDValue
-Sigma16TargetLowering::LowerFormalArguments(SDValue Chain,
-                                         CallingConv::ID CallConv,
-                                         bool IsVarArg,
-                                         const SmallVectorImpl<ISD::InputArg> &Ins,
-                                         const SDLoc &DL, SelectionDAG &DAG,
-                                         SmallVectorImpl<SDValue> &InVals)
-                                          const {
+SDValue Sigma16TargetLowering::LowerFormalArguments(
+    SDValue Chain, CallingConv::ID CallConv, bool IsVarArg,
+    const SmallVectorImpl<ISD::InputArg> &Ins, const SDLoc &DL,
+    SelectionDAG &DAG, SmallVectorImpl<SDValue> &InVals) const {
 
   return Chain;
 }
@@ -104,4 +104,3 @@ Sigma16TargetLowering::LowerFormalArguments(SDValue Chain,
 //   return DAG.getNode(Sigma16ISD::Ret, DL, MVT::Other,
 //                      Chain, DAG.getRegister(Sigma16::LR, MVT::i32));
 // }
-

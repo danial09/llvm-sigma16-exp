@@ -1,4 +1,4 @@
-//===-- Sigma16RegisterInfo.h - Sigma16 Register Information Impl -----*- C++ -*-===//
+//===-- Sigma16RegisterInfo.h - Sigma16 Register Information Impl --*- C++ -*=//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -7,14 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file contains the Sigma16 implementation of the TargetRegisterInfo class.
+// This file contains the Sigma16 implementation of the TargetRegisterInfo
+// class.
 //
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_LIB_TARGET_SIGMA16_SIGMA16REGISTERINFO_H
 #define LLVM_LIB_TARGET_SIGMA16_SIGMA16REGISTERINFO_H
-
-
 
 #include "Sigma16.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
@@ -46,8 +45,8 @@ public:
   bool trackLivenessAfterRegAlloc(const MachineFunction &MF) const override;
 
   /// Stack Frame Processing Methods
-  void eliminateFrameIndex(MachineBasicBlock::iterator II,
-                           int SPAdj, unsigned FIOperandNum,
+  void eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
+                           unsigned FIOperandNum,
                            RegScavenger *RS = nullptr) const override;
 
   /// Debug information queries.
@@ -60,4 +59,3 @@ public:
 } // end namespace llvm
 
 #endif
-

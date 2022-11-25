@@ -1,4 +1,4 @@
-//===---- Sigma16ABIInfo.cpp - Information about SIGMA16 ABI's ------------------===//
+//===---- Sigma16ABIInfo.cpp - Information about SIGMA16 ABI's ------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -16,15 +16,17 @@
 
 using namespace llvm;
 
-static cl::opt<bool>
-EnableSigma16S16Calls("sigma16-s16-calls", cl::Hidden,
-                    cl::desc("SIGMA16 S16 call: use stack only to pass arguments.\
-                    "), cl::init(false));
+static cl::opt<bool> EnableSigma16S16Calls(
+    "sigma16-s16-calls", cl::Hidden,
+    cl::desc("SIGMA16 S16 call: use stack only to pass arguments.\
+                    "),
+    cl::init(false));
 
 namespace {
-static const MCPhysReg O16IntRegs[4] = {Sigma16::R1, Sigma16::R2, Sigma16::R3, Sigma16::R4};
+static const MCPhysReg O16IntRegs[4] = {Sigma16::R1, Sigma16::R2, Sigma16::R3,
+                                        Sigma16::R4};
 static const MCPhysReg S16IntRegs = {};
-}
+} // namespace
 
 const ArrayRef<MCPhysReg> Sigma16ABIInfo::GetByValArgRegs() const {
   if (IsO16())
@@ -42,7 +44,8 @@ const ArrayRef<MCPhysReg> Sigma16ABIInfo::GetVarArgRegs() const {
   llvm_unreachable("Unhandled ABI");
 }
 
-unsigned Sigma16ABIInfo::GetCalleeAllocdArgSizeInBytes(CallingConv::ID CC) const {
+unsigned
+Sigma16ABIInfo::GetCalleeAllocdArgSizeInBytes(CallingConv::ID CC) const {
   if (IsO16())
     return CC != 0;
   if (IsS16())
@@ -51,34 +54,26 @@ unsigned Sigma16ABIInfo::GetCalleeAllocdArgSizeInBytes(CallingConv::ID CC) const
 }
 
 Sigma16ABIInfo Sigma16ABIInfo::computeTargetABI() {
-  Sigma16ABIInfo abi(ABI::Unknown);
+  Sigma16ABIInfo Abi(ABI::Unknown);
 
   if (EnableSigma16S16Calls)
-    abi = ABI::S16;
+    Abi = ABI::S16;
   else
-    abi = ABI::O16;
+    Abi = ABI::O16;
   // Assert exactly one ABI was chosen.
   assert(abi.ThisABI != ABI::Unknown);
 
-  return abi;
+  return Abi;
 }
 
-unsigned Sigma16ABIInfo::GetStackPtr() const {
-  return Sigma16::R14;
-}
+unsigned Sigma16ABIInfo::GetStackPtr() const { return Sigma16::R14; }
 
-unsigned Sigma16ABIInfo::GetFramePtr() const {
-  return Sigma16::R13;
-}
+unsigned Sigma16ABIInfo::GetFramePtr() const { return Sigma16::R13; }
 
-unsigned Sigma16ABIInfo::GetNullPtr() const {
-  return Sigma16::R0;
-}
+unsigned Sigma16ABIInfo::GetNullPtr() const { return Sigma16::R0; }
 
 unsigned Sigma16ABIInfo::GetEhDataReg(unsigned I) const {
-  static const unsigned EhDataReg[] = {
-    Sigma16::R1, Sigma16::R2
-  };
+  static const unsigned EhDataReg[] = {Sigma16::R1, Sigma16::R2};
 
   return EhDataReg[I];
 }
@@ -86,7 +81,5 @@ unsigned Sigma16ABIInfo::GetEhDataReg(unsigned I) const {
 int Sigma16ABIInfo::EhDataRegSize() const {
   if (ThisABI == ABI::S16)
     return 0;
-  else
-    return 2;
+  return 2;
 }
-

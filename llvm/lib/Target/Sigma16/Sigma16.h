@@ -1,4 +1,4 @@
-//=-- Sigma16.h - Top-level interface for Sigma16 representation -*- C++ -*-===//
+//=- Sigma16.h - Top-level interface for Sigma16 representation -*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -19,8 +19,8 @@
 #include "llvm/Target/TargetMachine.h"
 
 namespace llvm {
-    class Sigma16TargetMachine;
-    class FunctionPass;
-} // namespace llvm
+class Sigma16TargetMachine;
+class FunctionPass;
+} // end namespace llvm
 
 #endif // LLVM_LIB_TARGET_SIGMA16_SIGMA16_H

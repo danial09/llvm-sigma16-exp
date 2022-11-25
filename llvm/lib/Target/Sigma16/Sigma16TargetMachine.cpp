@@ -1,4 +1,4 @@
-//===-- Sigma16TargetMachine.cpp - Define TargetMachine for Sigma16 -------------===//
+//===-- Sigma16TargetMachine.cpp - Define TargetMachine for Sigma16 -------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -12,15 +12,15 @@
 //===----------------------------------------------------------------------===//
 
 #include "Sigma16TargetMachine.h"
-#include "Sigma16TargetObjectFile.h"
 #include "Sigma16.h"
+#include "Sigma16TargetObjectFile.h"
 
-#include "llvm/IR/Attributes.h"
-#include "llvm/IR/Function.h"
-#include "llvm/Support/CodeGen.h"
 #include "llvm/CodeGen/Passes.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
+#include "llvm/IR/Attributes.h"
+#include "llvm/IR/Function.h"
 #include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/CodeGen.h"
 #include "llvm/Target/TargetOptions.h"
 
 using namespace llvm;
@@ -28,13 +28,12 @@ using namespace llvm;
 #define DEBUG_TYPE "sigma16"
 
 extern "C" void LLVMInitializeSigma16Target() {
-    RegisterTargetMachine<Sigma16TargetMachine> X(TheSigma16Target);
-
+  RegisterTargetMachine<Sigma16TargetMachine> X(TheSigma16Target);
 }
 
 static std::string computeDataLayout(const Triple &TT, StringRef CPU,
                                      const TargetOptions &Options) {
-      return "E-m:e-p:16:16-i32:16-i64:16-a:16-n8:16-S16";
+  return "E-m:e-p:16:16-i32:16-i64:16-a:16-n8:16-S16";
 }
 
 static Reloc::Model getEffectiveRelocModel(bool JIT,
@@ -49,16 +48,16 @@ static Reloc::Model getEffectiveRelocModel(bool JIT,
 // On function prologue, the stack is created by decrementing
 // its pointer. Once decremented, all references are done with positive
 // offset from the stack/frame pointer, using StackGrowsUp enables
-// an easier handling.
+// an easier handling.<
 // Using CodeModel::Large enables different CALL behavior.
 Sigma16TargetMachine::Sigma16TargetMachine(const Target &T, const Triple &TT,
-                                     StringRef CPU, StringRef FS,
-                                     const TargetOptions &Options,
-                                     Optional<Reloc::Model> RM,
-                                     Optional<CodeModel::Model> CM,
-                                     CodeGenOpt::Level OL, bool JIT)
-    : LLVMTargetMachine(T, computeDataLayout(TT, CPU, Options), TT,
-                        CPU, FS, Options, getEffectiveRelocModel(JIT, RM),
+                                           StringRef CPU, StringRef FS,
+                                           const TargetOptions &Options,
+                                           Optional<Reloc::Model> RM,
+                                           Optional<CodeModel::Model> CM,
+                                           CodeGenOpt::Level OL, bool JIT)
+    : LLVMTargetMachine(T, computeDataLayout(TT, CPU, Options), TT, CPU, FS,
+                        Options, getEffectiveRelocModel(JIT, RM),
                         getEffectiveCodeModel(CM, CodeModel::Small), OL),
       TLOF(std::make_unique<Sigma16TargetObjectFile>()),
       ABI(Sigma16ABIInfo::computeTargetABI()),
@@ -77,8 +76,7 @@ Sigma16TargetMachine::getSubtargetImpl(const Function &F) const {
     // creation will depend on the TM and the code generation flags on the
     // function that reside in TargetOptions.
     resetTargetOptions(F);
-    I = std::make_unique<Sigma16Subtarget>(TargetTriple, CPU, FS,
-                                         *this);
+    I = std::make_unique<Sigma16Subtarget>(TargetTriple, CPU, FS, *this);
   }
   return I.get();
 }
@@ -89,7 +87,7 @@ namespace {
 class Sigma16PassConfig : public TargetPassConfig {
 public:
   Sigma16PassConfig(Sigma16TargetMachine &TM, PassManagerBase &PM)
-    : TargetPassConfig(TM, PM) {}
+      : TargetPassConfig(TM, PM) {}
 
   Sigma16TargetMachine &getSigma16TargetMachine() const {
     return getTM<Sigma16TargetMachine>();
@@ -104,4 +102,3 @@ public:
 TargetPassConfig *Sigma16TargetMachine::createPassConfig(PassManagerBase &PM) {
   return new Sigma16PassConfig(*this, PM);
 }
-

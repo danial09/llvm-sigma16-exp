@@ -1,4 +1,4 @@
-//===-- Sigma16MachineFunctionInfo.cpp - Private data used for Sigma16 ----------===//
+//===-- Sigma16MachineFunctionInfo.cpp - Private data used for Sigma16 ----===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -11,9 +11,9 @@
 
 #include "Sigma16InstrInfo.h"
 #include "Sigma16Subtarget.h"
-#include "llvm/IR/Function.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
+#include "llvm/IR/Function.h"
 
 using namespace llvm;
 
@@ -21,5 +21,4 @@ bool FixGlobalBaseReg;
 
 Sigma16FunctionInfo::~Sigma16FunctionInfo() {}
 
-void Sigma16FunctionInfo::anchor() { }
-
+void Sigma16FunctionInfo::anchor() {}

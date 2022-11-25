@@ -15,17 +15,14 @@
 
 namespace llvm {
 class Sigma16TargetMachine;
-  class Sigma16TargetObjectFile : public TargetLoweringObjectFileELF {
-    MCSection *SmallDataSection;
-    MCSection *SmallBSSSection;
-    const Sigma16TargetMachine *TM;
+class Sigma16TargetObjectFile : public TargetLoweringObjectFileELF {
+  MCSection *SmallDataSection;
+  MCSection *SmallBSSSection;
+  const Sigma16TargetMachine *TM;
 
-  public:
-
-    void Initialize(MCContext &Ctx, const TargetMachine &TM) override;
-
-  };
+public:
+  void Initialize(MCContext &Ctx, const TargetMachine &TM) override;
+};
 } // end namespace llvm
 
 #endif
-

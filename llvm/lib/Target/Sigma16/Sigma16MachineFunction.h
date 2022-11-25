@@ -1,4 +1,4 @@
-//===-- Sigma16MachineFunctionInfo.h - Private data used for Sigma16 ----*- C++ -*-=//
+//=== Sigma16MachineFunctionInfo.h - Private data used for Sigma16 *- C++ -*-=//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -14,8 +14,6 @@
 #ifndef LLVM_LIB_TARGET_SIGMA16_SIGMA16MACHINEFUNCTION_H
 #define LLVM_LIB_TARGET_SIGMA16_SIGMA16MACHINEFUNCTION_H
 
-
-
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineMemOperand.h"
@@ -30,11 +28,8 @@ namespace llvm {
 /// Sigma16 target-specific information for each MachineFunction.
 class Sigma16FunctionInfo : public MachineFunctionInfo {
 public:
-  Sigma16FunctionInfo(MachineFunction& MF)
-  : MF(MF), 
-    VarArgsFrameIndex(0), 
-    MaxCallFrameSize(0)
-    {}
+  Sigma16FunctionInfo(MachineFunction &MF)
+      : MF(MF), VarArgsFrameIndex(0), MaxCallFrameSize(0) {}
 
   ~Sigma16FunctionInfo();
 
@@ -44,9 +39,9 @@ public:
 private:
   virtual void anchor();
 
-  MachineFunction& MF;
+  MachineFunction &MF;
 
-    /// VarArgsFrameIndex - FrameIndex for start of varargs area.
+  /// VarArgsFrameIndex - FrameIndex for start of varargs area.
   int VarArgsFrameIndex;
 
   unsigned MaxCallFrameSize;
@@ -56,4 +51,3 @@ private:
 } // end of namespace llvm
 
 #endif // SIGMA16_MACHINE_FUNCTION_INFO_H
-
