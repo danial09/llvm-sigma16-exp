@@ -27,5 +27,5 @@
 #include <version>
 
 #ifdef _LIBCPP_HAS_NO_INCOMPLETE_FORMAT
-#   error "-fexperimental-library should enable <format>"
+#  error "-fexperimental-library should enable <format>"
 #endif

@@ -12,19 +12,19 @@
 #include "copyable.h"
 
 struct no_default_ctor {
-    no_default_ctor(int);
+  no_default_ctor(int);
 };
 struct derived_from_non_default_initializable : no_default_ctor {};
 struct has_non_default_initializable {
-    no_default_ctor x;
+  no_default_ctor x;
 };
 
 struct deleted_default_ctor {
-    deleted_default_ctor() = delete;
+  deleted_default_ctor() = delete;
 };
 struct derived_from_deleted_default_ctor : deleted_default_ctor {};
 struct has_deleted_default_ctor {
-    deleted_default_ctor x;
+  deleted_default_ctor x;
 };
 
 #endif // TEST_SUPPORT_TYPE_CLASSIFICATION_H

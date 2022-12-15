@@ -23,42 +23,42 @@ using namespace llvm;
 namespace {
 class Sigma16ELFObjectWriter : public MCELFObjectTargetWriter {
 public:
-    Sigma16ELFObjectWriter(uint8_t OSABI, bool HasRelocationAddend, bool Is64);
+  Sigma16ELFObjectWriter(uint8_t OSABI, bool HasRelocationAddend, bool Is64);
 
-    ~Sigma16ELFObjectWriter() = default;
+  ~Sigma16ELFObjectWriter() = default;
 
-    unsigned getRelocType(MCContext &Ctx, const MCValue &Target,
-                          const MCFixup &Fixup, bool IsPCRel) const override;
-    bool needsRelocateWithSymbol(const MCSymbol &Sym,
-                                 unsigned Type) const override;
+  unsigned getRelocType(MCContext &Ctx, const MCValue &Target,
+                        const MCFixup &Fixup, bool IsPCRel) const override;
+  bool needsRelocateWithSymbol(const MCSymbol &Sym,
+                               unsigned Type) const override;
 };
 } // namespace
 
 Sigma16ELFObjectWriter::Sigma16ELFObjectWriter(uint8_t OSABI,
-        bool HasRelocationAddend,
-        bool Is64)
+                                               bool HasRelocationAddend,
+                                               bool Is64)
     : MCELFObjectTargetWriter(/*Is64Bit=false*/ Is64, OSABI, ELF::EM_SIGMA16,
-            HasRelocationAddend) {}
+                              HasRelocationAddend) {}
 
 unsigned Sigma16ELFObjectWriter::getRelocType(MCContext &Ctx,
-        const MCValue &Target,
-        const MCFixup &Fixup,
-        bool IsPCRel) const {
-    // TODO: Implement
-    return ELF::R_SIGMA16_NONE;
+                                              const MCValue &Target,
+                                              const MCFixup &Fixup,
+                                              bool IsPCRel) const {
+  // TODO: Implement
+  return ELF::R_SIGMA16_NONE;
 }
 
 bool Sigma16ELFObjectWriter::needsRelocateWithSymbol(const MCSymbol &Sym,
-        unsigned Type) const {
-    // TODO: Implement
-    return false;
+                                                     unsigned Type) const {
+  // TODO: Implement
+  return false;
 }
 
 std::unique_ptr<MCObjectTargetWriter>
 llvm::createSigma16ELFObjectWriter(const Triple &TT) {
-    uint8_t OSABI = MCELFObjectTargetWriter::getOSABI(TT.getOS());
-    bool IsN64 = false;
-    bool HasRelocationAddend = TT.isArch64Bit();
-    return std::make_unique<Sigma16ELFObjectWriter>(OSABI, HasRelocationAddend,
-            IsN64);
+  uint8_t OSABI = MCELFObjectTargetWriter::getOSABI(TT.getOS());
+  bool IsN64 = false;
+  bool HasRelocationAddend = TT.isArch64Bit();
+  return std::make_unique<Sigma16ELFObjectWriter>(OSABI, HasRelocationAddend,
+                                                  IsN64);
 }

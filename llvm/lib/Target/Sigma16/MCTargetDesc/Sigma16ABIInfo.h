@@ -23,61 +23,47 @@ class TargetRegisterClass;
 
 class Sigma16ABIInfo {
 public:
-    enum class ABI { Unknown, O16, S16 };
+  enum class ABI { Unknown, O16, S16 };
 
 protected:
-    ABI ThisABI;
+  ABI ThisABI;
 
 public:
-    Sigma16ABIInfo(ABI ThisABI) : ThisABI(ThisABI) {}
+  Sigma16ABIInfo(ABI ThisABI) : ThisABI(ThisABI) {}
 
-    static Sigma16ABIInfo Unknown() {
-        return Sigma16ABIInfo(ABI::Unknown);
-    }
-    static Sigma16ABIInfo O16() {
-        return Sigma16ABIInfo(ABI::O16);
-    }
-    static Sigma16ABIInfo S32() {
-        return Sigma16ABIInfo(ABI::S16);
-    }
-    static Sigma16ABIInfo computeTargetABI();
+  static Sigma16ABIInfo Unknown() { return Sigma16ABIInfo(ABI::Unknown); }
+  static Sigma16ABIInfo O16() { return Sigma16ABIInfo(ABI::O16); }
+  static Sigma16ABIInfo S32() { return Sigma16ABIInfo(ABI::S16); }
+  static Sigma16ABIInfo computeTargetABI();
 
-    bool IsKnown() const {
-        return ThisABI != ABI::Unknown;
-    }
-    bool IsO16() const {
-        return ThisABI == ABI::O16;
-    }
-    bool IsS16() const {
-        return ThisABI == ABI::S16;
-    }
-    ABI GetEnumValue() const {
-        return ThisABI;
-    }
+  bool IsKnown() const { return ThisABI != ABI::Unknown; }
+  bool IsO16() const { return ThisABI == ABI::O16; }
+  bool IsS16() const { return ThisABI == ABI::S16; }
+  ABI GetEnumValue() const { return ThisABI; }
 
-    /// The registers to use for byval arguments.
-    const ArrayRef<MCPhysReg> GetByValArgRegs() const;
+  /// The registers to use for byval arguments.
+  const ArrayRef<MCPhysReg> GetByValArgRegs() const;
 
-    /// The registers to use for the variable argument list.
-    const ArrayRef<MCPhysReg> GetVarArgRegs() const;
+  /// The registers to use for the variable argument list.
+  const ArrayRef<MCPhysReg> GetVarArgRegs() const;
 
-    /// Obtain the size of the area allocated by the callee for arguments.
-    /// CallingConv::FastCall affects the value for O32.
-    unsigned GetCalleeAllocdArgSizeInBytes(CallingConv::ID CC) const;
+  /// Obtain the size of the area allocated by the callee for arguments.
+  /// CallingConv::FastCall affects the value for O32.
+  unsigned GetCalleeAllocdArgSizeInBytes(CallingConv::ID CC) const;
 
-    /// Ordering of ABI's
-    /// Sigma16GenSubtargetInfo.inc will use this to resolve conflicts when given
-    /// multiple ABI options.
-    bool operator<(const Sigma16ABIInfo Other) const {
-        return ThisABI < Other.GetEnumValue();
-    }
+  /// Ordering of ABI's
+  /// Sigma16GenSubtargetInfo.inc will use this to resolve conflicts when given
+  /// multiple ABI options.
+  bool operator<(const Sigma16ABIInfo Other) const {
+    return ThisABI < Other.GetEnumValue();
+  }
 
-    unsigned GetStackPtr() const;
-    unsigned GetFramePtr() const;
-    unsigned GetNullPtr() const;
+  unsigned GetStackPtr() const;
+  unsigned GetFramePtr() const;
+  unsigned GetNullPtr() const;
 
-    unsigned GetEhDataReg(unsigned I) const;
-    int EhDataRegSize() const;
+  unsigned GetEhDataReg(unsigned I) const;
+  int EhDataRegSize() const;
 };
 } // namespace llvm
 

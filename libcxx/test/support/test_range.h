@@ -15,60 +15,61 @@
 #include "test_iterators.h"
 
 #if TEST_STD_VER < 17
-#error "test/support/test_range.h" can only be included in builds supporting ranges
+#  error "test/support/test_range.h" can only be included in builds supporting ranges
 #endif
 
 struct sentinel {
-    bool operator==(std::input_or_output_iterator auto const&) const;
+  bool operator==(std::input_or_output_iterator auto const&) const;
 };
 
 template <template <class...> class I>
-requires std::input_or_output_iterator<I<int*> >
+  requires std::input_or_output_iterator<I<int*> >
 struct test_range {
-    I<int*> begin();
-    I<int const*> begin() const;
-    sentinel end();
-    sentinel end() const;
+  I<int*> begin();
+  I<int const*> begin() const;
+  sentinel end();
+  sentinel end() const;
 };
 
 template <template <class...> class I>
-requires std::input_or_output_iterator<I<int*> >
+  requires std::input_or_output_iterator<I<int*> >
 struct test_non_const_range {
-    I<int*> begin();
-    sentinel end();
+  I<int*> begin();
+  sentinel end();
 };
 
 template <template <class...> class I>
-requires std::input_or_output_iterator<I<int*> >
+  requires std::input_or_output_iterator<I<int*> >
 struct test_common_range {
-    I<int*> begin();
-    I<int const*> begin() const;
-    I<int*> end();
-    I<int const*> end() const;
+  I<int*> begin();
+  I<int const*> begin() const;
+  I<int*> end();
+  I<int const*> end() const;
 };
 
 template <template <class...> class I>
-requires std::input_or_output_iterator<I<int*> >
+  requires std::input_or_output_iterator<I<int*> >
 struct test_non_const_common_range {
-    I<int*> begin();
-    I<int*> end();
+  I<int*> begin();
+  I<int*> end();
 };
 
 template <template <class...> class I>
-requires std::input_or_output_iterator<I<int*> >
+  requires std::input_or_output_iterator<I<int*> >
 struct test_view : std::ranges::view_base {
-    I<int*> begin();
-    I<int const*> begin() const;
-    sentinel end();
-    sentinel end() const;
+  I<int*> begin();
+  I<int const*> begin() const;
+  sentinel end();
+  sentinel end() const;
 };
 
 struct BorrowedRange {
-    int *begin() const;
-    int *end() const;
-    BorrowedRange(BorrowedRange&&) = delete;
+  int* begin() const;
+  int* end() const;
+  BorrowedRange(BorrowedRange&&) = delete;
 };
-template<> inline constexpr bool std::ranges::enable_borrowed_range<BorrowedRange> = true;
+template <>
+inline constexpr bool std::ranges::enable_borrowed_range<BorrowedRange> = true;
 static_assert(!std::ranges::view<BorrowedRange>);
 static_assert(std::ranges::borrowed_range<BorrowedRange>);
 

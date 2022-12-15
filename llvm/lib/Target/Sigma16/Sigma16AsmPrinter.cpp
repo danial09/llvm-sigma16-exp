@@ -43,52 +43,52 @@ using namespace llvm;
 #define DEBUG_TYPE "sigma16-asm-printer"
 
 bool Sigma16AsmPrinter::runOnMachineFunction(MachineFunction &MF) {
-    Subtarget = &MF.getSubtarget<Sigma16Subtarget>();
-    Sigma16FI = MF.getInfo<Sigma16FunctionInfo>();
-    return AsmPrinter::runOnMachineFunction(MF);
+  Subtarget = &MF.getSubtarget<Sigma16Subtarget>();
+  Sigma16FI = MF.getInfo<Sigma16FunctionInfo>();
+  return AsmPrinter::runOnMachineFunction(MF);
 }
 
 void Sigma16AsmPrinter::emitInstruction(const MachineInstr *MI) {
-    //@EmitInstruction body {
-    if (MI->isDebugValue()) {
-        SmallString<128> Str;
-        raw_svector_ostream OS(Str);
+  //@EmitInstruction body {
+  if (MI->isDebugValue()) {
+    SmallString<128> Str;
+    raw_svector_ostream OS(Str);
 
-        PrintDebugValueComment(MI, OS);
-        return;
-    }
+    PrintDebugValueComment(MI, OS);
+    return;
+  }
 
-    //@print out instruction:
-    //  Print out both ordinary instruction and boudle instruction
-    MachineBasicBlock::const_instr_iterator I = MI->getIterator();
-    MachineBasicBlock::const_instr_iterator E = MI->getParent()->instr_end();
+  //@print out instruction:
+  //  Print out both ordinary instruction and boudle instruction
+  MachineBasicBlock::const_instr_iterator I = MI->getIterator();
+  MachineBasicBlock::const_instr_iterator E = MI->getParent()->instr_end();
 
-    do {
+  do {
 
-        if (I->isPseudo())
-            llvm_unreachable("Pseudo opcode found in emitInstruction()");
+    if (I->isPseudo())
+      llvm_unreachable("Pseudo opcode found in emitInstruction()");
 
-        MCInst TmpInst0;
-        MCInstLowering.lower(&*I, TmpInst0);
-        OutStreamer->emitInstruction(TmpInst0, getSubtargetInfo());
-    } while ((++I != E) && I->isInsideBundle()); // Delay slot check
+    MCInst TmpInst0;
+    MCInstLowering.lower(&*I, TmpInst0);
+    OutStreamer->emitInstruction(TmpInst0, getSubtargetInfo());
+  } while ((++I != E) && I->isInsideBundle()); // Delay slot check
 }
 
 void Sigma16AsmPrinter::printSavedRegsBitmask(raw_ostream &O) {
-    // In Sigma16, all registers apart from R0 and R15 are saved.
-    O << "0x7ffe";
+  // In Sigma16, all registers apart from R0 and R15 are saved.
+  O << "0x7ffe";
 }
 
 void Sigma16AsmPrinter::emitFrameDirective() {
-    // Sigma16 doesn't have a frame directive.
+  // Sigma16 doesn't have a frame directive.
 }
 
 void Sigma16AsmPrinter::PrintDebugValueComment(const MachineInstr *MI,
-        raw_ostream &OS) {
-    // TODO: implement this
-    OS << "PrintDebugValueComment()";
+                                               raw_ostream &OS) {
+  // TODO: implement this
+  OS << "PrintDebugValueComment()";
 }
 
 extern "C" void LLVMInitializeSigma16AsmPrinter() {
-    //  RegisterAsmPrinter<Sigma16AsmPrinter> X(TheSigma16Target);
+  //  RegisterAsmPrinter<Sigma16AsmPrinter> X(TheSigma16Target);
 }

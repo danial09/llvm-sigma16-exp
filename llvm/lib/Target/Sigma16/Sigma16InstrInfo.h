@@ -25,24 +25,24 @@
 namespace llvm {
 
 class Sigma16InstrInfo : public Sigma16GenInstrInfo {
-    virtual void anchor();
+  virtual void anchor();
 
 protected:
-    const Sigma16Subtarget &Subtarget;
+  const Sigma16Subtarget &Subtarget;
 
 public:
-    explicit Sigma16InstrInfo(const Sigma16Subtarget &STI);
+  explicit Sigma16InstrInfo(const Sigma16Subtarget &STI);
 
-    static const Sigma16InstrInfo *create(Sigma16Subtarget &STI);
+  static const Sigma16InstrInfo *create(Sigma16Subtarget &STI);
 
-    /// getRegisterInfo - TargetInstrInfo is a superset of MRegister info.  As
-    /// such, whenever a client has an instance of instruction info, it should
-    /// always be able to get register info as well (through this method).
-    ///
-    virtual const Sigma16RegisterInfo &getRegisterInfo() const = 0;
+  /// getRegisterInfo - TargetInstrInfo is a superset of MRegister info.  As
+  /// such, whenever a client has an instance of instruction info, it should
+  /// always be able to get register info as well (through this method).
+  ///
+  virtual const Sigma16RegisterInfo &getRegisterInfo() const = 0;
 
-    /// Return the number of bytes of code the specified instruction may be.
-    unsigned getInstSizeInBytes(const MachineInstr &MI) const;
+  /// Return the number of bytes of code the specified instruction may be.
+  unsigned getInstSizeInBytes(const MachineInstr &MI) const;
 
 protected:
 };

@@ -113,45 +113,39 @@ namespace {
 
 template <class T, T (*Init)()>
 struct LazyValue {
-    LazyValue() : is_init(false) {}
+  LazyValue() : is_init(false) {}
 
-    T& get() {
-        if (!is_init) {
-            value = Init();
-            is_init = true;
-        }
-        return value;
+  T& get() {
+    if (!is_init) {
+      value = Init();
+      is_init = true;
     }
+    return value;
+  }
 
 private:
-    T value;
-    bool is_init = false;
+  T value;
+  bool is_init = false;
 };
 
 template <class IntType>
 class AtomicInt {
 public:
-    using MemoryOrder = std::__libcpp_atomic_order;
+  using MemoryOrder = std::__libcpp_atomic_order;
 
-    explicit AtomicInt(IntType* b) : b_(b) {}
-    AtomicInt(AtomicInt const&) = delete;
-    AtomicInt& operator=(AtomicInt const&) = delete;
+  explicit AtomicInt(IntType* b) : b_(b) {}
+  AtomicInt(AtomicInt const&) = delete;
+  AtomicInt& operator=(AtomicInt const&) = delete;
 
-    IntType load(MemoryOrder ord) {
-        return std::__libcpp_atomic_load(b_, ord);
-    }
-    void store(IntType val, MemoryOrder ord) {
-        std::__libcpp_atomic_store(b_, val, ord);
-    }
-    IntType exchange(IntType new_val, MemoryOrder ord) {
-        return std::__libcpp_atomic_exchange(b_, new_val, ord);
-    }
-    bool compare_exchange(IntType* expected, IntType desired, MemoryOrder ord_success, MemoryOrder ord_failure) {
-        return std::__libcpp_atomic_compare_exchange(b_, expected, desired, ord_success, ord_failure);
-    }
+  IntType load(MemoryOrder ord) { return std::__libcpp_atomic_load(b_, ord); }
+  void store(IntType val, MemoryOrder ord) { std::__libcpp_atomic_store(b_, val, ord); }
+  IntType exchange(IntType new_val, MemoryOrder ord) { return std::__libcpp_atomic_exchange(b_, new_val, ord); }
+  bool compare_exchange(IntType* expected, IntType desired, MemoryOrder ord_success, MemoryOrder ord_failure) {
+    return std::__libcpp_atomic_compare_exchange(b_, expected, desired, ord_success, ord_failure);
+  }
 
 private:
-    IntType* b_;
+  IntType* b_;
 };
 
 //===----------------------------------------------------------------------===//
@@ -160,13 +154,13 @@ private:
 
 #if defined(__APPLE__) && defined(_LIBCPP_HAS_THREAD_API_PTHREAD)
 uint32_t PlatformThreadID() {
-    static_assert(sizeof(mach_port_t) == sizeof(uint32_t), "");
-    return static_cast<uint32_t>(pthread_mach_thread_np(std::__libcpp_thread_get_current_id()));
+  static_assert(sizeof(mach_port_t) == sizeof(uint32_t), "");
+  return static_cast<uint32_t>(pthread_mach_thread_np(std::__libcpp_thread_get_current_id()));
 }
 #elif defined(SYS_gettid) && defined(_LIBCPP_HAS_THREAD_API_PTHREAD)
 uint32_t PlatformThreadID() {
-    static_assert(sizeof(pid_t) == sizeof(uint32_t), "");
-    return static_cast<uint32_t>(syscall(SYS_gettid));
+  static_assert(sizeof(pid_t) == sizeof(uint32_t), "");
+  return static_cast<uint32_t>(syscall(SYS_gettid));
 }
 #else
 constexpr uint32_t (*PlatformThreadID)() = nullptr;
@@ -183,31 +177,29 @@ static constexpr uint8_t WAITING_BIT = (1 << 2);
 
 /// Manages reads and writes to the guard byte.
 struct GuardByte {
-    GuardByte() = delete;
-    GuardByte(GuardByte const&) = delete;
-    GuardByte& operator=(GuardByte const&) = delete;
+  GuardByte() = delete;
+  GuardByte(GuardByte const&) = delete;
+  GuardByte& operator=(GuardByte const&) = delete;
 
-    explicit GuardByte(uint8_t* const guard_byte_address) : guard_byte(guard_byte_address) {}
+  explicit GuardByte(uint8_t* const guard_byte_address) : guard_byte(guard_byte_address) {}
 
 public:
-    /// The guard byte portion of cxa_guard_acquire. Returns true if
-    /// initialization has already been completed.
-    bool acquire() {
-        // if guard_byte is non-zero, we have already completed initialization
-        // (i.e. release has been called)
-        return guard_byte.load(std::_AO_Acquire) != UNSET;
-    }
+  /// The guard byte portion of cxa_guard_acquire. Returns true if
+  /// initialization has already been completed.
+  bool acquire() {
+    // if guard_byte is non-zero, we have already completed initialization
+    // (i.e. release has been called)
+    return guard_byte.load(std::_AO_Acquire) != UNSET;
+  }
 
-    /// The guard byte portion of cxa_guard_release.
-    void release() {
-        guard_byte.store(COMPLETE_BIT, std::_AO_Release);
-    }
+  /// The guard byte portion of cxa_guard_release.
+  void release() { guard_byte.store(COMPLETE_BIT, std::_AO_Release); }
 
-    /// The guard byte portion of cxa_guard_abort.
-    void abort() {} // Nothing to do
+  /// The guard byte portion of cxa_guard_abort.
+  void abort() {} // Nothing to do
 
 private:
-    AtomicInt<uint8_t> guard_byte;
+  AtomicInt<uint8_t> guard_byte;
 };
 
 //===----------------------------------------------------------------------===//
@@ -250,35 +242,31 @@ private:
 /// InitByteNoThreads - Doesn't use any inter-thread synchronization when
 /// managing reads and writes to the init byte.
 struct InitByteNoThreads {
-    InitByteNoThreads() = delete;
-    InitByteNoThreads(InitByteNoThreads const&) = delete;
-    InitByteNoThreads& operator=(InitByteNoThreads const&) = delete;
+  InitByteNoThreads() = delete;
+  InitByteNoThreads(InitByteNoThreads const&) = delete;
+  InitByteNoThreads& operator=(InitByteNoThreads const&) = delete;
 
-    explicit InitByteNoThreads(uint8_t* _init_byte_address, uint32_t*) : init_byte_address(_init_byte_address) {}
+  explicit InitByteNoThreads(uint8_t* _init_byte_address, uint32_t*) : init_byte_address(_init_byte_address) {}
 
-    /// The init byte portion of cxa_guard_acquire. Returns true if
-    /// initialization has already been completed.
-    bool acquire() {
-        if (*init_byte_address == COMPLETE_BIT)
-            return true;
-        if (*init_byte_address & PENDING_BIT)
-            ABORT_WITH_MESSAGE("__cxa_guard_acquire detected recursive initialization");
-        *init_byte_address = PENDING_BIT;
-        return false;
-    }
+  /// The init byte portion of cxa_guard_acquire. Returns true if
+  /// initialization has already been completed.
+  bool acquire() {
+    if (*init_byte_address == COMPLETE_BIT)
+      return true;
+    if (*init_byte_address & PENDING_BIT)
+      ABORT_WITH_MESSAGE("__cxa_guard_acquire detected recursive initialization");
+    *init_byte_address = PENDING_BIT;
+    return false;
+  }
 
-    /// The init byte portion of cxa_guard_release.
-    void release() {
-        *init_byte_address = COMPLETE_BIT;
-    }
-    /// The init byte portion of cxa_guard_abort.
-    void abort() {
-        *init_byte_address = UNSET;
-    }
+  /// The init byte portion of cxa_guard_release.
+  void release() { *init_byte_address = COMPLETE_BIT; }
+  /// The init byte portion of cxa_guard_abort.
+  void abort() { *init_byte_address = UNSET; }
 
 private:
-    /// The address of the byte used during initialization.
-    uint8_t* const init_byte_address;
+  /// The address of the byte used during initialization.
+  uint8_t* const init_byte_address;
 };
 
 //===----------------------------------------------------------------------===//
@@ -290,36 +278,28 @@ struct LibcppCondVar;
 
 #ifndef _LIBCXXABI_HAS_NO_THREADS
 struct LibcppMutex {
-    LibcppMutex() = default;
-    LibcppMutex(LibcppMutex const&) = delete;
-    LibcppMutex& operator=(LibcppMutex const&) = delete;
+  LibcppMutex() = default;
+  LibcppMutex(LibcppMutex const&) = delete;
+  LibcppMutex& operator=(LibcppMutex const&) = delete;
 
-    bool lock() {
-        return std::__libcpp_mutex_lock(&mutex);
-    }
-    bool unlock() {
-        return std::__libcpp_mutex_unlock(&mutex);
-    }
+  bool lock() { return std::__libcpp_mutex_lock(&mutex); }
+  bool unlock() { return std::__libcpp_mutex_unlock(&mutex); }
 
 private:
-    friend struct LibcppCondVar;
-    std::__libcpp_mutex_t mutex = _LIBCPP_MUTEX_INITIALIZER;
+  friend struct LibcppCondVar;
+  std::__libcpp_mutex_t mutex = _LIBCPP_MUTEX_INITIALIZER;
 };
 
 struct LibcppCondVar {
-    LibcppCondVar() = default;
-    LibcppCondVar(LibcppCondVar const&) = delete;
-    LibcppCondVar& operator=(LibcppCondVar const&) = delete;
+  LibcppCondVar() = default;
+  LibcppCondVar(LibcppCondVar const&) = delete;
+  LibcppCondVar& operator=(LibcppCondVar const&) = delete;
 
-    bool wait(LibcppMutex& mut) {
-        return std::__libcpp_condvar_wait(&cond, &mut.mutex);
-    }
-    bool broadcast() {
-        return std::__libcpp_condvar_broadcast(&cond);
-    }
+  bool wait(LibcppMutex& mut) { return std::__libcpp_condvar_wait(&cond, &mut.mutex); }
+  bool broadcast() { return std::__libcpp_condvar_broadcast(&cond); }
 
 private:
-    std::__libcpp_condvar_t cond = _LIBCPP_CONDVAR_INITIALIZER;
+  std::__libcpp_condvar_t cond = _LIBCPP_CONDVAR_INITIALIZER;
 };
 #else
 struct LibcppMutex {};
@@ -332,98 +312,98 @@ template <class Mutex, class CondVar, Mutex& global_mutex, CondVar& global_cond,
           uint32_t (*GetThreadID)() = PlatformThreadID>
 struct InitByteGlobalMutex {
 
-    explicit InitByteGlobalMutex(uint8_t* _init_byte_address, uint32_t* _thread_id_address)
-        : init_byte_address(_init_byte_address), thread_id_address(_thread_id_address),
-          has_thread_id_support(_thread_id_address != nullptr && GetThreadID != nullptr) {}
+  explicit InitByteGlobalMutex(uint8_t* _init_byte_address, uint32_t* _thread_id_address)
+      : init_byte_address(_init_byte_address), thread_id_address(_thread_id_address),
+        has_thread_id_support(_thread_id_address != nullptr && GetThreadID != nullptr) {}
 
 public:
-    /// The init byte portion of cxa_guard_acquire. Returns true if
-    /// initialization has already been completed.
-    bool acquire() {
-        LockGuard g("__cxa_guard_acquire");
-        // Check for possible recursive initialization.
-        if (has_thread_id_support && (*init_byte_address & PENDING_BIT)) {
-            if (*thread_id_address == current_thread_id.get())
-                ABORT_WITH_MESSAGE("__cxa_guard_acquire detected recursive initialization");
-        }
-
-        // Wait until the pending bit is not set.
-        while (*init_byte_address & PENDING_BIT) {
-            *init_byte_address |= WAITING_BIT;
-            global_cond.wait(global_mutex);
-        }
-
-        if (*init_byte_address == COMPLETE_BIT)
-            return true;
-
-        if (has_thread_id_support)
-            *thread_id_address = current_thread_id.get();
-
-        *init_byte_address = PENDING_BIT;
-        return false;
+  /// The init byte portion of cxa_guard_acquire. Returns true if
+  /// initialization has already been completed.
+  bool acquire() {
+    LockGuard g("__cxa_guard_acquire");
+    // Check for possible recursive initialization.
+    if (has_thread_id_support && (*init_byte_address & PENDING_BIT)) {
+      if (*thread_id_address == current_thread_id.get())
+        ABORT_WITH_MESSAGE("__cxa_guard_acquire detected recursive initialization");
     }
 
-    /// The init byte portion of cxa_guard_release.
-    void release() {
-        bool has_waiting;
-        {
-            LockGuard g("__cxa_guard_release");
-            has_waiting = *init_byte_address & WAITING_BIT;
-            *init_byte_address = COMPLETE_BIT;
-        }
-        if (has_waiting) {
-            if (global_cond.broadcast()) {
-                ABORT_WITH_MESSAGE("%s failed to broadcast", "__cxa_guard_release");
-            }
-        }
+    // Wait until the pending bit is not set.
+    while (*init_byte_address & PENDING_BIT) {
+      *init_byte_address |= WAITING_BIT;
+      global_cond.wait(global_mutex);
     }
 
-    /// The init byte portion of cxa_guard_abort.
-    void abort() {
-        bool has_waiting;
-        {
-            LockGuard g("__cxa_guard_abort");
-            if (has_thread_id_support)
-                *thread_id_address = 0;
-            has_waiting = *init_byte_address & WAITING_BIT;
-            *init_byte_address = UNSET;
-        }
-        if (has_waiting) {
-            if (global_cond.broadcast()) {
-                ABORT_WITH_MESSAGE("%s failed to broadcast", "__cxa_guard_abort");
-            }
-        }
+    if (*init_byte_address == COMPLETE_BIT)
+      return true;
+
+    if (has_thread_id_support)
+      *thread_id_address = current_thread_id.get();
+
+    *init_byte_address = PENDING_BIT;
+    return false;
+  }
+
+  /// The init byte portion of cxa_guard_release.
+  void release() {
+    bool has_waiting;
+    {
+      LockGuard g("__cxa_guard_release");
+      has_waiting = *init_byte_address & WAITING_BIT;
+      *init_byte_address = COMPLETE_BIT;
     }
+    if (has_waiting) {
+      if (global_cond.broadcast()) {
+        ABORT_WITH_MESSAGE("%s failed to broadcast", "__cxa_guard_release");
+      }
+    }
+  }
+
+  /// The init byte portion of cxa_guard_abort.
+  void abort() {
+    bool has_waiting;
+    {
+      LockGuard g("__cxa_guard_abort");
+      if (has_thread_id_support)
+        *thread_id_address = 0;
+      has_waiting = *init_byte_address & WAITING_BIT;
+      *init_byte_address = UNSET;
+    }
+    if (has_waiting) {
+      if (global_cond.broadcast()) {
+        ABORT_WITH_MESSAGE("%s failed to broadcast", "__cxa_guard_abort");
+      }
+    }
+  }
 
 private:
-    /// The address of the byte used during initialization.
-    uint8_t* const init_byte_address;
-    /// An optional address storing an identifier for the thread performing initialization.
-    /// It's used to detect recursive initialization.
-    uint32_t* const thread_id_address;
+  /// The address of the byte used during initialization.
+  uint8_t* const init_byte_address;
+  /// An optional address storing an identifier for the thread performing initialization.
+  /// It's used to detect recursive initialization.
+  uint32_t* const thread_id_address;
 
-    const bool has_thread_id_support;
-    LazyValue<uint32_t, GetThreadID> current_thread_id;
+  const bool has_thread_id_support;
+  LazyValue<uint32_t, GetThreadID> current_thread_id;
 
 private:
-    struct LockGuard {
-        LockGuard() = delete;
-        LockGuard(LockGuard const&) = delete;
-        LockGuard& operator=(LockGuard const&) = delete;
+  struct LockGuard {
+    LockGuard() = delete;
+    LockGuard(LockGuard const&) = delete;
+    LockGuard& operator=(LockGuard const&) = delete;
 
-        explicit LockGuard(const char* calling_func) : calling_func_(calling_func) {
-            if (global_mutex.lock())
-                ABORT_WITH_MESSAGE("%s failed to acquire mutex", calling_func_);
-        }
+    explicit LockGuard(const char* calling_func) : calling_func_(calling_func) {
+      if (global_mutex.lock())
+        ABORT_WITH_MESSAGE("%s failed to acquire mutex", calling_func_);
+    }
 
-        ~LockGuard() {
-            if (global_mutex.unlock())
-                ABORT_WITH_MESSAGE("%s failed to release mutex", calling_func_);
-        }
+    ~LockGuard() {
+      if (global_mutex.unlock())
+        ABORT_WITH_MESSAGE("%s failed to release mutex", calling_func_);
+    }
 
-    private:
-        const char* const calling_func_;
-    };
+  private:
+    const char* const calling_func_;
+  };
 };
 
 //===----------------------------------------------------------------------===//
@@ -432,131 +412,125 @@ private:
 
 #if defined(SYS_futex)
 void PlatformFutexWait(int* addr, int expect) {
-    constexpr int WAIT = 0;
-    syscall(SYS_futex, addr, WAIT, expect, 0);
-    __tsan_acquire(addr);
+  constexpr int WAIT = 0;
+  syscall(SYS_futex, addr, WAIT, expect, 0);
+  __tsan_acquire(addr);
 }
 void PlatformFutexWake(int* addr) {
-    constexpr int WAKE = 1;
-    __tsan_release(addr);
-    syscall(SYS_futex, addr, WAKE, INT_MAX);
+  constexpr int WAKE = 1;
+  __tsan_release(addr);
+  syscall(SYS_futex, addr, WAKE, INT_MAX);
 }
 #else
 constexpr void (*PlatformFutexWait)(int*, int) = nullptr;
 constexpr void (*PlatformFutexWake)(int*) = nullptr;
 #endif
 
-constexpr bool PlatformSupportsFutex() {
-    return +PlatformFutexWait != nullptr;
-}
+constexpr bool PlatformSupportsFutex() { return +PlatformFutexWait != nullptr; }
 
 /// InitByteFutex - Uses a futex to manage reads and writes to the init byte.
 template <void (*Wait)(int*, int) = PlatformFutexWait, void (*Wake)(int*) = PlatformFutexWake,
           uint32_t (*GetThreadIDArg)() = PlatformThreadID>
 struct InitByteFutex {
 
-    explicit InitByteFutex(uint8_t* _init_byte_address, uint32_t* _thread_id_address)
-        : init_byte(_init_byte_address),
-          has_thread_id_support(_thread_id_address != nullptr && GetThreadIDArg != nullptr),
-          thread_id(_thread_id_address),
-          base_address(reinterpret_cast<int*>(/*_init_byte_address & ~0x3*/ _init_byte_address - 1)) {}
+  explicit InitByteFutex(uint8_t* _init_byte_address, uint32_t* _thread_id_address)
+      : init_byte(_init_byte_address),
+        has_thread_id_support(_thread_id_address != nullptr && GetThreadIDArg != nullptr),
+        thread_id(_thread_id_address),
+        base_address(reinterpret_cast<int*>(/*_init_byte_address & ~0x3*/ _init_byte_address - 1)) {}
 
 public:
-    /// The init byte portion of cxa_guard_acquire. Returns true if
-    /// initialization has already been completed.
-    bool acquire() {
-        while (true) {
-            uint8_t last_val = UNSET;
-            if (init_byte.compare_exchange(&last_val, PENDING_BIT, std::_AO_Acq_Rel, std::_AO_Acquire)) {
-                if (has_thread_id_support) {
-                    thread_id.store(current_thread_id.get(), std::_AO_Relaxed);
-                }
-                return false;
-            }
-
-            if (last_val == COMPLETE_BIT)
-                return true;
-
-            if (last_val & PENDING_BIT) {
-
-                // Check for recursive initialization
-                if (has_thread_id_support && thread_id.load(std::_AO_Relaxed) == current_thread_id.get()) {
-                    ABORT_WITH_MESSAGE("__cxa_guard_acquire detected recursive initialization");
-                }
-
-                if ((last_val & WAITING_BIT) == 0) {
-                    // This compare exchange can fail for several reasons
-                    // (1) another thread finished the whole thing before we got here
-                    // (2) another thread set the waiting bit we were trying to thread
-                    // (3) another thread had an exception and failed to finish
-                    if (!init_byte.compare_exchange(&last_val, PENDING_BIT | WAITING_BIT, std::_AO_Acq_Rel, std::_AO_Release)) {
-                        // (1) success, via someone else's work!
-                        if (last_val == COMPLETE_BIT)
-                            return true;
-
-                        // (3) someone else, bailed on doing the work, retry from the start!
-                        if (last_val == UNSET)
-                            continue;
-
-                        // (2) the waiting bit got set, so we are happy to keep waiting
-                    }
-                }
-                wait_on_initialization();
-            }
+  /// The init byte portion of cxa_guard_acquire. Returns true if
+  /// initialization has already been completed.
+  bool acquire() {
+    while (true) {
+      uint8_t last_val = UNSET;
+      if (init_byte.compare_exchange(&last_val, PENDING_BIT, std::_AO_Acq_Rel, std::_AO_Acquire)) {
+        if (has_thread_id_support) {
+          thread_id.store(current_thread_id.get(), std::_AO_Relaxed);
         }
-    }
+        return false;
+      }
 
-    /// The init byte portion of cxa_guard_release.
-    void release() {
-        uint8_t old = init_byte.exchange(COMPLETE_BIT, std::_AO_Acq_Rel);
-        if (old & WAITING_BIT)
-            wake_all();
-    }
+      if (last_val == COMPLETE_BIT)
+        return true;
 
-    /// The init byte portion of cxa_guard_abort.
-    void abort() {
-        if (has_thread_id_support)
-            thread_id.store(0, std::_AO_Relaxed);
+      if (last_val & PENDING_BIT) {
 
-        uint8_t old = init_byte.exchange(UNSET, std::_AO_Acq_Rel);
-        if (old & WAITING_BIT)
-            wake_all();
+        // Check for recursive initialization
+        if (has_thread_id_support && thread_id.load(std::_AO_Relaxed) == current_thread_id.get()) {
+          ABORT_WITH_MESSAGE("__cxa_guard_acquire detected recursive initialization");
+        }
+
+        if ((last_val & WAITING_BIT) == 0) {
+          // This compare exchange can fail for several reasons
+          // (1) another thread finished the whole thing before we got here
+          // (2) another thread set the waiting bit we were trying to thread
+          // (3) another thread had an exception and failed to finish
+          if (!init_byte.compare_exchange(&last_val, PENDING_BIT | WAITING_BIT, std::_AO_Acq_Rel, std::_AO_Release)) {
+            // (1) success, via someone else's work!
+            if (last_val == COMPLETE_BIT)
+              return true;
+
+            // (3) someone else, bailed on doing the work, retry from the start!
+            if (last_val == UNSET)
+              continue;
+
+            // (2) the waiting bit got set, so we are happy to keep waiting
+          }
+        }
+        wait_on_initialization();
+      }
     }
+  }
+
+  /// The init byte portion of cxa_guard_release.
+  void release() {
+    uint8_t old = init_byte.exchange(COMPLETE_BIT, std::_AO_Acq_Rel);
+    if (old & WAITING_BIT)
+      wake_all();
+  }
+
+  /// The init byte portion of cxa_guard_abort.
+  void abort() {
+    if (has_thread_id_support)
+      thread_id.store(0, std::_AO_Relaxed);
+
+    uint8_t old = init_byte.exchange(UNSET, std::_AO_Acq_Rel);
+    if (old & WAITING_BIT)
+      wake_all();
+  }
 
 private:
-    /// Use the futex to wait on the current guard variable. Futex expects a
-    /// 32-bit 4-byte aligned address as the first argument, so we use the 4-byte
-    /// aligned address that encompasses the init byte (i.e. the address of the
-    /// raw guard object that was passed to __cxa_guard_acquire/release/abort).
-    void wait_on_initialization() {
-        Wait(base_address, expected_value_for_futex(PENDING_BIT | WAITING_BIT));
-    }
-    void wake_all() {
-        Wake(base_address);
-    }
+  /// Use the futex to wait on the current guard variable. Futex expects a
+  /// 32-bit 4-byte aligned address as the first argument, so we use the 4-byte
+  /// aligned address that encompasses the init byte (i.e. the address of the
+  /// raw guard object that was passed to __cxa_guard_acquire/release/abort).
+  void wait_on_initialization() { Wait(base_address, expected_value_for_futex(PENDING_BIT | WAITING_BIT)); }
+  void wake_all() { Wake(base_address); }
 
 private:
-    AtomicInt<uint8_t> init_byte;
+  AtomicInt<uint8_t> init_byte;
 
-    const bool has_thread_id_support;
-    // Unsafe to use unless has_thread_id_support
-    AtomicInt<uint32_t> thread_id;
-    LazyValue<uint32_t, GetThreadIDArg> current_thread_id;
+  const bool has_thread_id_support;
+  // Unsafe to use unless has_thread_id_support
+  AtomicInt<uint32_t> thread_id;
+  LazyValue<uint32_t, GetThreadIDArg> current_thread_id;
 
-    /// the 4-byte-aligned address that encompasses the init byte (i.e. the
-    /// address of the raw guard object).
-    int* const base_address;
+  /// the 4-byte-aligned address that encompasses the init byte (i.e. the
+  /// address of the raw guard object).
+  int* const base_address;
 
-    /// Create the expected integer value for futex `wait(int* addr, int expected)`.
-    /// We pass the base address as the first argument, So this function creates
-    /// an zero-initialized integer  with `b` copied at the correct offset.
-    static int expected_value_for_futex(uint8_t b) {
-        int dest_val = 0;
-        std::memcpy(reinterpret_cast<char*>(&dest_val) + 1, &b, 1);
-        return dest_val;
-    }
+  /// Create the expected integer value for futex `wait(int* addr, int expected)`.
+  /// We pass the base address as the first argument, So this function creates
+  /// an zero-initialized integer  with `b` copied at the correct offset.
+  static int expected_value_for_futex(uint8_t b) {
+    int dest_val = 0;
+    std::memcpy(reinterpret_cast<char*>(&dest_val) + 1, &b, 1);
+    return dest_val;
+  }
 
-    static_assert(Wait != nullptr && Wake != nullptr, "");
+  static_assert(Wait != nullptr && Wake != nullptr, "");
 };
 
 //===----------------------------------------------------------------------===//
@@ -564,8 +538,8 @@ private:
 //===----------------------------------------------------------------------===//
 
 enum class AcquireResult {
-    INIT_IS_DONE,
-    INIT_IS_PENDING,
+  INIT_IS_DONE,
+  INIT_IS_PENDING,
 };
 constexpr AcquireResult INIT_IS_DONE = AcquireResult::INIT_IS_DONE;
 constexpr AcquireResult INIT_IS_PENDING = AcquireResult::INIT_IS_PENDING;
@@ -573,50 +547,50 @@ constexpr AcquireResult INIT_IS_PENDING = AcquireResult::INIT_IS_PENDING;
 /// Co-ordinates between GuardByte and InitByte.
 template <class InitByteT>
 struct GuardObject {
-    GuardObject() = delete;
-    GuardObject(GuardObject const&) = delete;
-    GuardObject& operator=(GuardObject const&) = delete;
+  GuardObject() = delete;
+  GuardObject(GuardObject const&) = delete;
+  GuardObject& operator=(GuardObject const&) = delete;
 
 private:
-    GuardByte guard_byte;
-    InitByteT init_byte;
+  GuardByte guard_byte;
+  InitByteT init_byte;
 
 public:
-    /// ARM Constructor
-    explicit GuardObject(uint32_t* raw_guard_object)
-        : guard_byte(reinterpret_cast<uint8_t*>(raw_guard_object)),
-          init_byte(reinterpret_cast<uint8_t*>(raw_guard_object) + 1, nullptr) {}
+  /// ARM Constructor
+  explicit GuardObject(uint32_t* raw_guard_object)
+      : guard_byte(reinterpret_cast<uint8_t*>(raw_guard_object)),
+        init_byte(reinterpret_cast<uint8_t*>(raw_guard_object) + 1, nullptr) {}
 
-    /// Itanium Constructor
-    explicit GuardObject(uint64_t* raw_guard_object)
-        : guard_byte(reinterpret_cast<uint8_t*>(raw_guard_object)),
-          init_byte(reinterpret_cast<uint8_t*>(raw_guard_object) + 1, reinterpret_cast<uint32_t*>(raw_guard_object) + 1) {
-    }
+  /// Itanium Constructor
+  explicit GuardObject(uint64_t* raw_guard_object)
+      : guard_byte(reinterpret_cast<uint8_t*>(raw_guard_object)),
+        init_byte(reinterpret_cast<uint8_t*>(raw_guard_object) + 1, reinterpret_cast<uint32_t*>(raw_guard_object) + 1) {
+  }
 
-    /// Implements __cxa_guard_acquire.
-    AcquireResult cxa_guard_acquire() {
-        // Use short-circuit evaluation to avoid calling init_byte.acquire when
-        // guard_byte.acquire returns true. (i.e. don't call it when we know from
-        // the guard byte that initialization has already been completed)
-        if (guard_byte.acquire() || init_byte.acquire())
-            return INIT_IS_DONE;
-        return INIT_IS_PENDING;
-    }
+  /// Implements __cxa_guard_acquire.
+  AcquireResult cxa_guard_acquire() {
+    // Use short-circuit evaluation to avoid calling init_byte.acquire when
+    // guard_byte.acquire returns true. (i.e. don't call it when we know from
+    // the guard byte that initialization has already been completed)
+    if (guard_byte.acquire() || init_byte.acquire())
+      return INIT_IS_DONE;
+    return INIT_IS_PENDING;
+  }
 
-    /// Implements __cxa_guard_release.
-    void cxa_guard_release() {
-        // Update guard byte first, so if somebody is woken up by init_byte.release
-        // and comes all the way back around to __cxa_guard_acquire again, they see
-        // it as having completed initialization.
-        guard_byte.release();
-        init_byte.release();
-    }
+  /// Implements __cxa_guard_release.
+  void cxa_guard_release() {
+    // Update guard byte first, so if somebody is woken up by init_byte.release
+    // and comes all the way back around to __cxa_guard_acquire again, they see
+    // it as having completed initialization.
+    guard_byte.release();
+    init_byte.release();
+  }
 
-    /// Implements __cxa_guard_abort.
-    void cxa_guard_abort() {
-        guard_byte.abort();
-        init_byte.abort();
-    }
+  /// Implements __cxa_guard_abort.
+  void cxa_guard_abort() {
+    guard_byte.abort();
+    init_byte.abort();
+  }
 };
 
 //===----------------------------------------------------------------------===//
@@ -645,7 +619,7 @@ using FutexGuard = GuardObject<InitByteFutex<Wait, Wake, GetThreadIDArg>>;
 
 template <class T>
 struct GlobalStatic {
-    static T instance;
+  static T instance;
 };
 template <class T>
 _LIBCPP_CONSTINIT T GlobalStatic<T>::instance = {};
@@ -657,18 +631,18 @@ struct SelectImplementation;
 
 template <>
 struct SelectImplementation<Implementation::NoThreads> {
-    using type = NoThreadsGuard;
+  using type = NoThreadsGuard;
 };
 
 template <>
 struct SelectImplementation<Implementation::GlobalMutex> {
-    using type = GlobalMutexGuard<LibcppMutex, LibcppCondVar, GlobalStatic<LibcppMutex>::instance,
-          GlobalStatic<LibcppCondVar>::instance, PlatformThreadID>;
+  using type = GlobalMutexGuard<LibcppMutex, LibcppCondVar, GlobalStatic<LibcppMutex>::instance,
+                                GlobalStatic<LibcppCondVar>::instance, PlatformThreadID>;
 };
 
 template <>
 struct SelectImplementation<Implementation::Futex> {
-    using type = FutexGuard<PlatformFutexWait, PlatformFutexWake, PlatformThreadID>;
+  using type = FutexGuard<PlatformFutexWait, PlatformFutexWake, PlatformThreadID>;
 };
 
 // TODO(EricWF): We should prefer the futex implementation when available. But

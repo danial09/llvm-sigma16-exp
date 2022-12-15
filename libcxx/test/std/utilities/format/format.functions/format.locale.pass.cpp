@@ -30,29 +30,29 @@
 
 auto test =
     []<class CharT, class... Args>(
-            std::basic_string_view<CharT> expected, test_format_string<CharT, Args...> fmt, Args&&... args) constexpr {
-    std::basic_string<CharT> out = std::format(std::locale(), fmt, std::forward<Args>(args)...);
-    if constexpr (std::same_as<CharT, char>)
+        std::basic_string_view<CharT> expected, test_format_string<CharT, Args...> fmt, Args&&... args) constexpr {
+      std::basic_string<CharT> out = std::format(std::locale(), fmt, std::forward<Args>(args)...);
+      if constexpr (std::same_as<CharT, char>)
         if (out != expected)
-            std::cerr << "\nFormat string   " << fmt.get() << "\nExpected output " << expected << "\nActual output   "
-                      << out << '\n';
-    assert(out == expected);
-};
+          std::cerr << "\nFormat string   " << fmt.get() << "\nExpected output " << expected << "\nActual output   "
+                    << out << '\n';
+      assert(out == expected);
+    };
 
 auto test_exception = []<class CharT, class... Args>(std::string_view, std::basic_string_view<CharT>, Args&&...) {
-    // After P2216 most exceptions thrown by std::format become ill-formed.
-    // Therefore this tests does nothing.
-    // A basic ill-formed test is done in format.locale.verify.cpp
-    // The exceptions are tested by other functions that don't use the basic-format-string as fmt argument.
+  // After P2216 most exceptions thrown by std::format become ill-formed.
+  // Therefore this tests does nothing.
+  // A basic ill-formed test is done in format.locale.verify.cpp
+  // The exceptions are tested by other functions that don't use the basic-format-string as fmt argument.
 };
 
 int main(int, char**) {
-    format_tests<char>(test, test_exception);
+  format_tests<char>(test, test_exception);
 
 #ifndef TEST_HAS_NO_WIDE_CHARACTERS
-    format_tests_char_to_wchar_t(test);
-    format_tests<wchar_t>(test, test_exception);
+  format_tests_char_to_wchar_t(test);
+  format_tests<wchar_t>(test, test_exception);
 #endif
 
-    return 0;
+  return 0;
 }

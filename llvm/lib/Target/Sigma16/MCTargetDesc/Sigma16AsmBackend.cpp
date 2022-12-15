@@ -21,14 +21,14 @@ using namespace llvm;
 // TODO: Implement this.
 std::unique_ptr<MCObjectTargetWriter>
 Sigma16AsmBackend::createObjectTargetWriter() const {
-    return createSigma16ELFObjectWriter(TheTriple);
+  return createSigma16ELFObjectWriter(TheTriple);
 }
 
 MCAsmBackend *llvm::createSigma16AsmBackend(const Target &T,
-        const MCSubtargetInfo &STI,
-        const MCRegisterInfo &MRI,
-        const MCTargetOptions &Options) {
-    return new Sigma16AsmBackend(T, STI.getTargetTriple());
+                                            const MCSubtargetInfo &STI,
+                                            const MCRegisterInfo &MRI,
+                                            const MCTargetOptions &Options) {
+  return new Sigma16AsmBackend(T, STI.getTargetTriple());
 }
 
 void Sigma16AsmBackend::applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
@@ -36,17 +36,17 @@ void Sigma16AsmBackend::applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
                                    MutableArrayRef<char> Data, uint64_t Value,
                                    bool IsResolved,
                                    const MCSubtargetInfo *STI) const {
-    unsigned NumBytes = 2; // FIXME: Get this from the fixup kind.
-    unsigned Offset = Fixup.getOffset();
+  unsigned NumBytes = 2; // FIXME: Get this from the fixup kind.
+  unsigned Offset = Fixup.getOffset();
 
-    for (unsigned i = 0; i != NumBytes; ++i) {
-        Data[Offset + i] = uint8_t(Value >> (i * 8));
-    }
+  for (unsigned i = 0; i != NumBytes; ++i) {
+    Data[Offset + i] = uint8_t(Value >> (i * 8));
+  }
 }
 
 const MCFixupKindInfo &
 Sigma16AsmBackend::getFixupKindInfo(MCFixupKind Kind) const {
-    // TODO: Implement this.
+  // TODO: Implement this.
 
-    return llvm::MCAsmBackend::getFixupKindInfo(Kind);
+  return llvm::MCAsmBackend::getFixupKindInfo(Kind);
 }

@@ -20,56 +20,43 @@
 
 #if TEST_STD_VER >= 14
 
-template<class T, int N>
+template <class T, int N>
 class ConstexprFixedCapacityDeque {
-    T data_[N];
-    int size_ = 0;
+  T data_[N];
+  int size_ = 0;
+
 public:
-    using value_type = T;
-    using iterator = T *;
-    using const_iterator = T const *;
+  using value_type     = T;
+  using iterator       = T*;
+  using const_iterator = T const*;
 
-    constexpr ConstexprFixedCapacityDeque() = default;
-    constexpr iterator begin() {
-        return data_;
-    }
-    constexpr iterator end() {
-        return data_ + size_;
-    }
-    constexpr const_iterator begin() const {
-        return data_;
-    }
-    constexpr const_iterator end() const {
-        return data_ + size_;
-    }
-    constexpr size_t size() const {
-        return size_;
-    }
-    constexpr const T& front() const {
-        assert(size_ >= 1);
-        return data_[0];
-    }
-    constexpr const T& back() const {
-        assert(size_ >= 1);
-        return data_[size_-1];
-    }
+  constexpr ConstexprFixedCapacityDeque() = default;
+  constexpr iterator begin() { return data_; }
+  constexpr iterator end() { return data_ + size_; }
+  constexpr const_iterator begin() const { return data_; }
+  constexpr const_iterator end() const { return data_ + size_; }
+  constexpr size_t size() const { return size_; }
+  constexpr const T& front() const {
+    assert(size_ >= 1);
+    return data_[0];
+  }
+  constexpr const T& back() const {
+    assert(size_ >= 1);
+    return data_[size_ - 1];
+  }
 
-    constexpr iterator insert(const_iterator pos, T t) {
-        int i = static_cast<int>(pos - data_);
-        if (i != size_) {
-            std::move_backward(data_ + i, data_ + size_, data_ + size_ + 1);
-        }
-        data_[i] = std::move(t);
-        size_ += 1;
-        return data_ + i;
+  constexpr iterator insert(const_iterator pos, T t) {
+    int i = static_cast<int>(pos - data_);
+    if (i != size_) {
+      std::move_backward(data_ + i, data_ + size_, data_ + size_ + 1);
     }
+    data_[i] = std::move(t);
+    size_ += 1;
+    return data_ + i;
+  }
 
-    constexpr void push_back(T t) {
-        insert(end(), std::move(t));
-    }
-    constexpr void push_front(T t) {
-        insert(begin(), std::move(t));
-    }
+  constexpr void push_back(T t) { insert(end(), std::move(t)); }
+  constexpr void push_front(T t) { insert(begin(), std::move(t)); }
 };
 
 #endif // TEST_STD_VER >= 14

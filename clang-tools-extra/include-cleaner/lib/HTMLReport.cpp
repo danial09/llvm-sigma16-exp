@@ -154,7 +154,7 @@ class Reporter {
   };
   std::vector<Ref> Refs;
   llvm::DenseMap<const Include *, std::vector<unsigned>> IncludeRefs;
-  llvm::StringMap<std::vector</*RefIndex*/unsigned>> Insertion;
+  llvm::StringMap<std::vector</*RefIndex*/ unsigned>> Insertion;
 
   llvm::StringRef includeType(const Include *I) {
     auto &List = IncludeRefs[I];
@@ -170,11 +170,11 @@ class Reporter {
   std::string spellHeader(const Header &H) {
     switch (H.kind()) {
     case Header::Physical: {
-  bool IsSystem = false;
-  std::string Path = HS.suggestPathToFileForDiagnostics(
-      H.physical(), MainFE->tryGetRealPathName(), &IsSystem);
-  return IsSystem ? "<" + Path + ">" : "\"" + Path + "\"";
-}
+      bool IsSystem = false;
+      std::string Path = HS.suggestPathToFileForDiagnostics(
+          H.physical(), MainFE->tryGetRealPathName(), &IsSystem);
+      return IsSystem ? "<" + Path + ">" : "\"" + Path + "\"";
+    }
     case Header::Standard:
       return H.standard().name().str();
     case Header::Verbatim:
@@ -321,7 +321,7 @@ private:
     printFilename(SM.getSpellingLoc(Loc).printToString(SM));
     OS << ">";
   }
-  
+
   // Write "Provides: " rows of an include or include-insertion table.
   // These describe the symbols the header provides, referenced by RefIndices.
   void writeProvides(llvm::ArrayRef<unsigned> RefIndices) {
@@ -366,7 +366,7 @@ private:
     }
     OS << "</table>";
   }
-  
+
   void writeInsertion(llvm::StringRef Text, llvm::ArrayRef<unsigned> Refs) {
     OS << "<table class='insertion'>";
     writeProvides(Refs);
@@ -440,7 +440,7 @@ private:
     llvm::sort(Insertions);
     for (llvm::StringRef Insertion : Insertions) {
       OS << "<code class='line added'>"
-          << "<span class='inc sel inserted' data-hover='i";
+         << "<span class='inc sel inserted' data-hover='i";
       escapeString(Insertion);
       OS << "'>#include ";
       escapeString(Insertion);

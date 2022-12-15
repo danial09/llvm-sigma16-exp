@@ -34,49 +34,49 @@ void RegisterContextPOSIX_loongarch64::invalidate() {}
 void RegisterContextPOSIX_loongarch64::InvalidateAllRegisters() {}
 
 size_t RegisterContextPOSIX_loongarch64::GetRegisterCount() {
-    return m_register_info_up->GetRegisterCount();
+  return m_register_info_up->GetRegisterCount();
 }
 
 size_t RegisterContextPOSIX_loongarch64::GetGPRSize() {
-    return m_register_info_up->GetGPRSize();
+  return m_register_info_up->GetGPRSize();
 }
 
 unsigned RegisterContextPOSIX_loongarch64::GetRegisterSize(unsigned int reg) {
-    return m_register_info_up->GetRegisterInfo()[reg].byte_size;
+  return m_register_info_up->GetRegisterInfo()[reg].byte_size;
 }
 
 unsigned RegisterContextPOSIX_loongarch64::GetRegisterOffset(unsigned int reg) {
-    return m_register_info_up->GetRegisterInfo()[reg].byte_offset;
+  return m_register_info_up->GetRegisterInfo()[reg].byte_offset;
 }
 
 const lldb_private::RegisterInfo *
 RegisterContextPOSIX_loongarch64::GetRegisterInfoAtIndex(size_t reg) {
-    if (reg < GetRegisterCount())
-        return &GetRegisterInfo()[reg];
+  if (reg < GetRegisterCount())
+    return &GetRegisterInfo()[reg];
 
-    return nullptr;
+  return nullptr;
 }
 
 size_t RegisterContextPOSIX_loongarch64::GetRegisterSetCount() {
-    return m_register_info_up->GetRegisterCount();
+  return m_register_info_up->GetRegisterCount();
 }
 
 const lldb_private::RegisterSet *
 RegisterContextPOSIX_loongarch64::GetRegisterSet(size_t set) {
-    return m_register_info_up->GetRegisterSet(set);
+  return m_register_info_up->GetRegisterSet(set);
 }
 
 const lldb_private::RegisterInfo *
 RegisterContextPOSIX_loongarch64::GetRegisterInfo() {
-    return m_register_info_up->GetRegisterInfo();
+  return m_register_info_up->GetRegisterInfo();
 }
 
 bool RegisterContextPOSIX_loongarch64::IsGPR(unsigned int reg) {
-    return m_register_info_up->GetRegisterSetFromRegisterIndex(reg) ==
-           RegisterInfoPOSIX_loongarch64::GPRegSet;
+  return m_register_info_up->GetRegisterSetFromRegisterIndex(reg) ==
+         RegisterInfoPOSIX_loongarch64::GPRegSet;
 }
 
 bool RegisterContextPOSIX_loongarch64::IsFPR(unsigned int reg) {
-    return m_register_info_up->GetRegisterSetFromRegisterIndex(reg) ==
-           RegisterInfoPOSIX_loongarch64::FPRegSet;
+  return m_register_info_up->GetRegisterSetFromRegisterIndex(reg) ==
+         RegisterInfoPOSIX_loongarch64::FPRegSet;
 }

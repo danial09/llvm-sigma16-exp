@@ -14,7 +14,7 @@
 // This overload should never be called. It exists solely to force subsumption.
 template <std::integral I>
 constexpr bool CheckSubsumption(I) {
-    return false;
+  return false;
 }
 
 // clang-format off

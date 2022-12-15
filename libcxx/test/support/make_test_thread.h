@@ -14,9 +14,9 @@
 
 namespace support {
 
-template <class F, class ...Args>
-std::thread make_test_thread(F&& f, Args&& ...args) {
-    return std::thread(std::forward<F>(f), std::forward<Args>(args)...);
+template <class F, class... Args>
+std::thread make_test_thread(F&& f, Args&&... args) {
+  return std::thread(std::forward<F>(f), std::forward<Args>(args)...);
 }
 
 } // end namespace support

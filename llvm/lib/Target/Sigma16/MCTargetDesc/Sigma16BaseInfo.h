@@ -24,17 +24,17 @@ namespace llvm {
 ///@Sigma16II {
 namespace Sigma16II {
 enum {
-    InstFormatPseudo = 0,
-    InstFormatRRR = 1,
-    InstFormatRX = 2,
-    InstFormatROther = 3,
+  InstFormatPseudo = 0,
+  InstFormatRRR = 1,
+  InstFormatRX = 2,
+  InstFormatROther = 3,
 
-    InstFormatMask = 15
+  InstFormatMask = 15
 };
 
 // Sigma16 Specific MachineOperand flags.
 enum {
-    MO_NO_FLAG,
+  MO_NO_FLAG,
 };
 } // end namespace Sigma16II
 } // end namespace llvm

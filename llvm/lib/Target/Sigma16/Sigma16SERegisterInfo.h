@@ -22,8 +22,8 @@ class Sigma16SEInstrInfo;
 
 class Sigma16SERegisterInfo : public Sigma16RegisterInfo {
 public:
-    Sigma16SERegisterInfo(const Sigma16Subtarget &Subtarget);
-    const TargetRegisterClass *intRegClass(unsigned Size) const override;
+  Sigma16SERegisterInfo(const Sigma16Subtarget &Subtarget);
+  const TargetRegisterClass *intRegClass(unsigned Size) const override;
 };
 
 } // end namespace llvm
