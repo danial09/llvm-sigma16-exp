@@ -75,75 +75,75 @@ namespace mlir {
 
 /// Add all the MLIR dialects to the provided registry.
 inline void registerAllDialects(DialectRegistry &registry) {
-  // clang-format off
-  registry.insert<acc::OpenACCDialect,
-                  AffineDialect,
-                  arith::ArithDialect,
-                  amdgpu::AMDGPUDialect,
-                  amx::AMXDialect,
-                  arm_neon::ArmNeonDialect,
-                  async::AsyncDialect,
-                  bufferization::BufferizationDialect,
-                  cf::ControlFlowDialect,
-                  complex::ComplexDialect,
-                  DLTIDialect,
-                  emitc::EmitCDialect,
-                  func::FuncDialect,
-                  gpu::GPUDialect,
-                  index::IndexDialect,
-                  LLVM::LLVMDialect,
-                  linalg::LinalgDialect,
-                  math::MathDialect,
-                  memref::MemRefDialect,
-                  ml_program::MLProgramDialect,
-                  nvgpu::NVGPUDialect,
-                  scf::SCFDialect,
-                  omp::OpenMPDialect,
-                  pdl::PDLDialect,
-                  pdl_interp::PDLInterpDialect,
-                  quant::QuantizationDialect,
-                  spirv::SPIRVDialect,
-                  arm_sve::ArmSVEDialect,
-                  vector::VectorDialect,
-                  NVVM::NVVMDialect,
-                  ROCDL::ROCDLDialect,
-                  shape::ShapeDialect,
-                  sparse_tensor::SparseTensorDialect,
-                  tensor::TensorDialect,
-                  transform::TransformDialect,
-                  tosa::TosaDialect,
-                  x86vector::X86VectorDialect>();
-  // clang-format on
+    // clang-format off
+    registry.insert<acc::OpenACCDialect,
+                    AffineDialect,
+                    arith::ArithDialect,
+                    amdgpu::AMDGPUDialect,
+                    amx::AMXDialect,
+                    arm_neon::ArmNeonDialect,
+                    async::AsyncDialect,
+                    bufferization::BufferizationDialect,
+                    cf::ControlFlowDialect,
+                    complex::ComplexDialect,
+                    DLTIDialect,
+                    emitc::EmitCDialect,
+                    func::FuncDialect,
+                    gpu::GPUDialect,
+                    index::IndexDialect,
+                    LLVM::LLVMDialect,
+                    linalg::LinalgDialect,
+                    math::MathDialect,
+                    memref::MemRefDialect,
+                    ml_program::MLProgramDialect,
+                    nvgpu::NVGPUDialect,
+                    scf::SCFDialect,
+                    omp::OpenMPDialect,
+                    pdl::PDLDialect,
+                    pdl_interp::PDLInterpDialect,
+                    quant::QuantizationDialect,
+                    spirv::SPIRVDialect,
+                    arm_sve::ArmSVEDialect,
+                    vector::VectorDialect,
+                    NVVM::NVVMDialect,
+                    ROCDL::ROCDLDialect,
+                    shape::ShapeDialect,
+                    sparse_tensor::SparseTensorDialect,
+                    tensor::TensorDialect,
+                    transform::TransformDialect,
+                    tosa::TosaDialect,
+                    x86vector::X86VectorDialect>();
+    // clang-format on
 
-  // Register all dialect extensions.
-  affine::registerTransformDialectExtension(registry);
-  bufferization::registerTransformDialectExtension(registry);
-  gpu::registerTransformDialectExtension(registry);
-  linalg::registerTransformDialectExtension(registry);
-  memref::registerTransformDialectExtension(registry);
-  scf::registerTransformDialectExtension(registry);
-  vector::registerTransformDialectExtension(registry);
+    // Register all dialect extensions.
+    affine::registerTransformDialectExtension(registry);
+    bufferization::registerTransformDialectExtension(registry);
+    gpu::registerTransformDialectExtension(registry);
+    linalg::registerTransformDialectExtension(registry);
+    memref::registerTransformDialectExtension(registry);
+    scf::registerTransformDialectExtension(registry);
+    vector::registerTransformDialectExtension(registry);
 
-  // Register all external models.
-  arith::registerBufferizableOpInterfaceExternalModels(registry);
-  bufferization::func_ext::registerBufferizableOpInterfaceExternalModels(
-      registry);
-  linalg::registerBufferizableOpInterfaceExternalModels(registry);
-  linalg::registerTilingInterfaceExternalModels(registry);
-  scf::registerBufferizableOpInterfaceExternalModels(registry);
-  shape::registerBufferizableOpInterfaceExternalModels(registry);
-  sparse_tensor::registerBufferizableOpInterfaceExternalModels(registry);
-  tensor::registerBufferizableOpInterfaceExternalModels(registry);
-  tensor::registerInferTypeOpInterfaceExternalModels(registry);
-  tensor::registerTilingInterfaceExternalModels(registry);
-  vector::registerBufferizableOpInterfaceExternalModels(registry);
+    // Register all external models.
+    arith::registerBufferizableOpInterfaceExternalModels(registry);
+    bufferization::func_ext::registerBufferizableOpInterfaceExternalModels(
+        registry);
+    linalg::registerBufferizableOpInterfaceExternalModels(registry);
+    linalg::registerTilingInterfaceExternalModels(registry);
+    scf::registerBufferizableOpInterfaceExternalModels(registry);
+    shape::registerBufferizableOpInterfaceExternalModels(registry);
+    sparse_tensor::registerBufferizableOpInterfaceExternalModels(registry);
+    tensor::registerBufferizableOpInterfaceExternalModels(registry);
+    tensor::registerInferTypeOpInterfaceExternalModels(registry);
+    tensor::registerTilingInterfaceExternalModels(registry);
+    vector::registerBufferizableOpInterfaceExternalModels(registry);
 }
 
 /// Append all the MLIR dialects to the registry contained in the given context.
 inline void registerAllDialects(MLIRContext &context) {
-  DialectRegistry registry;
-  registerAllDialects(registry);
-  context.appendDialectRegistry(registry);
+    DialectRegistry registry;
+    registerAllDialects(registry);
+    context.appendDialectRegistry(registry);
 }
 
 } // namespace mlir

@@ -17,13 +17,13 @@
 #include "test_macros.h"
 
 template <class T>
-  struct IsSmallObject
+struct IsSmallObject
     : public std::integral_constant<bool
-        , sizeof(T) <= (sizeof(void*)*3)
-          && std::alignment_of<void*>::value
-             % std::alignment_of<T>::value == 0
-          && std::is_nothrow_move_constructible<T>::value
-        >
+, sizeof(T) <= (sizeof(void*)*3)
+  && std::alignment_of<void*>::value
+  % std::alignment_of<T>::value == 0
+  && std::is_nothrow_move_constructible<T>::value
+  >
   {};
 
 
@@ -221,9 +221,9 @@ struct my_any_exception {};
 
 void throwMyAnyExpression() {
 #if !defined(TEST_HAS_NO_EXCEPTIONS)
-        throw my_any_exception();
+    throw my_any_exception();
 #else
-        assert(false && "Exceptions are disabled");
+    assert(false && "Exceptions are disabled");
 #endif
 }
 
@@ -270,7 +270,7 @@ struct large_throws_on_copy
     }
 
     large_throws_on_copy(large_throws_on_copy const &) {
-         throwMyAnyExpression();
+        throwMyAnyExpression();
     }
 
     large_throws_on_copy(large_throws_on_copy && other) throw() {
@@ -297,7 +297,9 @@ struct throws_on_move
     static int count;
     int value;
 
-    explicit throws_on_move(int val = 0) : value(val) { ++count; }
+    explicit throws_on_move(int val = 0) : value(val) {
+        ++count;
+    }
 
     throws_on_move(throws_on_move const & other) {
         value = other.value;

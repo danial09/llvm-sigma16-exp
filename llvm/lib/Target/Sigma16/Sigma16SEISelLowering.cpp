@@ -28,31 +28,31 @@ using namespace llvm;
 #define DEBUG_TYPE "sigma16-isel"
 
 static cl::opt<bool>
-    EnableSigma16TailCalls("enable-sigma16-tail-calls", cl::Hidden,
-                           cl::desc("SIGMA16: Enable tail calls."),
-                           cl::init(false));
+EnableSigma16TailCalls("enable-sigma16-tail-calls", cl::Hidden,
+                       cl::desc("SIGMA16: Enable tail calls."),
+                       cl::init(false));
 
 //@Sigma16SETargetLowering {
 Sigma16SETargetLowering::Sigma16SETargetLowering(const Sigma16TargetMachine &TM,
-                                                 const Sigma16Subtarget &STI)
+        const Sigma16Subtarget &STI)
     : Sigma16TargetLowering(TM, STI) {
-  //@Sigma16SETargetLowering body {
-  // Set up the register classes
-  addRegisterClass(MVT::i16, &Sigma16::CPURegsRegClass);
+    //@Sigma16SETargetLowering body {
+    // Set up the register classes
+    addRegisterClass(MVT::i16, &Sigma16::CPURegsRegClass);
 
-  // must, computeRegisterProperties - Once all of the register classes are
-  //  added, this allows us to compute derived properties we expose.
-  computeRegisterProperties(Subtarget.getRegisterInfo());
+    // must, computeRegisterProperties - Once all of the register classes are
+    //  added, this allows us to compute derived properties we expose.
+    computeRegisterProperties(Subtarget.getRegisterInfo());
 }
 
 SDValue Sigma16SETargetLowering::LowerOperation(SDValue Op,
-                                                SelectionDAG &DAG) const {
+        SelectionDAG &DAG) const {
 
-  return Sigma16TargetLowering::LowerOperation(Op, DAG);
+    return Sigma16TargetLowering::LowerOperation(Op, DAG);
 }
 
 const Sigma16TargetLowering *
 llvm::createSigma16SETargetLowering(const Sigma16TargetMachine &TM,
                                     const Sigma16Subtarget &STI) {
-  return new Sigma16SETargetLowering(TM, STI);
+    return new Sigma16SETargetLowering(TM, STI);
 }

@@ -46,29 +46,30 @@ Sigma16RegisterInfo::Sigma16RegisterInfo(const Sigma16Subtarget &ST)
 // llc create CSR_O32_SaveList and CSR_O32_RegMask from above defined.
 const MCPhysReg *
 Sigma16RegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
-  return CC_Save_SaveList;
+    return CC_Save_SaveList;
 }
 
 const uint32_t *
 Sigma16RegisterInfo::getCallPreservedMask(const MachineFunction &MF,
-                                          CallingConv::ID) const {
-  return CC_Save_RegMask;
+        CallingConv::ID) const {
+    return CC_Save_RegMask;
 }
 
 // pure virtual method
 //@getReservedRegs {
 BitVector
 Sigma16RegisterInfo::getReservedRegs(const MachineFunction &MF) const {
-  //@getReservedRegs body {
-  std::array<uint16_t, 3> ReservedCPURegs = {Sigma16::R0, Sigma16::R14,
-                                             Sigma16::R13};
+    //@getReservedRegs body {
+    std::array<uint16_t, 3> ReservedCPURegs = {Sigma16::R0, Sigma16::R14,
+                                               Sigma16::R13
+                                              };
 
-  BitVector Reserved(getNumRegs());
+    BitVector Reserved(getNumRegs());
 
-  for (unsigned I = 0; I < ReservedCPURegs.size(); ++I)
-    Reserved.set(ReservedCPURegs[I]);
+    for (unsigned I = 0; I < ReservedCPURegs.size(); ++I)
+        Reserved.set(ReservedCPURegs[I]);
 
-  return Reserved;
+    return Reserved;
 }
 
 //@eliminateFrameIndex {
@@ -78,40 +79,42 @@ Sigma16RegisterInfo::getReservedRegs(const MachineFunction &MF) const {
 // We must replace FrameIndex with an stack/frame pointer
 // direct reference.
 bool Sigma16RegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
-                                              int SPAdj, unsigned FIOperandNum,
-                                              RegScavenger *RS) const {
-  // TODO: Implement remaining cases.
+        int SPAdj, unsigned FIOperandNum,
+        RegScavenger *RS) const {
+    // TODO: Implement remaining cases.
 
-  MachineInstr &MI = *II;
-  const MachineFunction &MF = *MI.getParent()->getParent();
-  const MachineFrameInfo &MFI = MF.getFrameInfo();
-  MachineOperand &FIOp = MI.getOperand(FIOperandNum);
-  unsigned FI = FIOp.getIndex();
+    MachineInstr &MI = *II;
+    const MachineFunction &MF = *MI.getParent()->getParent();
+    const MachineFrameInfo &MFI = MF.getFrameInfo();
+    MachineOperand &FIOp = MI.getOperand(FIOperandNum);
+    unsigned FI = FIOp.getIndex();
 
-  // Determine whether we can eliminate the frame index.
-  // If not, we must spill it.
-  unsigned ImmOpIdx = 0;
-  switch (MI.getOpcode()) {}
-  return false;
+    // Determine whether we can eliminate the frame index.
+    // If not, we must spill it.
+    unsigned ImmOpIdx = 0;
+    switch (MI.getOpcode()) {}
+    return false;
 }
 //}
 
 bool Sigma16RegisterInfo::requiresRegisterScavenging(
     const MachineFunction &MF) const {
-  return true;
+    return true;
 }
 
 bool Sigma16RegisterInfo::trackLivenessAfterRegAlloc(
     const MachineFunction &MF) const {
-  return true;
+    return true;
 }
 
 // pure virtual method
 Register
 Sigma16RegisterInfo::getFrameRegister(const MachineFunction &MF) const {
-  return Sigma16::R14;
-  //  const TargetFrameLowering *TFI = MF.getSubtarget().getFrameLowering();
-  //  return TFI->hasFP(MF) ? (Sigma16::R13) : (Sigma16::R14);
+    return Sigma16::R14;
+    //  const TargetFrameLowering *TFI = MF.getSubtarget().getFrameLowering();
+    //  return TFI->hasFP(MF) ? (Sigma16::R13) : (Sigma16::R14);
 }
 
-Register Sigma16RegisterInfo::getStackRegister() const { return Sigma16::R13; }
+Register Sigma16RegisterInfo::getStackRegister() const {
+    return Sigma16::R13;
+}

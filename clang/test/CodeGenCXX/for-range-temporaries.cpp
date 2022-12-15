@@ -6,28 +6,28 @@
 // RUN: %clang_cc1 -triple x86_64-apple-darwin10 -std=c++11 -emit-llvm -o - -DDESUGAR -DTEMPLATE -DDEPENDENT %s | FileCheck %s
 
 struct A {
-  A();
-  A(const A &);
-  ~A();
+    A();
+    A(const A &);
+    ~A();
 };
 
 struct B {
-  B();
-  B(const B &);
-  ~B();
+    B();
+    B(const B &);
+    ~B();
 };
 
 struct C {
-  C(const B &);
-  C(const C &);
-  ~C();
+    C(const B &);
+    C(const C &);
+    ~C();
 };
 
 struct E;
 struct D {
-  D(const C &);
-  D(const D &);
-  ~D();
+    D(const C &);
+    D(const D &);
+    ~D();
 };
 E begin(D);
 E end(D);
@@ -36,35 +36,35 @@ struct F;
 struct G;
 struct H;
 struct E {
-  E(const E &);
-  ~E();
-  F operator*();
-  G operator++();
-  H operator!=(const E &o);
+    E(const E &);
+    ~E();
+    F operator*();
+    G operator++();
+    H operator!=(const E &o);
 };
 
 struct I;
 struct F {
-  F(const F &);
-  ~F();
-  operator I();
+    F(const F &);
+    ~F();
+    operator I();
 };
 
 struct G {
-  G(const G &);
-  ~G();
-  operator bool();
+    G(const G &);
+    ~G();
+    operator bool();
 };
 
 struct H {
-  H(const H &);
-  ~H();
-  operator bool();
+    H(const H &);
+    ~H();
+    operator bool();
 };
 
 struct I {
-  I(const I &);
-  ~I();
+    I(const I &);
+    ~I();
 };
 
 void body(const I &);
@@ -77,20 +77,20 @@ template<typename>
 #endif
 #endif
 void for_temps() {
-  A a;
+    A a;
 #ifdef DESUGAR
-  {
-    auto && __range = D(B());
-    for (auto __begin = begin(__range), __end = end(__range);
-         __begin != __end; ++__begin) {
-      I i = *__begin;
-      body(i);
+    {
+        auto && __range = D(B());
+        for (auto __begin = begin(__range), __end = end(__range);
+                __begin != __end; ++__begin) {
+            I i = *__begin;
+            body(i);
+        }
     }
-  }
 #else
-  for (I i : D(B())) {
-    body(i);
-  }
+    for (I i : D(B())) {
+        body(i);
+    }
 #endif
 }
 

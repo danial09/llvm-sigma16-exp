@@ -39,17 +39,17 @@ _LIBCPP_AVAILABILITY_SYNC _LIBCPP_HIDE_FROM_ABI
 bool __libcpp_thread_poll_with_backoff(_Fn&& __f, _BFn&& __bf, chrono::nanoseconds __max_elapsed = chrono::nanoseconds::zero()) {
     auto const __start = chrono::high_resolution_clock::now();
     for (int __count = 0;;) {
-      if (__f())
-        return true; // _Fn completion means success
-      if (__count < __libcpp_polling_count) {
-        __count += 1;
-        continue;
-      }
-      chrono::nanoseconds const __elapsed = chrono::high_resolution_clock::now() - __start;
-      if (__max_elapsed != chrono::nanoseconds::zero() && __max_elapsed < __elapsed)
-          return false; // timeout failure
-      if (__bf(__elapsed))
-        return false; // _BFn completion means failure
+        if (__f())
+            return true; // _Fn completion means success
+        if (__count < __libcpp_polling_count) {
+            __count += 1;
+            continue;
+        }
+        chrono::nanoseconds const __elapsed = chrono::high_resolution_clock::now() - __start;
+        if (__max_elapsed != chrono::nanoseconds::zero() && __max_elapsed < __elapsed)
+            return false; // timeout failure
+        if (__bf(__elapsed))
+            return false; // _BFn completion means failure
     }
 }
 
@@ -60,10 +60,10 @@ bool __libcpp_thread_poll_with_backoff(_Fn&& __f, _BFn&& __bf, chrono::nanosecon
 // so this should most likely only be used on single-threaded systems where there
 // are no other threads to compete with.
 struct __spinning_backoff_policy {
-  _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR
-  bool operator()(chrono::nanoseconds const&) const {
-      return false;
-  }
+    _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR
+    bool operator()(chrono::nanoseconds const&) const {
+        return false;
+    }
 };
 
 _LIBCPP_END_NAMESPACE_STD

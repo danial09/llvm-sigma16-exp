@@ -26,44 +26,44 @@ class Target;
 class MCObjectWriter;
 
 class Sigma16AsmBackend : public MCAsmBackend {
-  Triple TheTriple;
+    Triple TheTriple;
 
 public:
-  Sigma16AsmBackend(const Target &T, const Triple &TT)
-      : MCAsmBackend(support::big), TheTriple(TT) {}
+    Sigma16AsmBackend(const Target &T, const Triple &TT)
+        : MCAsmBackend(support::big), TheTriple(TT) {}
 
-  std::unique_ptr<MCObjectTargetWriter>
-  createObjectTargetWriter() const override;
+    std::unique_ptr<MCObjectTargetWriter>
+    createObjectTargetWriter() const override;
 
-  void applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
-                  const MCValue &Target, MutableArrayRef<char> Data,
-                  uint64_t Value, bool IsResolved,
-                  const MCSubtargetInfo *STI) const override;
+    void applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
+                    const MCValue &Target, MutableArrayRef<char> Data,
+                    uint64_t Value, bool IsResolved,
+                    const MCSubtargetInfo *STI) const override;
 
-  const MCFixupKindInfo &getFixupKindInfo(MCFixupKind Kind) const override;
+    const MCFixupKindInfo &getFixupKindInfo(MCFixupKind Kind) const override;
 
-  unsigned getNumFixupKinds() const override {
-    return 0;
-    //    return Sigma16::NumTargetFixupKinds;
-  }
+    unsigned getNumFixupKinds() const override {
+        return 0;
+        //    return Sigma16::NumTargetFixupKinds;
+    }
 
-  bool mayNeedRelaxation(const MCInst &Inst,
-                         const MCSubtargetInfo &STI) const override {
-    return false;
-  }
+    bool mayNeedRelaxation(const MCInst &Inst,
+                           const MCSubtargetInfo &STI) const override {
+        return false;
+    }
 
-  bool fixupNeedsRelaxation(const MCFixup &Fixup, uint64_t Value,
-                            const MCRelaxableFragment *DF,
-                            const MCAsmLayout &Layout) const override {
-    // FIXME.
-    llvm_unreachable("RelaxInstruction() unimplemented");
-    return false;
-  }
+    bool fixupNeedsRelaxation(const MCFixup &Fixup, uint64_t Value,
+                              const MCRelaxableFragment *DF,
+                              const MCAsmLayout &Layout) const override {
+        // FIXME.
+        llvm_unreachable("RelaxInstruction() unimplemented");
+        return false;
+    }
 
-  bool writeNopData(raw_ostream &OS, uint64_t Count,
-                    const MCSubtargetInfo *STI) const override {
-    return false;
-  }
+    bool writeNopData(raw_ostream &OS, uint64_t Count,
+                      const MCSubtargetInfo *STI) const override {
+        return false;
+    }
 };
 } // end namespace llvm
 

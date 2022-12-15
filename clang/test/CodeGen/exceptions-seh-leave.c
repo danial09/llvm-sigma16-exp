@@ -7,15 +7,15 @@ void g(void);
 
 // Nothing in the __try block can trap, so __try.cont isn't created.
 int __leave_with___except_simple(void) {
-  int myres = 0;
-  __try {
-    myres = 15;
-    __leave;
-    myres = 23;
-  } __except (1) {
-    return 0;
-  }
-  return 1;
+    int myres = 0;
+    __try {
+        myres = 15;
+        __leave;
+        myres = 23;
+    } __except (1) {
+        return 0;
+    }
+    return 1;
 }
 // CHECK-LABEL: define dso_local i32 @__leave_with___except_simple()
 // CHECK: store i32 15, ptr %myres
@@ -27,15 +27,15 @@ int __leave_with___except_simple(void) {
 
 // The "normal" case.
 int __leave_with___except(void) {
-  int myres = 0;
-  __try {
-    g();
-    __leave;
-    myres = 23;
-  } __except (1) {
-    return 0;
-  }
-  return 1;
+    int myres = 0;
+    __try {
+        g();
+        __leave;
+        myres = 23;
+    } __except (1) {
+        return 0;
+    }
+    return 1;
 }
 // CHECK-LABEL: define dso_local i32 @__leave_with___except()
 // CHECK: invoke void @g()
@@ -59,15 +59,15 @@ void abort(void) __attribute__((noreturn));
 // Nothing in the __try block can trap, so __finally.cont and friends aren't
 // created.
 int __leave_with___finally_simple(void) {
-  int myres = 0;
-  __try {
-    myres = 15;
-    __leave;
-    myres = 23;
-  } __finally {
-    return 0;
-  }
-  return 1;
+    int myres = 0;
+    __try {
+        myres = 15;
+        __leave;
+        myres = 23;
+    } __finally {
+        return 0;
+    }
+    return 1;
 }
 // CHECK-LABEL: define dso_local i32 @__leave_with___finally_simple()
 // CHECK: store i32 15, ptr %myres
@@ -79,15 +79,15 @@ int __leave_with___finally_simple(void) {
 
 // __finally block doesn't return, __finally.cont doesn't exist.
 int __leave_with___finally_noreturn(void) {
-  int myres = 0;
-  __try {
-    myres = 15;
-    __leave;
-    myres = 23;
-  } __finally {
-    abort();
-  }
-  return 1;
+    int myres = 0;
+    __try {
+        myres = 15;
+        __leave;
+        myres = 23;
+    } __finally {
+        abort();
+    }
+    return 1;
 }
 // CHECK-LABEL: define dso_local i32 @__leave_with___finally_noreturn()
 // CHECK: store i32 15, ptr %myres
@@ -99,15 +99,15 @@ int __leave_with___finally_noreturn(void) {
 
 // The "normal" case.
 int __leave_with___finally(void) {
-  int myres = 0;
-  __try {
-    g();
-    __leave;
-    myres = 23;
-  } __finally {
-    return 0;
-  }
-  return 1;
+    int myres = 0;
+    __try {
+        g();
+        __leave;
+        myres = 23;
+    } __finally {
+        return 0;
+    }
+    return 1;
 }
 // CHECK-LABEL: define dso_local i32 @__leave_with___finally()
 // CHECK: invoke void @g()
@@ -126,21 +126,21 @@ int __leave_with___finally(void) {
 // Mixed, nested cases.
 
 int nested___except___finally(void) {
-  int myres = 0;
-  __try {
+    int myres = 0;
     __try {
-      g();
-    } __finally {
-      g();
-      __leave;  // Refers to the outer __try, not the __finally!
-      myres = 23;
-      return 0;
-    }
+        __try {
+            g();
+        } __finally {
+            g();
+            __leave;  // Refers to the outer __try, not the __finally!
+            myres = 23;
+            return 0;
+        }
 
-    myres = 51;
-  } __except (1) {
-  }
-  return 1;
+        myres = 51;
+    } __except (1) {
+    }
+    return 1;
 }
 // CHECK-LABEL: define dso_local i32 @nested___except___finally()
 
@@ -176,22 +176,22 @@ int nested___except___finally(void) {
 // CHECK: unreachable
 
 int nested___except___except(void) {
-  int myres = 0;
-  __try {
+    int myres = 0;
     __try {
-      g();
-      myres = 16;
-    } __except (1) {
-      g();
-      __leave;  // Refers to the outer __try, not the __except we're in!
-      myres = 23;
-      return 0;
-    }
+        __try {
+            g();
+            myres = 16;
+        } __except (1) {
+            g();
+            __leave;  // Refers to the outer __try, not the __except we're in!
+            myres = 23;
+            return 0;
+        }
 
-    myres = 51;
-  } __except (1) {
-  }
-  return 1;
+        myres = 51;
+    } __except (1) {
+    }
+    return 1;
 }
 // The order of basic blocks in the below doesn't matter.
 // CHECK-LABEL: define dso_local i32 @nested___except___except()
@@ -230,21 +230,21 @@ int nested___except___except(void) {
 // CHECK-NEXT: br label %[[trycont4]]
 
 int nested___finally___except(void) {
-  int myres = 0;
-  __try {
+    int myres = 0;
     __try {
-      g();
-    } __except (1) {
-      g();
-      __leave;  // Refers to the outer __try, not the __except!
-      myres = 23;
-      return 0;
-    }
+        __try {
+            g();
+        } __except (1) {
+            g();
+            __leave;  // Refers to the outer __try, not the __except!
+            myres = 23;
+            return 0;
+        }
 
-    myres = 51;
-  } __finally {
-  }
-  return 1;
+        myres = 51;
+    } __finally {
+    }
+    return 1;
 }
 // The order of basic blocks in the below doesn't matter.
 // CHECK-LABEL: define dso_local i32 @nested___finally___except()
@@ -284,22 +284,22 @@ int nested___finally___except(void) {
 // CHECK: ret void
 
 int nested___finally___finally(void) {
-  int myres = 0;
-  __try {
+    int myres = 0;
     __try {
-      g();
-      myres = 16;
-    } __finally {
-      g();
-      __leave;  // Refers to the outer __try, not the __finally we're in!
-      myres = 23;
-      return 0;
-    }
+        __try {
+            g();
+            myres = 16;
+        } __finally {
+            g();
+            __leave;  // Refers to the outer __try, not the __finally we're in!
+            myres = 23;
+            return 0;
+        }
 
-    myres = 51;
-  } __finally {
-  }
-  return 1;
+        myres = 51;
+    } __finally {
+    }
+    return 1;
 }
 // The order of basic blocks in the below doesn't matter.
 // CHECK-LABEL: define dso_local i32 @nested___finally___finally()

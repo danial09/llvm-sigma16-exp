@@ -33,15 +33,15 @@ Sigma16InstrInfo::Sigma16InstrInfo(const Sigma16Subtarget &STI)
     : Subtarget(STI) {}
 
 const Sigma16InstrInfo *Sigma16InstrInfo::create(Sigma16Subtarget &STI) {
-  return llvm::createSigma16SEInstrInfo(STI);
+    return llvm::createSigma16SEInstrInfo(STI);
 }
 
 //@GetInstSizeInBytes {
 /// Return the number of bytes of code the specified instruction may be.
 unsigned Sigma16InstrInfo::getInstSizeInBytes(const MachineInstr &MI) const {
-  //@GetInstSizeInBytes - body
-  switch (MI.getOpcode()) {
-  default:
-    return MI.getDesc().getSize();
-  }
+    //@GetInstSizeInBytes - body
+    switch (MI.getOpcode()) {
+    default:
+        return MI.getDesc().getSize();
+    }
 }

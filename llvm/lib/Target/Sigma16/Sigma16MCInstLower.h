@@ -25,16 +25,16 @@ class Sigma16AsmPrinter;
 //@1 {
 /// This class is used to lower an MachineInstr into an MCInst.
 class LLVM_LIBRARY_VISIBILITY Sigma16MCInstLower {
-  //@2
-  typedef MachineOperand::MachineOperandType MachineOperandType;
-  MCContext *Ctx;
-  Sigma16AsmPrinter &AsmPrinter;
+    //@2
+    typedef MachineOperand::MachineOperandType MachineOperandType;
+    MCContext *Ctx;
+    Sigma16AsmPrinter &AsmPrinter;
 
 public:
-  Sigma16MCInstLower(Sigma16AsmPrinter &Asmprinter);
-  void initialize(MCContext *C);
-  void lower(const MachineInstr *MI, MCInst &OutMI) const;
-  MCOperand lowerOperand(const MachineOperand &MO, unsigned offset = 0) const;
+    Sigma16MCInstLower(Sigma16AsmPrinter &Asmprinter);
+    void initialize(MCContext *C);
+    void lower(const MachineInstr *MI, MCInst &OutMI) const;
+    MCOperand lowerOperand(const MachineOperand &MO, unsigned offset = 0) const;
 };
 } // namespace llvm
 

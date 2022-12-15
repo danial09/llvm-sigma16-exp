@@ -20,10 +20,10 @@ namespace llvm {
 class Triple;
 
 class Sigma16MCAsmInfo : public MCAsmInfoELF {
-  void anchor() override;
+    void anchor() override;
 
 public:
-  explicit Sigma16MCAsmInfo(const Triple &TheTriple);
+    explicit Sigma16MCAsmInfo(const Triple &TheTriple);
 };
 
 } // namespace llvm

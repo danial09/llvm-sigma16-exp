@@ -13,7 +13,9 @@
 #include <type_traits>
 #include <cassert>
 
-namespace std { namespace experimental {} }
+namespace std {
+namespace experimental {}
+}
 
 #include "test_macros.h"
 #include "type_id.h"
@@ -25,13 +27,13 @@ namespace std { namespace experimental {} }
 #endif
 
 template <class T>
-  struct IsSmallObject
+struct IsSmallObject
     : public std::integral_constant<bool
-        , sizeof(T) <= sizeof(std::any) - sizeof(void*)
-          && std::alignment_of<void*>::value
-             % std::alignment_of<T>::value == 0
-          && std::is_nothrow_move_constructible<T>::value
-        >
+, sizeof(T) <= sizeof(std::any) - sizeof(void*)
+  && std::alignment_of<void*>::value
+  % std::alignment_of<T>::value == 0
+  && std::is_nothrow_move_constructible<T>::value
+  >
   {};
 
 template <class T>
@@ -60,8 +62,12 @@ void assertEmpty(std::any const& a) {
 
 template <class Type>
 constexpr auto has_value_member(int) -> decltype(std::declval<Type&>().value, true)
-{ return true; }
-template <class> constexpr bool has_value_member(long) { return false; }
+{
+    return true;
+}
+template <class> constexpr bool has_value_member(long) {
+    return false;
+}
 
 
 // Assert that an 'any' object stores the specified 'Type' and 'value'.
@@ -261,9 +267,9 @@ struct my_any_exception {};
 
 void throwMyAnyExpression() {
 #if !defined(TEST_HAS_NO_EXCEPTIONS)
-        throw my_any_exception();
+    throw my_any_exception();
 #else
-        assert(false && "Exceptions are disabled");
+    assert(false && "Exceptions are disabled");
 #endif
 }
 
@@ -274,7 +280,9 @@ struct small_throws_on_copy
     static int count;
     static int copied;
     static int moved;
-    static void reset() { count = copied = moved = 0; }
+    static void reset() {
+        count = copied = moved = 0;
+    }
     int value;
 
     explicit small_throws_on_copy(int val = 0) : value(val) {
@@ -289,7 +297,8 @@ struct small_throws_on_copy
 
     small_throws_on_copy(small_throws_on_copy && other) throw() {
         value = other.value;
-        ++count; ++moved;
+        ++count;
+        ++moved;
     }
 
     ~small_throws_on_copy() {
@@ -312,7 +321,9 @@ struct large_throws_on_copy
     static int count;
     static int copied;
     static int moved;
-    static void reset() { count = copied = moved = 0; }
+    static void reset() {
+        count = copied = moved = 0;
+    }
     int value = 0;
 
     explicit large_throws_on_copy(int val = 0) : value(val) {
@@ -324,12 +335,13 @@ struct large_throws_on_copy
         ++count;
     }
     large_throws_on_copy(large_throws_on_copy const &) {
-         throwMyAnyExpression();
+        throwMyAnyExpression();
     }
 
     large_throws_on_copy(large_throws_on_copy && other) throw() {
         value = other.value;
-        ++count; ++moved;
+        ++count;
+        ++moved;
     }
 
     ~large_throws_on_copy() {
@@ -353,14 +365,21 @@ struct throws_on_move
     static int count;
     static int copied;
     static int moved;
-    static void reset() { count = copied = moved = 0; }
+    static void reset() {
+        count = copied = moved = 0;
+    }
     int value;
 
-    explicit throws_on_move(int val = 0) : value(val) { ++count; }
-    explicit throws_on_move(int, int val, int) : value(val) { ++count; }
+    explicit throws_on_move(int val = 0) : value(val) {
+        ++count;
+    }
+    explicit throws_on_move(int, int val, int) : value(val) {
+        ++count;
+    }
     throws_on_move(throws_on_move const & other) {
         value = other.value;
-        ++count; ++copied;
+        ++count;
+        ++copied;
     }
 
     throws_on_move(throws_on_move &&) {
@@ -380,39 +399,41 @@ int throws_on_move::copied = 0;
 int throws_on_move::moved = 0;
 
 struct small_tracked_t {
-  small_tracked_t()
-      : arg_types(&makeArgumentID<>()) {}
-  small_tracked_t(small_tracked_t const&) noexcept
-      : arg_types(&makeArgumentID<small_tracked_t const&>()) {}
-  small_tracked_t(small_tracked_t &&) noexcept
-      : arg_types(&makeArgumentID<small_tracked_t &&>()) {}
-  template <class ...Args>
-  explicit small_tracked_t(Args&&...)
-      : arg_types(&makeArgumentID<Args...>()) {}
-  template <class ...Args>
-  explicit small_tracked_t(std::initializer_list<int>, Args&&...)
-      : arg_types(&makeArgumentID<std::initializer_list<int>, Args...>()) {}
+    small_tracked_t()
+        : arg_types(&makeArgumentID<>()) {}
+    small_tracked_t(small_tracked_t const&) noexcept
+        : arg_types(&makeArgumentID<small_tracked_t const&>()) {}
+    small_tracked_t(small_tracked_t &&) noexcept
+        : arg_types(&makeArgumentID<small_tracked_t &&>()) {}
+    template <class ...Args>
+    explicit small_tracked_t(Args&&...)
+        : arg_types(&makeArgumentID<Args...>()) {}
+    template <class ...Args>
+    explicit small_tracked_t(std::initializer_list<int>, Args&&...)
+        : arg_types(&makeArgumentID<std::initializer_list<int>, Args...>()) {}
 
-  TypeID const* arg_types;
+    TypeID const* arg_types;
 };
 static_assert(IsSmallObject<small_tracked_t>::value, "must be small");
 
 struct large_tracked_t {
-  large_tracked_t()
-      : arg_types(&makeArgumentID<>()) { dummy[0] = 42; }
-  large_tracked_t(large_tracked_t const&) noexcept
-      : arg_types(&makeArgumentID<large_tracked_t const&>()) {}
-  large_tracked_t(large_tracked_t &&) noexcept
-      : arg_types(&makeArgumentID<large_tracked_t &&>()) {}
-  template <class ...Args>
-  explicit large_tracked_t(Args&&...)
-      : arg_types(&makeArgumentID<Args...>()) {}
-  template <class ...Args>
-  explicit large_tracked_t(std::initializer_list<int>, Args&&...)
-      : arg_types(&makeArgumentID<std::initializer_list<int>, Args...>()) {}
+    large_tracked_t()
+        : arg_types(&makeArgumentID<>()) {
+        dummy[0] = 42;
+    }
+    large_tracked_t(large_tracked_t const&) noexcept
+        : arg_types(&makeArgumentID<large_tracked_t const&>()) {}
+    large_tracked_t(large_tracked_t &&) noexcept
+        : arg_types(&makeArgumentID<large_tracked_t &&>()) {}
+    template <class ...Args>
+    explicit large_tracked_t(Args&&...)
+        : arg_types(&makeArgumentID<Args...>()) {}
+    template <class ...Args>
+    explicit large_tracked_t(std::initializer_list<int>, Args&&...)
+        : arg_types(&makeArgumentID<std::initializer_list<int>, Args...>()) {}
 
-  TypeID const* arg_types;
-  int dummy[sizeof(std::any) / sizeof(int) + 1];
+    TypeID const* arg_types;
+    int dummy[sizeof(std::any) / sizeof(int) + 1];
 };
 
 static_assert(!IsSmallObject<large_tracked_t>::value, "must not be small");

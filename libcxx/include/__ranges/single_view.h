@@ -29,12 +29,12 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 #if _LIBCPP_STD_VER > 17
 
 namespace ranges {
-  template<copy_constructible _Tp>
-    requires is_object_v<_Tp>
-  class single_view : public view_interface<single_view<_Tp>> {
+template<copy_constructible _Tp>
+requires is_object_v<_Tp>
+class single_view : public view_interface<single_view<_Tp>> {
     __copyable_box<_Tp> __value_;
 
-  public:
+public:
     _LIBCPP_HIDE_FROM_ABI
     single_view() requires default_initializable<_Tp> = default;
 
@@ -45,32 +45,46 @@ namespace ranges {
     constexpr explicit single_view(_Tp&& __t) : __value_(in_place, std::move(__t)) {}
 
     template<class... _Args>
-      requires constructible_from<_Tp, _Args...>
+    requires constructible_from<_Tp, _Args...>
     _LIBCPP_HIDE_FROM_ABI
     constexpr explicit single_view(in_place_t, _Args&&... __args)
-      : __value_{in_place, std::forward<_Args>(__args)...} {}
+        : __value_{in_place, std::forward<_Args>(__args)...} {}
 
     _LIBCPP_HIDE_FROM_ABI
-    constexpr _Tp* begin() noexcept { return data(); }
+    constexpr _Tp* begin() noexcept {
+        return data();
+    }
 
     _LIBCPP_HIDE_FROM_ABI
-    constexpr const _Tp* begin() const noexcept { return data(); }
+    constexpr const _Tp* begin() const noexcept {
+        return data();
+    }
 
     _LIBCPP_HIDE_FROM_ABI
-    constexpr _Tp* end() noexcept { return data() + 1; }
+    constexpr _Tp* end() noexcept {
+        return data() + 1;
+    }
 
     _LIBCPP_HIDE_FROM_ABI
-    constexpr const _Tp* end() const noexcept { return data() + 1; }
+    constexpr const _Tp* end() const noexcept {
+        return data() + 1;
+    }
 
     _LIBCPP_HIDE_FROM_ABI
-    static constexpr size_t size() noexcept { return 1; }
+    static constexpr size_t size() noexcept {
+        return 1;
+    }
 
     _LIBCPP_HIDE_FROM_ABI
-    constexpr _Tp* data() noexcept { return __value_.operator->(); }
+    constexpr _Tp* data() noexcept {
+        return __value_.operator->();
+    }
 
     _LIBCPP_HIDE_FROM_ABI
-    constexpr const _Tp* data() const noexcept { return __value_.operator->(); }
-  };
+    constexpr const _Tp* data() const noexcept {
+        return __value_.operator->();
+    }
+};
 
 template<class _Tp>
 single_view(_Tp) -> single_view<_Tp>;
@@ -79,17 +93,19 @@ namespace views {
 namespace __single_view {
 
 struct __fn : __range_adaptor_closure<__fn> {
-  template<class _Range>
-  [[nodiscard]] _LIBCPP_HIDE_FROM_ABI
-  constexpr auto operator()(_Range&& __range) const
+    template<class _Range>
+    [[nodiscard]] _LIBCPP_HIDE_FROM_ABI
+    constexpr auto operator()(_Range&& __range) const
     noexcept(noexcept(single_view<decay_t<_Range&&>>(std::forward<_Range>(__range))))
     -> decltype(      single_view<decay_t<_Range&&>>(std::forward<_Range>(__range)))
-    { return          single_view<decay_t<_Range&&>>(std::forward<_Range>(__range)); }
+    {
+        return          single_view<decay_t<_Range&&>>(std::forward<_Range>(__range));
+    }
 };
 } // namespace __single_view
 
 inline namespace __cpo {
-  inline constexpr auto single = __single_view::__fn{};
+inline constexpr auto single = __single_view::__fn {};
 } // namespace __cpo
 
 } // namespace views

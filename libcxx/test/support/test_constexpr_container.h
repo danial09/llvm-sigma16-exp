@@ -30,13 +30,29 @@ public:
     using const_iterator = T const *;
 
     constexpr ConstexprFixedCapacityDeque() = default;
-    constexpr iterator begin() { return data_; }
-    constexpr iterator end() { return data_ + size_; }
-    constexpr const_iterator begin() const { return data_; }
-    constexpr const_iterator end() const { return data_ + size_; }
-    constexpr size_t size() const { return size_; }
-    constexpr const T& front() const { assert(size_ >= 1); return data_[0]; }
-    constexpr const T& back() const { assert(size_ >= 1); return data_[size_-1]; }
+    constexpr iterator begin() {
+        return data_;
+    }
+    constexpr iterator end() {
+        return data_ + size_;
+    }
+    constexpr const_iterator begin() const {
+        return data_;
+    }
+    constexpr const_iterator end() const {
+        return data_ + size_;
+    }
+    constexpr size_t size() const {
+        return size_;
+    }
+    constexpr const T& front() const {
+        assert(size_ >= 1);
+        return data_[0];
+    }
+    constexpr const T& back() const {
+        assert(size_ >= 1);
+        return data_[size_-1];
+    }
 
     constexpr iterator insert(const_iterator pos, T t) {
         int i = static_cast<int>(pos - data_);
@@ -48,8 +64,12 @@ public:
         return data_ + i;
     }
 
-    constexpr void push_back(T t) { insert(end(), std::move(t)); }
-    constexpr void push_front(T t) { insert(begin(), std::move(t)); }
+    constexpr void push_back(T t) {
+        insert(end(), std::move(t));
+    }
+    constexpr void push_front(T t) {
+        insert(begin(), std::move(t));
+    }
 };
 
 #endif // TEST_STD_VER >= 14

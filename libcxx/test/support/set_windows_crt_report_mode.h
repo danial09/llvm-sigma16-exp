@@ -25,10 +25,10 @@
 // that setting and instead changes the assertion handler to log to stderr
 // instead.
 inline int init_crt_report_mode() {
-  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
-  _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
-  _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
-  return 0;
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
+    return 0;
 }
 
 static int init_crt_anchor = init_crt_report_mode();

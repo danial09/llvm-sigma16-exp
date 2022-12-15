@@ -29,54 +29,54 @@ using namespace llvm;
 #include "Sigma16GenAsmWriter.inc"
 
 void Sigma16InstPrinter::printRegName(raw_ostream &OS, unsigned RegNo) const {
-  OS << StringRef(getRegisterName(RegNo));
+    OS << StringRef(getRegisterName(RegNo));
 }
 
 //@1 {
 void Sigma16InstPrinter::printInst(const MCInst *MI, uint64_t Address,
                                    StringRef Annot, const MCSubtargetInfo &STI,
                                    raw_ostream &O) {
-  // Try to print any aliases first.
-  if (!printAliasInstr(MI, Address, O))
-    printInstruction(MI, Address, O);
-  printAnnotation(O, Annot);
+    // Try to print any aliases first.
+    if (!printAliasInstr(MI, Address, O))
+        printInstruction(MI, Address, O);
+    printAnnotation(O, Annot);
 }
 
 void Sigma16InstPrinter::printOperand(const MCInst *MI, unsigned OpNo,
                                       raw_ostream &O) {
-  const MCOperand &Op = MI->getOperand(OpNo);
-  if (Op.isReg()) {
-    printRegName(O, Op.getReg());
-    return;
-  }
+    const MCOperand &Op = MI->getOperand(OpNo);
+    if (Op.isReg()) {
+        printRegName(O, Op.getReg());
+        return;
+    }
 
-  if (Op.isImm()) {
-    O << Op.getImm();
-    return;
-  }
+    if (Op.isImm()) {
+        O << Op.getImm();
+        return;
+    }
 
-  assert(Op.isExpr() && "unknown operand kind in printOperand");
-  Op.getExpr()->print(O, &MAI, true);
+    assert(Op.isExpr() && "unknown operand kind in printOperand");
+    Op.getExpr()->print(O, &MAI, true);
 }
 
 void Sigma16InstPrinter::printUnsignedImm(const MCInst *MI, int opNum,
-                                          raw_ostream &O) {
-  const MCOperand &MO = MI->getOperand(opNum);
-  if (MO.isImm())
-    O << (unsigned short int)MO.getImm();
-  else
-    printOperand(MI, opNum, O);
+        raw_ostream &O) {
+    const MCOperand &MO = MI->getOperand(opNum);
+    if (MO.isImm())
+        O << (unsigned short int)MO.getImm();
+    else
+        printOperand(MI, opNum, O);
 }
 
 void Sigma16InstPrinter::printMemOperand(const MCInst *MI, int opNum,
-                                         raw_ostream &O) {
-  // Load/Store memory operands -- imm[reg]
-  // If PIC target the target is loaded as the
-  // pattern load R3,imm[R5]
-  printOperand(MI, opNum + 1, O);
-  O << "[";
-  printOperand(MI, opNum, O);
-  O << "]";
+        raw_ostream &O) {
+    // Load/Store memory operands -- imm[reg]
+    // If PIC target the target is loaded as the
+    // pattern load R3,imm[R5]
+    printOperand(MI, opNum + 1, O);
+    O << "[";
+    printOperand(MI, opNum, O);
+    O << "]";
 }
 
 // #if CH >= CH7_1

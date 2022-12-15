@@ -27,7 +27,7 @@ bool fptest_close(T val, T expected, T eps)
     if (expected == zero) return std::abs(val)      <= eps;
 
     return std::abs(val - expected) < eps
-        && std::abs(val - expected)/std::abs(val) < eps;
+           && std::abs(val - expected)/std::abs(val) < eps;
 }
 
 template<typename T>

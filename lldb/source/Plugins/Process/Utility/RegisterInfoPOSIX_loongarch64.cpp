@@ -31,32 +31,32 @@
 const lldb_private::RegisterInfo *
 RegisterInfoPOSIX_loongarch64::GetRegisterInfoPtr(
     const lldb_private::ArchSpec &target_arch) {
-  switch (target_arch.GetMachine()) {
-  case llvm::Triple::loongarch64:
-    return g_register_infos_loongarch64;
-  default:
-    assert(false && "Unhandled target architecture.");
-    return nullptr;
-  }
+    switch (target_arch.GetMachine()) {
+    case llvm::Triple::loongarch64:
+        return g_register_infos_loongarch64;
+    default:
+        assert(false && "Unhandled target architecture.");
+        return nullptr;
+    }
 }
 
 uint32_t RegisterInfoPOSIX_loongarch64::GetRegisterInfoCount(
     const lldb_private::ArchSpec &target_arch) {
-  switch (target_arch.GetMachine()) {
-  case llvm::Triple::loongarch64:
-    return static_cast<uint32_t>(sizeof(g_register_infos_loongarch64) /
-                                 sizeof(g_register_infos_loongarch64[0]));
-  default:
-    assert(false && "Unhandled target architecture.");
-    return 0;
-  }
+    switch (target_arch.GetMachine()) {
+    case llvm::Triple::loongarch64:
+        return static_cast<uint32_t>(sizeof(g_register_infos_loongarch64) /
+                                     sizeof(g_register_infos_loongarch64[0]));
+    default:
+        assert(false && "Unhandled target architecture.");
+        return 0;
+    }
 }
 
 // Number of register sets provided by this context.
 enum {
-  k_num_gpr_registers = gpr_last_loongarch - gpr_first_loongarch + 1,
-  k_num_fpr_registers = fpr_last_loongarch - fpr_first_loongarch + 1,
-  k_num_register_sets = 2
+    k_num_gpr_registers = gpr_last_loongarch - gpr_first_loongarch + 1,
+    k_num_fpr_registers = fpr_last_loongarch - fpr_first_loongarch + 1,
+    k_num_register_sets = 2
 };
 
 // LoongArch64 general purpose registers.
@@ -76,7 +76,8 @@ static const uint32_t g_gpr_regnums_loongarch64[] = {
     gpr_reserved1_loongarch, gpr_reserved2_loongarch, gpr_reserved3_loongarch,
     gpr_reserved4_loongarch, gpr_reserved5_loongarch, gpr_reserved6_loongarch,
     gpr_reserved7_loongarch, gpr_reserved8_loongarch, gpr_reserved9_loongarch,
-    LLDB_INVALID_REGNUM};
+    LLDB_INVALID_REGNUM
+};
 
 static_assert(((sizeof g_gpr_regnums_loongarch64 /
                 sizeof g_gpr_regnums_loongarch64[0]) -
@@ -98,7 +99,8 @@ static const uint32_t g_fpr_regnums_loongarch64[] = {
     fpr_f30_loongarch,  fpr_f31_loongarch,  fpr_fcc0_loongarch,
     fpr_fcc1_loongarch, fpr_fcc2_loongarch, fpr_fcc3_loongarch,
     fpr_fcc4_loongarch, fpr_fcc5_loongarch, fpr_fcc6_loongarch,
-    fpr_fcc7_loongarch, fpr_fcsr_loongarch, LLDB_INVALID_REGNUM};
+    fpr_fcc7_loongarch, fpr_fcsr_loongarch, LLDB_INVALID_REGNUM
+};
 
 static_assert(((sizeof g_fpr_regnums_loongarch64 /
                 sizeof g_fpr_regnums_loongarch64[0]) -
@@ -107,11 +109,14 @@ static_assert(((sizeof g_fpr_regnums_loongarch64 /
 
 // Register sets for LoongArch64.
 static const lldb_private::RegisterSet
-    g_reg_sets_loongarch64[k_num_register_sets] = {
-        {"General Purpose Registers", "gpr", k_num_gpr_registers,
-         g_gpr_regnums_loongarch64},
-        {"Floating Point Registers", "fpr", k_num_fpr_registers,
-         g_fpr_regnums_loongarch64}};
+g_reg_sets_loongarch64[k_num_register_sets] = {
+    {   "General Purpose Registers", "gpr", k_num_gpr_registers,
+        g_gpr_regnums_loongarch64
+    },
+    {   "Floating Point Registers", "fpr", k_num_fpr_registers,
+        g_fpr_regnums_loongarch64
+    }
+};
 
 RegisterInfoPOSIX_loongarch64::RegisterInfoPOSIX_loongarch64(
     const lldb_private::ArchSpec &target_arch, lldb_private::Flags flags)
@@ -120,39 +125,39 @@ RegisterInfoPOSIX_loongarch64::RegisterInfoPOSIX_loongarch64(
       m_register_info_count(GetRegisterInfoCount(target_arch)) {}
 
 uint32_t RegisterInfoPOSIX_loongarch64::GetRegisterCount() const {
-  return m_register_info_count;
+    return m_register_info_count;
 }
 
 size_t RegisterInfoPOSIX_loongarch64::GetGPRSize() const {
-  return sizeof(struct RegisterInfoPOSIX_loongarch64::GPR);
+    return sizeof(struct RegisterInfoPOSIX_loongarch64::GPR);
 }
 
 size_t RegisterInfoPOSIX_loongarch64::GetFPRSize() const {
-  return sizeof(struct RegisterInfoPOSIX_loongarch64::FPR);
+    return sizeof(struct RegisterInfoPOSIX_loongarch64::FPR);
 }
 
 const lldb_private::RegisterInfo *
 RegisterInfoPOSIX_loongarch64::GetRegisterInfo() const {
-  return m_register_info_p;
+    return m_register_info_p;
 }
 
 size_t RegisterInfoPOSIX_loongarch64::GetRegisterSetCount() const {
-  return k_num_register_sets;
+    return k_num_register_sets;
 }
 
 size_t RegisterInfoPOSIX_loongarch64::GetRegisterSetFromRegisterIndex(
     uint32_t reg_index) const {
-  // coverity[unsigned_compare]
-  if (reg_index >= gpr_first_loongarch && reg_index <= gpr_last_loongarch)
-    return GPRegSet;
-  if (reg_index >= fpr_first_loongarch && reg_index <= fpr_last_loongarch)
-    return FPRegSet;
-  return LLDB_INVALID_REGNUM;
+    // coverity[unsigned_compare]
+    if (reg_index >= gpr_first_loongarch && reg_index <= gpr_last_loongarch)
+        return GPRegSet;
+    if (reg_index >= fpr_first_loongarch && reg_index <= fpr_last_loongarch)
+        return FPRegSet;
+    return LLDB_INVALID_REGNUM;
 }
 
 const lldb_private::RegisterSet *
 RegisterInfoPOSIX_loongarch64::GetRegisterSet(size_t set_index) const {
-  if (set_index < GetRegisterSetCount())
-    return &g_reg_sets_loongarch64[set_index];
-  return nullptr;
+    if (set_index < GetRegisterSetCount())
+        return &g_reg_sets_loongarch64[set_index];
+    return nullptr;
 }

@@ -16,7 +16,9 @@ struct UserDefinedIntegral
 {
     TEST_CONSTEXPR_CXX14 UserDefinedIntegral() : value(0) {}
     TEST_CONSTEXPR_CXX14 UserDefinedIntegral(T v) : value(v) {}
-    TEST_CONSTEXPR_CXX14 operator T() const { return value; }
+    TEST_CONSTEXPR_CXX14 operator T() const {
+        return value;
+    }
     T value;
 };
 

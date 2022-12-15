@@ -26,24 +26,24 @@
 namespace llvm {
 namespace Sigma16ISD {
 enum NodeType {
-  // Start the numbering from where ISD NodeType finishes.
-  FIRST_NUMBER = ISD::BUILTIN_OP_END,
-  // Jump and link (call)
-  Jal,
+    // Start the numbering from where ISD NodeType finishes.
+    FIRST_NUMBER = ISD::BUILTIN_OP_END,
+    // Jump and link (call)
+    Jal,
 
-  // Tail call
-  TailCall,
+    // Tail call
+    TailCall,
 
-  //  Load a symbol into a register.
-  LoadSym,
+    //  Load a symbol into a register.
+    LoadSym,
 
-  // Load a 16-bit immediate into a register.
-  Movei16,
+    // Load a 16-bit immediate into a register.
+    Movei16,
 
-  // Return
-  Ret,
+    // Return
+    Ret,
 
-  Wrapper
+    Wrapper
 };
 } // end namespace Sigma16ISD
 
@@ -56,51 +56,51 @@ class Sigma16Subtarget;
 //@class Sigma16TargetLowering
 class Sigma16TargetLowering : public TargetLowering {
 public:
-  explicit Sigma16TargetLowering(const Sigma16TargetMachine &TM,
-                                 const Sigma16Subtarget &STI);
+    explicit Sigma16TargetLowering(const Sigma16TargetMachine &TM,
+                                   const Sigma16Subtarget &STI);
 
-  static const Sigma16TargetLowering *create(const Sigma16TargetMachine &TM,
-                                             const Sigma16Subtarget &STI);
+    static const Sigma16TargetLowering *create(const Sigma16TargetMachine &TM,
+            const Sigma16Subtarget &STI);
 
-  /// getTargetNodeName - This method returns the name of a target specific
-  /// DAG node.
-  const char *getTargetNodeName(unsigned Opcode) const override;
-
-protected:
-  /// ByValArgInfo - Byval argument information.
-  struct ByValArgInfo {
-    unsigned FirstIdx; // Index of the first register used.
-    unsigned NumRegs;  // Number of registers used for this argument.
-    unsigned Address;  // Offset of the stack area used to pass this argument.
-
-    ByValArgInfo() : FirstIdx(0), NumRegs(0), Address(0) {}
-  };
+    /// getTargetNodeName - This method returns the name of a target specific
+    /// DAG node.
+    const char *getTargetNodeName(unsigned Opcode) const override;
 
 protected:
-  // Subtarget Info
-  const Sigma16Subtarget &Subtarget;
-  // Cache the ABI from the TargetMachine, we use it everywhere.
-  const Sigma16ABIInfo &ABI;
+    /// ByValArgInfo - Byval argument information.
+    struct ByValArgInfo {
+        unsigned FirstIdx; // Index of the first register used.
+        unsigned NumRegs;  // Number of registers used for this argument.
+        unsigned Address;  // Offset of the stack area used to pass this argument.
+
+        ByValArgInfo() : FirstIdx(0), NumRegs(0), Address(0) {}
+    };
+
+protected:
+    // Subtarget Info
+    const Sigma16Subtarget &Subtarget;
+    // Cache the ABI from the TargetMachine, we use it everywhere.
+    const Sigma16ABIInfo &ABI;
 
 private:
-  // Lower Operand specifics
-  SDValue lowerGlobalAddress(SDValue Op, SelectionDAG &DAG) const;
+    // Lower Operand specifics
+    SDValue lowerGlobalAddress(SDValue Op, SelectionDAG &DAG) const;
 
-  //- must exist even without function all
-  SDValue LowerFormalArguments(SDValue Chain, CallingConv::ID CallConv,
-                               bool IsVarArg,
-                               const SmallVectorImpl<ISD::InputArg> &Ins,
-                               const SDLoc &Dl, SelectionDAG &DAG,
-                               SmallVectorImpl<SDValue> &InVals) const override;
+    //- must exist even without function all
+    SDValue LowerFormalArguments(SDValue Chain, CallingConv::ID CallConv,
+                                 bool IsVarArg,
+                                 const SmallVectorImpl<ISD::InputArg> &Ins,
+                                 const SDLoc &Dl, SelectionDAG &DAG,
+                                 SmallVectorImpl<SDValue> &InVals) const override;
 
-  SDValue LowerCall(CallLoweringInfo &CLI,
-                    SmallVectorImpl<SDValue> &InVals) const override;
+    SDValue LowerCall(CallLoweringInfo &CLI,
+                      SmallVectorImpl<SDValue> &InVals) const override;
 
-  //  SDValue LowerReturn(SDValue Chain, CallingConv::ID CallConv, bool
-  //  IsVarArg,
-  //                      const SmallVectorImpl<ISD::OutputArg> &Outs,
-  //                      const SmallVectorImpl<SDValue> &OutVals, const SDLoc
-  //                      &dl, SelectionDAG &DAG) const override;
+    //  SDValue LowerReturn(SDValue Chain, CallingConv::ID CallConv, bool
+    //  IsVarArg,
+    //                      const SmallVectorImpl<ISD::OutputArg> &Outs,
+    //                      const SmallVectorImpl<SDValue> &OutVals, const SDLoc
+    //                      &dl, SelectionDAG &DAG) const override;
 };
 const Sigma16TargetLowering *
 createSigma16SETargetLowering(const Sigma16TargetMachine &TM,

@@ -30,5 +30,5 @@ Sigma16TargetStreamer::Sigma16TargetStreamer(MCStreamer &S)
     : MCTargetStreamer(S) {}
 
 Sigma16TargetAsmStreamer::Sigma16TargetAsmStreamer(MCStreamer &S,
-                                                   formatted_raw_ostream &OS)
+        formatted_raw_ostream &OS)
     : Sigma16TargetStreamer(S), OS(OS) {}

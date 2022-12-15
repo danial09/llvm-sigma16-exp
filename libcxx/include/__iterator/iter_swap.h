@@ -33,73 +33,73 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 
 namespace ranges {
 namespace __iter_swap {
-  template<class _I1, class _I2>
-  void iter_swap(_I1, _I2) = delete;
+template<class _I1, class _I2>
+void iter_swap(_I1, _I2) = delete;
 
-  template<class _T1, class _T2>
-  concept __unqualified_iter_swap =
+template<class _T1, class _T2>
+concept __unqualified_iter_swap =
     (__class_or_enum<remove_cvref_t<_T1>> || __class_or_enum<remove_cvref_t<_T2>>) &&
-    requires (_T1&& __x, _T2&& __y) {
-      iter_swap(_VSTD::forward<_T1>(__x), _VSTD::forward<_T2>(__y));
-    };
+requires (_T1&& __x, _T2&& __y) {
+    iter_swap(_VSTD::forward<_T1>(__x), _VSTD::forward<_T2>(__y));
+};
 
-  template<class _T1, class _T2>
-  concept __readable_swappable =
+template<class _T1, class _T2>
+concept __readable_swappable =
     indirectly_readable<_T1> && indirectly_readable<_T2> &&
     swappable_with<iter_reference_t<_T1>, iter_reference_t<_T2>>;
 
-  struct __fn {
+struct __fn {
     template <class _T1, class _T2>
-      requires __unqualified_iter_swap<_T1, _T2>
+    requires __unqualified_iter_swap<_T1, _T2>
     _LIBCPP_HIDE_FROM_ABI
     constexpr void operator()(_T1&& __x, _T2&& __y) const
-      noexcept(noexcept(iter_swap(_VSTD::forward<_T1>(__x), _VSTD::forward<_T2>(__y))))
+    noexcept(noexcept(iter_swap(_VSTD::forward<_T1>(__x), _VSTD::forward<_T2>(__y))))
     {
-      (void)iter_swap(_VSTD::forward<_T1>(__x), _VSTD::forward<_T2>(__y));
+        (void)iter_swap(_VSTD::forward<_T1>(__x), _VSTD::forward<_T2>(__y));
     }
 
     template <class _T1, class _T2>
-      requires (!__unqualified_iter_swap<_T1, _T2>) &&
-               __readable_swappable<_T1, _T2>
+    requires (!__unqualified_iter_swap<_T1, _T2>) &&
+    __readable_swappable<_T1, _T2>
     _LIBCPP_HIDE_FROM_ABI
     constexpr void operator()(_T1&& __x, _T2&& __y) const
-      noexcept(noexcept(ranges::swap(*_VSTD::forward<_T1>(__x), *_VSTD::forward<_T2>(__y))))
+    noexcept(noexcept(ranges::swap(*_VSTD::forward<_T1>(__x), *_VSTD::forward<_T2>(__y))))
     {
-      ranges::swap(*_VSTD::forward<_T1>(__x), *_VSTD::forward<_T2>(__y));
+        ranges::swap(*_VSTD::forward<_T1>(__x), *_VSTD::forward<_T2>(__y));
     }
 
     template <class _T1, class _T2>
-      requires (!__unqualified_iter_swap<_T1, _T2> &&
-                !__readable_swappable<_T1, _T2>) &&
-               indirectly_movable_storable<_T1, _T2> &&
-               indirectly_movable_storable<_T2, _T1>
+    requires (!__unqualified_iter_swap<_T1, _T2> &&
+              !__readable_swappable<_T1, _T2>) &&
+    indirectly_movable_storable<_T1, _T2> &&
+    indirectly_movable_storable<_T2, _T1>
     _LIBCPP_HIDE_FROM_ABI
     constexpr void operator()(_T1&& __x, _T2&& __y) const
-      noexcept(noexcept(iter_value_t<_T2>(ranges::iter_move(__y))) &&
-               noexcept(*__y = ranges::iter_move(__x)) &&
-               noexcept(*_VSTD::forward<_T1>(__x) = declval<iter_value_t<_T2>>()))
+    noexcept(noexcept(iter_value_t<_T2>(ranges::iter_move(__y))) &&
+             noexcept(*__y = ranges::iter_move(__x)) &&
+             noexcept(*_VSTD::forward<_T1>(__x) = declval<iter_value_t<_T2>>()))
     {
-      iter_value_t<_T2> __old(ranges::iter_move(__y));
-      *__y = ranges::iter_move(__x);
-      *_VSTD::forward<_T1>(__x) = _VSTD::move(__old);
+        iter_value_t<_T2> __old(ranges::iter_move(__y));
+        *__y = ranges::iter_move(__x);
+        *_VSTD::forward<_T1>(__x) = _VSTD::move(__old);
     }
-  };
+};
 } // namespace __iter_swap
 
 inline namespace __cpo {
-  inline constexpr auto iter_swap = __iter_swap::__fn{};
+inline constexpr auto iter_swap = __iter_swap::__fn {};
 } // namespace __cpo
 } // namespace ranges
 
 template<class _I1, class _I2 = _I1>
 concept indirectly_swappable =
-  indirectly_readable<_I1> && indirectly_readable<_I2> &&
-  requires(const _I1 __i1, const _I2 __i2) {
+    indirectly_readable<_I1> && indirectly_readable<_I2> &&
+requires(const _I1 __i1, const _I2 __i2) {
     ranges::iter_swap(__i1, __i1);
     ranges::iter_swap(__i2, __i2);
     ranges::iter_swap(__i1, __i2);
     ranges::iter_swap(__i2, __i1);
-  };
+};
 
 #endif // _LIBCPP_STD_VER > 17
 

@@ -32,37 +32,39 @@ class raw_ostream;
 
 class LLVM_LIBRARY_VISIBILITY Sigma16AsmPrinter : public AsmPrinter {
 
-  void EmitInstructionWithMacroNoAT(const MachineInstr *MI);
+    void EmitInstructionWithMacroNoAT(const MachineInstr *MI);
 
 private:
-  // lowerOperand - Convert a MachineOperand into the equivalent MCOperand.
-  bool lowerOperand(const MachineOperand &MO, MCOperand &MCOp);
+    // lowerOperand - Convert a MachineOperand into the equivalent MCOperand.
+    bool lowerOperand(const MachineOperand &MO, MCOperand &MCOp);
 
 public:
-  const Sigma16Subtarget *Subtarget;
-  const Sigma16FunctionInfo *Sigma16FI;
-  const Sigma16MCInstLower MCInstLowering;
+    const Sigma16Subtarget *Subtarget;
+    const Sigma16FunctionInfo *Sigma16FI;
+    const Sigma16MCInstLower MCInstLowering;
 
-  explicit Sigma16AsmPrinter(TargetMachine &TM,
-                             std::unique_ptr<MCStreamer> Streamer)
-      : AsmPrinter(TM, std::move(Streamer)), MCInstLowering(*this) {
-    Subtarget = static_cast<Sigma16TargetMachine &>(TM).getSubtargetImpl();
-  }
+    explicit Sigma16AsmPrinter(TargetMachine &TM,
+                               std::unique_ptr<MCStreamer> Streamer)
+        : AsmPrinter(TM, std::move(Streamer)), MCInstLowering(*this) {
+        Subtarget = static_cast<Sigma16TargetMachine &>(TM).getSubtargetImpl();
+    }
 
-  StringRef getPassName() const override { return "Sigma16 Assembly Printer"; }
+    StringRef getPassName() const override {
+        return "Sigma16 Assembly Printer";
+    }
 
-  virtual bool runOnMachineFunction(MachineFunction &MF) override;
+    virtual bool runOnMachineFunction(MachineFunction &MF) override;
 
-  void emitInstruction(const MachineInstr *MI) override;
-  void printSavedRegsBitmask(raw_ostream &O);
-  void printHex32(unsigned int Value, raw_ostream &O);
-  void emitFrameDirective();
-  const char *getCurrentABIString() const;
-  void emitFunctionEntryLabel() override;
-  void emitFunctionBodyStart() override;
-  void emitFunctionBodyEnd() override;
-  void emitStartOfAsmFile(Module &M) override;
-  void PrintDebugValueComment(const MachineInstr *MI, raw_ostream &OS);
+    void emitInstruction(const MachineInstr *MI) override;
+    void printSavedRegsBitmask(raw_ostream &O);
+    void printHex32(unsigned int Value, raw_ostream &O);
+    void emitFrameDirective();
+    const char *getCurrentABIString() const;
+    void emitFunctionEntryLabel() override;
+    void emitFunctionBodyStart() override;
+    void emitFunctionBodyEnd() override;
+    void emitStartOfAsmFile(Module &M) override;
+    void PrintDebugValueComment(const MachineInstr *MI, raw_ostream &OS);
 };
 } // end namespace llvm
 

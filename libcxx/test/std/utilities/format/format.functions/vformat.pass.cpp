@@ -23,35 +23,35 @@
 #include "format_tests.h"
 #include "string_literal.h"
 auto test = []<class CharT, class... Args>(
-                std::basic_string_view<CharT> expected, std::basic_string_view<CharT> fmt, Args&&... args) constexpr {
-  std::basic_string<CharT> out = std::vformat(fmt, std::make_format_args<context_t<CharT>>(args...));
-  assert(out == expected);
+                    std::basic_string_view<CharT> expected, std::basic_string_view<CharT> fmt, Args&&... args) constexpr {
+    std::basic_string<CharT> out = std::vformat(fmt, std::make_format_args<context_t<CharT>>(args...));
+    assert(out == expected);
 };
 
 auto test_exception =
     []<class CharT, class... Args>(
-        [[maybe_unused]] std::string_view what,
-        [[maybe_unused]] std::basic_string_view<CharT> fmt,
-        [[maybe_unused]] Args&&... args) {
+            [[maybe_unused]] std::string_view what,
+            [[maybe_unused]] std::basic_string_view<CharT> fmt,
+            [[maybe_unused]] Args&&... args) {
 #ifndef TEST_HAS_NO_EXCEPTIONS
-      try {
+    try {
         TEST_IGNORE_NODISCARD std::vformat(fmt, std::make_format_args<context_t<CharT>>(args...));
         assert(false);
-      } catch ([[maybe_unused]] const std::format_error& e) {
+    } catch ([[maybe_unused]] const std::format_error& e) {
         LIBCPP_ASSERT(e.what() == what);
         return;
-      }
-      assert(false);
+    }
+    assert(false);
 #endif
-    };
+};
 
 int main(int, char**) {
-  format_tests<char>(test, test_exception);
+    format_tests<char>(test, test_exception);
 
 #ifndef TEST_HAS_NO_WIDE_CHARACTERS
-  format_tests_char_to_wchar_t(test);
-  format_tests<wchar_t>(test, test_exception);
+    format_tests_char_to_wchar_t(test);
+    format_tests<wchar_t>(test, test_exception);
 #endif
 
-  return 0;
+    return 0;
 }

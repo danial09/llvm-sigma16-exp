@@ -34,65 +34,73 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 namespace ranges {
 
 template <class _Val, class _CharT, class _Traits>
-concept __stream_extractable = requires(basic_istream<_CharT, _Traits>& __is, _Val& __t) { __is >> __t; };
+concept __stream_extractable = requires(basic_istream<_CharT, _Traits>& __is, _Val& __t) {
+    __is >> __t;
+};
 
 template <movable _Val, class _CharT, class _Traits = char_traits<_CharT>>
-  requires default_initializable<_Val> && __stream_extractable<_Val, _CharT, _Traits>
+requires default_initializable<_Val> && __stream_extractable<_Val, _CharT, _Traits>
 class basic_istream_view : public view_interface<basic_istream_view<_Val, _CharT, _Traits>> {
 public:
-  _LIBCPP_HIDE_FROM_ABI constexpr explicit basic_istream_view(basic_istream<_CharT, _Traits>& __stream)
-      : __stream_(std::addressof(__stream)) {}
+    _LIBCPP_HIDE_FROM_ABI constexpr explicit basic_istream_view(basic_istream<_CharT, _Traits>& __stream)
+        : __stream_(std::addressof(__stream)) {}
 
-  _LIBCPP_HIDE_FROM_ABI constexpr auto begin() {
-    *__stream_ >> __value_;
-    return __iterator{*this};
-  }
+    _LIBCPP_HIDE_FROM_ABI constexpr auto begin() {
+        *__stream_ >> __value_;
+        return __iterator{*this};
+    }
 
-  _LIBCPP_HIDE_FROM_ABI constexpr default_sentinel_t end() const noexcept { return default_sentinel; }
+    _LIBCPP_HIDE_FROM_ABI constexpr default_sentinel_t end() const noexcept {
+        return default_sentinel;
+    }
 
 private:
-  class __iterator;
+    class __iterator;
 
-  basic_istream<_CharT, _Traits>* __stream_;
-  _LIBCPP_NO_UNIQUE_ADDRESS _Val __value_ = _Val();
+    basic_istream<_CharT, _Traits>* __stream_;
+    _LIBCPP_NO_UNIQUE_ADDRESS _Val __value_ = _Val();
 };
 
 template <movable _Val, class _CharT, class _Traits>
-  requires default_initializable<_Val> && __stream_extractable<_Val, _CharT, _Traits>
+requires default_initializable<_Val> && __stream_extractable<_Val, _CharT, _Traits>
 class basic_istream_view<_Val, _CharT, _Traits>::__iterator {
 public:
-  using iterator_concept = input_iterator_tag;
-  using difference_type  = ptrdiff_t;
-  using value_type       = _Val;
+    using iterator_concept = input_iterator_tag;
+    using difference_type  = ptrdiff_t;
+    using value_type       = _Val;
 
-  _LIBCPP_HIDE_FROM_ABI constexpr explicit __iterator(basic_istream_view& __parent) noexcept
-      : __parent_(std::addressof(__parent)) {}
+    _LIBCPP_HIDE_FROM_ABI constexpr explicit __iterator(basic_istream_view& __parent) noexcept
+        : __parent_(std::addressof(__parent)) {}
 
-  __iterator(const __iterator&)                  = delete;
-  _LIBCPP_HIDE_FROM_ABI __iterator(__iterator&&) = default;
+    __iterator(const __iterator&)                  = delete;
+    _LIBCPP_HIDE_FROM_ABI __iterator(__iterator&&) = default;
 
-  __iterator& operator=(const __iterator&)                  = delete;
-  _LIBCPP_HIDE_FROM_ABI __iterator& operator=(__iterator&&) = default;
+    __iterator& operator=(const __iterator&)                  = delete;
+    _LIBCPP_HIDE_FROM_ABI __iterator& operator=(__iterator&&) = default;
 
-  _LIBCPP_HIDE_FROM_ABI __iterator& operator++() {
-    *__parent_->__stream_ >> __parent_->__value_;
-    return *this;
-  }
+    _LIBCPP_HIDE_FROM_ABI __iterator& operator++() {
+        *__parent_->__stream_ >> __parent_->__value_;
+        return *this;
+    }
 
-  _LIBCPP_HIDE_FROM_ABI void operator++(int) { ++*this; }
+    _LIBCPP_HIDE_FROM_ABI void operator++(int) {
+        ++*this;
+    }
 
-  _LIBCPP_HIDE_FROM_ABI _Val& operator*() const { return __parent_->__value_; }
+    _LIBCPP_HIDE_FROM_ABI _Val& operator*() const {
+        return __parent_->__value_;
+    }
 
-  _LIBCPP_HIDE_FROM_ABI friend bool operator==(const __iterator& __x, default_sentinel_t) {
-    return !*__x.__get_parent_stream();
-  }
+    _LIBCPP_HIDE_FROM_ABI friend bool operator==(const __iterator& __x, default_sentinel_t) {
+        return !*__x.__get_parent_stream();
+    }
 
 private:
-  basic_istream_view* __parent_;
+    basic_istream_view* __parent_;
 
-  _LIBCPP_HIDE_FROM_ABI constexpr basic_istream<_CharT, _Traits>* __get_parent_stream() const {
-    return __parent_->__stream_;
-  }
+    _LIBCPP_HIDE_FROM_ABI constexpr basic_istream<_CharT, _Traits>* __get_parent_stream() const {
+        return __parent_->__stream_;
+    }
 };
 
 template <class _Val>
@@ -109,16 +117,16 @@ namespace __istream {
 // clang-format off
 template <class _Tp>
 struct __fn {
-  template <class _Up, class _UnCVRef = remove_cvref_t<_Up>>
+    template <class _Up, class _UnCVRef = remove_cvref_t<_Up>>
     requires derived_from<_UnCVRef, basic_istream<typename _UnCVRef::char_type,
-                                                  typename _UnCVRef::traits_type>>
-  _LIBCPP_HIDE_FROM_ABI constexpr auto operator()(_Up&& __u) const
-    noexcept(noexcept(basic_istream_view<_Tp, typename _UnCVRef::char_type,
-                                              typename _UnCVRef::traits_type>(std::forward<_Up>(__u))))
-    -> decltype(      basic_istream_view<_Tp, typename _UnCVRef::char_type,
-                                              typename _UnCVRef::traits_type>(std::forward<_Up>(__u)))
+             typename _UnCVRef::traits_type>>
+             _LIBCPP_HIDE_FROM_ABI constexpr auto operator()(_Up&& __u) const
+             noexcept(noexcept(basic_istream_view<_Tp, typename _UnCVRef::char_type,
+                               typename _UnCVRef::traits_type>(std::forward<_Up>(__u))))
+             -> decltype(      basic_istream_view<_Tp, typename _UnCVRef::char_type,
+                               typename _UnCVRef::traits_type>(std::forward<_Up>(__u)))
     {   return        basic_istream_view<_Tp, typename _UnCVRef::char_type,
-                                              typename _UnCVRef::traits_type>(std::forward<_Up>(__u));
+                      typename _UnCVRef::traits_type>(std::forward<_Up>(__u));
     }
 };
 // clang-format on
@@ -127,7 +135,7 @@ struct __fn {
 
 inline namespace __cpo {
 template <class _Tp>
-  inline constexpr auto istream = __istream::__fn<_Tp>{};
+inline constexpr auto istream = __istream::__fn<_Tp> {};
 } // namespace __cpo
 } // namespace views
 

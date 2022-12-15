@@ -17,16 +17,16 @@ namespace llvm {
 void Sigma16MCAsmInfo::anchor() {}
 
 Sigma16MCAsmInfo::Sigma16MCAsmInfo(const Triple &TheTriple) {
-  CodePointerSize = 2;
+    CodePointerSize = 2;
 
-  CommentString = ";";
-  AlignmentIsInBytes = false;
-  StackGrowsUp = true;
+    CommentString = ";";
+    AlignmentIsInBytes = false;
+    StackGrowsUp = true;
 
-  // All Sigma16 types are 2 bytes. Additionally, the directive comes
-  // after the section, not before.
-  Data16bitsDirective = "\tdata\t";
-  HasDotTypeDotSizeDirective = false; //  SupportsDebugInformation = true;
+    // All Sigma16 types are 2 bytes. Additionally, the directive comes
+    // after the section, not before.
+    Data16bitsDirective = "\tdata\t";
+    HasDotTypeDotSizeDirective = false; //  SupportsDebugInformation = true;
 }
 
 } // namespace llvm

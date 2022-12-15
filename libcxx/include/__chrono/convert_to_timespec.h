@@ -29,24 +29,24 @@ template <class _TimeSpec>
 _LIBCPP_HIDE_FROM_ABI inline
 _TimeSpec __convert_to_timespec(const chrono::nanoseconds& __ns)
 {
-  using namespace chrono;
-  seconds __s = duration_cast<seconds>(__ns);
-  _TimeSpec __ts;
-  typedef decltype(__ts.tv_sec) __ts_sec;
-  const __ts_sec __ts_sec_max = numeric_limits<__ts_sec>::max();
+    using namespace chrono;
+    seconds __s = duration_cast<seconds>(__ns);
+    _TimeSpec __ts;
+    typedef decltype(__ts.tv_sec) __ts_sec;
+    const __ts_sec __ts_sec_max = numeric_limits<__ts_sec>::max();
 
-  if (__s.count() < __ts_sec_max)
-  {
-    __ts.tv_sec = static_cast<__ts_sec>(__s.count());
-    __ts.tv_nsec = static_cast<decltype(__ts.tv_nsec)>((__ns - __s).count());
-  }
-  else
-  {
-    __ts.tv_sec = __ts_sec_max;
-    __ts.tv_nsec = 999999999; // (10^9 - 1)
-  }
+    if (__s.count() < __ts_sec_max)
+    {
+        __ts.tv_sec = static_cast<__ts_sec>(__s.count());
+        __ts.tv_nsec = static_cast<decltype(__ts.tv_nsec)>((__ns - __s).count());
+    }
+    else
+    {
+        __ts.tv_sec = __ts_sec_max;
+        __ts.tv_nsec = 999999999; // (10^9 - 1)
+    }
 
-  return __ts;
+    return __ts;
 }
 
 _LIBCPP_END_NAMESPACE_STD
