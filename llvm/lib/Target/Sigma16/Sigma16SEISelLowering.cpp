@@ -38,7 +38,7 @@ Sigma16SETargetLowering::Sigma16SETargetLowering(const Sigma16TargetMachine &TM,
     : Sigma16TargetLowering(TM, STI) {
   //@Sigma16SETargetLowering body {
   // Set up the register classes
-  addRegisterClass(MVT::i32, &Sigma16::CPURegsRegClass);
+  addRegisterClass(MVT::i16, &Sigma16::CPURegsRegClass);
 
   // must, computeRegisterProperties - Once all of the register classes are
   //  added, this allows us to compute derived properties we expose.

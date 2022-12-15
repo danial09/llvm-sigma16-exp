@@ -28,19 +28,24 @@ namespace Sigma16ISD {
 enum NodeType {
   // Start the numbering from where ISD NodeType finishes.
   FIRST_NUMBER = ISD::BUILTIN_OP_END,
-
   // Jump and link (call)
-  JmpLink,
+  Jal,
 
   // Tail call
   TailCall,
+
+  //  Load a symbol into a register.
+  LoadSym,
+
+  // Load a 16-bit immediate into a register.
+  Movei16,
 
   // Return
   Ret,
 
   Wrapper
 };
-}
+} // end namespace Sigma16ISD
 
 //===--------------------------------------------------------------------===//
 // TargetLowering Implementation
@@ -58,7 +63,7 @@ public:
                                              const Sigma16Subtarget &STI);
 
   /// getTargetNodeName - This method returns the name of a target specific
-  //  DAG node.
+  /// DAG node.
   const char *getTargetNodeName(unsigned Opcode) const override;
 
 protected:
@@ -81,22 +86,25 @@ private:
   // Lower Operand specifics
   SDValue lowerGlobalAddress(SDValue Op, SelectionDAG &DAG) const;
 
-  //- must be exist even without function all
+  //- must exist even without function all
   SDValue LowerFormalArguments(SDValue Chain, CallingConv::ID CallConv,
                                bool IsVarArg,
                                const SmallVectorImpl<ISD::InputArg> &Ins,
-                               const SDLoc &dl, SelectionDAG &DAG,
+                               const SDLoc &Dl, SelectionDAG &DAG,
                                SmallVectorImpl<SDValue> &InVals) const override;
 
-  // SDValue LowerReturn(SDValue Chain,
-  //                     CallingConv::ID CallConv, bool IsVarArg,
-  //                     const SmallVectorImpl<ISD::OutputArg> &Outs,
-  //                     const SmallVectorImpl<SDValue> &OutVals,
-  //                     const SDLoc &dl, SelectionDAG &DAG) const override;
+  SDValue LowerCall(CallLoweringInfo &CLI,
+                    SmallVectorImpl<SDValue> &InVals) const override;
+
+  //  SDValue LowerReturn(SDValue Chain, CallingConv::ID CallConv, bool
+  //  IsVarArg,
+  //                      const SmallVectorImpl<ISD::OutputArg> &Outs,
+  //                      const SmallVectorImpl<SDValue> &OutVals, const SDLoc
+  //                      &dl, SelectionDAG &DAG) const override;
 };
 const Sigma16TargetLowering *
 createSigma16SETargetLowering(const Sigma16TargetMachine &TM,
                               const Sigma16Subtarget &STI);
 } // namespace llvm
 
-#endif // Sigma16ISELLOWERING_H
+#endif // LLVM_LIB_TARGET_SIGMA16_SIGMA16ISELLOWERING_H

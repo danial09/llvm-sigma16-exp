@@ -45,12 +45,14 @@ public:
   bool trackLivenessAfterRegAlloc(const MachineFunction &MF) const override;
 
   /// Stack Frame Processing Methods
-  void eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
+  bool eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
                            unsigned FIOperandNum,
                            RegScavenger *RS = nullptr) const override;
 
   /// Debug information queries.
   Register getFrameRegister(const MachineFunction &MF) const override;
+
+  Register getStackRegister() const;
 
   /// \brief Return GPR register class.
   virtual const TargetRegisterClass *intRegClass(unsigned Size) const = 0;

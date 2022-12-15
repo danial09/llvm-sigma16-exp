@@ -38,7 +38,7 @@ const Sigma16InstrInfo *Sigma16InstrInfo::create(Sigma16Subtarget &STI) {
 
 //@GetInstSizeInBytes {
 /// Return the number of bytes of code the specified instruction may be.
-unsigned Sigma16InstrInfo::GetInstSizeInBytes(const MachineInstr &MI) const {
+unsigned Sigma16InstrInfo::getInstSizeInBytes(const MachineInstr &MI) const {
   //@GetInstSizeInBytes - body
   switch (MI.getOpcode()) {
   default:

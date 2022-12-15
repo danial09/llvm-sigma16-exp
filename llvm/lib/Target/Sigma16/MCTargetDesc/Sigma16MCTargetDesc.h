@@ -19,10 +19,30 @@
 #include <memory>
 
 namespace llvm {
+class MCAsmBackend;
+class MCCodeEmitter;
+class MCContext;
+class MCInstrInfo;
+class MCObjectTargetWriter;
+class MCRegisterInfo;
+class MCSubtargetInfo;
+class MCTargetOptions;
+class StringRef;
 class Target;
 class Triple;
+class raw_ostream;
+class raw_pwrite_stream;
 
 extern Target TheSigma16Target;
+
+MCAsmBackend *createSigma16AsmBackend(const Target &T,
+                                      const MCSubtargetInfo &STI,
+                                      const MCRegisterInfo &MRI,
+                                      const MCTargetOptions &Options);
+
+std::unique_ptr<MCObjectTargetWriter>
+createSigma16ELFObjectWriter(const Triple &TT);
+
 } // namespace llvm
 
 // Defines symbolic names for Sigma16 registers.  This defines a mapping from
