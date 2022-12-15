@@ -10,7 +10,7 @@
 // change some things in the future. 
 
 //===----------------------------------------------------------------------===//
-// Functional units across Sigma16 chips sets. Based on Mips version.
+// Functional units across Sigma16 chips sets.
 //===----------------------------------------------------------------------===//
 def ALU     : FuncUnit;
 def IMULDIV : FuncUnit;
@@ -19,6 +19,7 @@ def IMULDIV : FuncUnit;
 // Instruction Itinerary classes used for Sigma16
 //===----------------------------------------------------------------------===//
 def IIAlu              : InstrItinClass;
+def IIMulDiv           : InstrItinClass;
 def II_CLO             : InstrItinClass;
 def II_CLZ             : InstrItinClass;
 def IILoad             : InstrItinClass;
@@ -34,6 +35,7 @@ def IIPseudo           : InstrItinClass;
 def Sigma16GenericItineraries : ProcessorItineraries<[ALU, IMULDIV], [], [
 //@2
   InstrItinData<IIAlu              , [InstrStage<1,  [ALU]>]>,
+  InstrItinData<IIMulDiv           , [InstrStage<1,  [ALU]>]>,
   InstrItinData<II_CLO             , [InstrStage<1,  [ALU]>]>,
   InstrItinData<II_CLZ             , [InstrStage<1,  [ALU]>]>,
   InstrItinData<IILoad             , [InstrStage<3,  [ALU]>]>,

@@ -1,4 +1,4 @@
-//= Sigma16InstPrinter.h - Convert Sigma16 MCInst to assembly syntax -*- C++ *//
+//== Sigma16InstPrinter.h - Convert Sigma16 MCInst to asm syntax -*- C++-*- ==//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_LIB_TARGET_SIGMA16_INSTPRINTER_SIGMA16INSTPRINTER_H
-#define LLVM_LIB_TARGET_SIGMA16_INSTPRINTER_SIGMA16INSTPRINTER_H
+#ifndef LLVM_LIB_TARGET_SIGMA16_SIGMA16INSTPRINTER_H
+#define LLVM_LIB_TARGET_SIGMA16_SIGMA16INSTPRINTER_H
 
 #include "llvm/MC/MCInstPrinter.h"
 
@@ -33,15 +33,14 @@ public:
   std::pair<const char *, uint64_t> getMnemonic(const MCInst *MI) override;
   void printInstruction(const MCInst *MI, uint64_t Address, raw_ostream &O);
   static const char *getRegisterName(unsigned RegNo);
-
   void printRegName(raw_ostream &OS, unsigned RegNo) const override;
   void printInst(const MCInst *MI, uint64_t Address, StringRef Annot,
                  const MCSubtargetInfo &STI, raw_ostream &O) override;
 
   bool printAliasInstr(const MCInst *MI, uint64_t Address, raw_ostream &OS);
-  void printCustomAliasOperand(const MCInst *MI, uint64_t Address,
-                               unsigned OpIdx, unsigned PrintMethodIdx,
-                               raw_ostream &O);
+  //  void printCustomAliasOperand(const MCInst *MI, uint64_t Address,
+  //                               unsigned OpIdx, unsigned PrintMethodIdx,
+  //                               raw_ostream &O);
 
 private:
   void printOperand(const MCInst *MI, unsigned OpNo, raw_ostream &O);
@@ -51,10 +50,10 @@ private:
   }
   void printUnsignedImm(const MCInst *MI, int opNum, raw_ostream &O);
   void printMemOperand(const MCInst *MI, int opNum, raw_ostream &O);
-  //#if CH >= CH7_1
-  // void printMemOperandEA(const MCInst *MI, int opNum, raw_ostream &O);
-  //#endif
+  // #if CH >= CH7_1
+  //  void printMemOperandEA(const MCInst *MI, int opNum, raw_ostream &O);
+  // #endif
 };
 } // end namespace llvm
 
-#endif
+#endif // LLVM_LIB_TARGET_SIGMA16_SIGMA16INSTPRINTER_H
