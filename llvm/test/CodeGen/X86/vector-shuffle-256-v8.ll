@@ -3846,4 +3846,3 @@ define <8 x float> @lowhalf_v8f32(<8 x float> %x, <8 x float> %y) {
   %r = shufflevector <8 x float> %x, <8 x float> %y, <8 x i32> <i32 2, i32 14, i32 3, i32 14, i32 undef, i32 undef, i32 undef, i32 undef>
   ret <8 x float> %r
 }
-

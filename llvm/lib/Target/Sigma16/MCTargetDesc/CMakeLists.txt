@@ -17,4 +17,3 @@ add_llvm_component_library(LLVMSigma16Desc
         ADD_TO_COMPONENT
         Sigma16
         )
-

@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 
 // TODO: Right now, this file is just copy/pated from MIPS, probably need to
-// change some things in the future. 
+// change some things in the future.
 
 //===----------------------------------------------------------------------===//
 // Functional units across Sigma16 chips sets.

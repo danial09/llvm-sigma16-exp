@@ -279,5 +279,3 @@ define void @store_i64(i64* %p, i64 %v) {
   store i64 %v, i64* %p, align 1
   ret void
 }
-
-
