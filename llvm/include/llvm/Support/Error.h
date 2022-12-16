@@ -31,6 +31,7 @@
 #include <functional>
 #include <memory>
 #include <new>
+#include <optional>
 #include <string>
 #include <system_error>
 #include <type_traits>
@@ -1054,7 +1055,14 @@ template <typename T> Optional<T> expectedToOptional(Expected<T> &&E) {
   if (E)
     return std::move(*E);
   consumeError(E.takeError());
-  return None;
+  return std::nullopt;
+}
+
+template <typename T> std::optional<T> expectedToStdOptional(Expected<T> &&E) {
+  if (E)
+    return std::move(*E);
+  consumeError(E.takeError());
+  return std::nullopt;
 }
 
 /// Helper for converting an Error to a bool.

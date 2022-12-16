@@ -758,6 +758,7 @@ public:
 
     use_iterator() = default;
     use_iterator(const use_iterator &I) = default;
+    use_iterator &operator=(const use_iterator &) = default;
 
     bool operator==(const use_iterator &x) const { return Op == x.Op; }
     bool operator!=(const use_iterator &x) const {
@@ -2102,7 +2103,7 @@ public:
   /// If this BuildVector is constant and represents the numerical series
   /// "<a, a+n, a+2n, a+3n, ...>" where a is integer and n is a non-zero integer,
   /// the value "<a,n>" is returned.
-  Optional<std::pair<APInt, APInt>> isConstantSequence() const;
+  std::optional<std::pair<APInt, APInt>> isConstantSequence() const;
 
   /// Recast bit data \p SrcBitElements to \p DstEltSizeInBits wide elements.
   /// Undef elements are treated as zero, and entirely undefined elements are

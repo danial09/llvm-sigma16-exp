@@ -1543,6 +1543,8 @@ DEF_TRAVERSE_DECL(LifetimeExtendedTemporaryDecl, {
 DEF_TRAVERSE_DECL(FileScopeAsmDecl,
                   { TRY_TO(TraverseStmt(D->getAsmString())); })
 
+DEF_TRAVERSE_DECL(TopLevelStmtDecl, { TRY_TO(TraverseStmt(D->getStmt())); })
+
 DEF_TRAVERSE_DECL(ImportDecl, {})
 
 DEF_TRAVERSE_DECL(FriendDecl, {
@@ -2850,6 +2852,7 @@ DEF_TRAVERSE_STMT(SubstNonTypeTemplateParmExpr, {})
 DEF_TRAVERSE_STMT(FunctionParmPackExpr, {})
 DEF_TRAVERSE_STMT(CXXFoldExpr, {})
 DEF_TRAVERSE_STMT(AtomicExpr, {})
+DEF_TRAVERSE_STMT(CXXParenListInitExpr, {})
 
 DEF_TRAVERSE_STMT(MaterializeTemporaryExpr, {
   if (S->getLifetimeExtendedTemporaryDecl()) {

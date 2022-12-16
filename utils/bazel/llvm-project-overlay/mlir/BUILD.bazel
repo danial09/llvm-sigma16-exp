@@ -2040,6 +2040,7 @@ cc_library(
     includes = ["include"],
     deps = [
         ":AffineDialect",
+        ":AffineUtils",
         ":FuncDialect",
         ":IR",
         ":SCFDialect",
@@ -2063,6 +2064,7 @@ td_library(
         "include/mlir/Dialect/SparseTensor/IR/SparseTensorAttrDefs.td",
         "include/mlir/Dialect/SparseTensor/IR/SparseTensorBase.td",
         "include/mlir/Dialect/SparseTensor/IR/SparseTensorOps.td",
+        "include/mlir/Dialect/SparseTensor/IR/SparseTensorTypes.td",
     ],
     includes = ["include"],
     deps = [
@@ -2083,6 +2085,14 @@ gentbl_cc_library(
         (
             ["--gen-attrdef-defs"],
             "include/mlir/Dialect/SparseTensor/IR/SparseTensorAttrDefs.cpp.inc",
+        ),
+        (
+            ["--gen-enum-decls"],
+            "include/mlir/Dialect/SparseTensor/IR/SparseTensorAttrEnums.h.inc",
+        ),
+        (
+            ["--gen-enum-defs"],
+            "include/mlir/Dialect/SparseTensor/IR/SparseTensorAttrEnums.cpp.inc",
         ),
     ],
     tblgen = ":mlir-tblgen",
@@ -2123,6 +2133,24 @@ gentbl_cc_library(
     ],
     tblgen = ":mlir-tblgen",
     td_file = "include/mlir/Dialect/SparseTensor/IR/SparseTensorOps.td",
+    deps = [":SparseTensorTdFiles"],
+)
+
+gentbl_cc_library(
+    name = "SparseTensorTypesIncGen",
+    strip_include_prefix = "include",
+    tbl_outs = [
+        (
+            ["--gen-typedef-decls"],
+            "include/mlir/Dialect/SparseTensor/IR/SparseTensorTypes.h.inc",
+        ),
+        (
+            ["--gen-typedef-defs"],
+            "include/mlir/Dialect/SparseTensor/IR/SparseTensorTypes.cpp.inc",
+        ),
+    ],
+    tblgen = ":mlir-tblgen",
+    td_file = "include/mlir/Dialect/SparseTensor/IR/SparseTensorTypes.td",
     deps = [":SparseTensorTdFiles"],
 )
 
@@ -2178,6 +2206,7 @@ cc_library(
         ":SparseTensorAttrDefsIncGen",
         ":SparseTensorEnums",
         ":SparseTensorOpsIncGen",
+        ":SparseTensorTypesIncGen",
         "//llvm:Support",
     ],
 )
@@ -2253,6 +2282,7 @@ cc_library(
         ":FuncDialect",
         ":FuncTransforms",
         ":LinalgTransforms",
+        ":MemRefTransforms",
         ":Pass",
         ":SparseTensorDialect",
         ":SparseTensorTransforms",
@@ -2748,7 +2778,6 @@ cc_library(
         ":GPUToVulkanTransforms",
         ":IndexToLLVM",
         ":LinalgToLLVM",
-        ":LinalgToSPIRV",
         ":LinalgToStandard",
         ":MathToFuncs",
         ":MathToLLVM",
@@ -3672,7 +3701,7 @@ cc_library(
             "include/mlir/Dialect/LLVMIR/ROCDL*.h",
             "include/mlir/Dialect/LLVMIR/*X86Vector*.h",
         ],
-    ),
+    ) + ["include/mlir/Transforms/InliningUtils.h"],
     includes = ["include"],
     deps = [
         ":CallOpInterfaces",
@@ -5372,11 +5401,14 @@ cc_library(
     includes = ["include"],
     deps = [
         ":AffineDialect",
+        ":AffineUtils",
         ":ArithUtils",
+        ":DialectUtils",
         ":IR",
         ":LinalgDialect",
         ":SCFDialect",
         ":TensorDialect",
+        ":TensorUtils",
         ":TilingInterface",
         "//llvm:Support",
     ],
@@ -6764,7 +6796,6 @@ cc_library(
         ":LinalgDialect",
         ":LinalgPassIncGen",
         ":LinalgToLLVM",
-        ":LinalgToSPIRV",
         ":LinalgToStandard",
         ":LinalgTransformOps",
         ":LinalgTransforms",
@@ -6866,12 +6897,15 @@ cc_binary(
         "//mlir/test:TestAffine",
         "//mlir/test:TestAnalysis",
         "//mlir/test:TestArith",
+        "//mlir/test:TestBufferization",
+        "//mlir/test:TestControlFlow",
         "//mlir/test:TestDLTI",
         "//mlir/test:TestDialect",
         "//mlir/test:TestFunc",
         "//mlir/test:TestFuncToLLVM",
         "//mlir/test:TestGPU",
         "//mlir/test:TestIR",
+        "//mlir/test:TestLLVM",
         "//mlir/test:TestLinalg",
         "//mlir/test:TestMath",
         "//mlir/test:TestMemRef",
@@ -8122,31 +8156,6 @@ cc_library(
 )
 
 cc_library(
-    name = "LinalgToSPIRV",
-    srcs = glob([
-        "lib/Conversion/LinalgToSPIRV/*.cpp",
-        "lib/Conversion/LinalgToSPIRV/*.h",
-    ]),
-    hdrs = glob([
-        "include/mlir/Conversion/LinalgToSPIRV/*.h",
-    ]),
-    includes = ["include"],
-    deps = [
-        ":ConversionPassIncGen",
-        ":DialectUtils",
-        ":FuncDialect",
-        ":IR",
-        ":LinalgDialect",
-        ":LinalgTransforms",
-        ":LinalgUtils",
-        ":Pass",
-        ":SPIRVConversion",
-        ":SPIRVDialect",
-        ":TransformUtils",
-    ],
-)
-
-cc_library(
     name = "LinalgDialect",
     srcs = glob(["lib/Dialect/Linalg/IR/*.cpp"]),
     hdrs = glob(["include/mlir/Dialect/Linalg/IR/*.h"]),
@@ -8328,8 +8337,10 @@ cc_library(
         ":LinalgPassIncGen",
         ":LinalgStructuredOpsIncGen",
         ":LinalgUtils",
+        ":MaskableOpInterface",
         ":MathDialect",
         ":MemRefDialect",
+        ":MemRefTransforms",
         ":Pass",
         ":SCFDialect",
         ":SCFTransforms",

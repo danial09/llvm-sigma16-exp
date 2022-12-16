@@ -43,6 +43,7 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/MDBuilder.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/NoFolder.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
 #include "llvm/Support/Casting.h"
@@ -582,7 +583,8 @@ void HWAddressSanitizer::initializeModule() {
   UseShortGranules =
       ClUseShortGranules.getNumOccurrences() ? ClUseShortGranules : NewRuntime;
   OutlinedChecks =
-      TargetTriple.isAArch64() && TargetTriple.isOSBinFormatELF() &&
+      (TargetTriple.isAArch64() || TargetTriple.isRISCV64()) &&
+      TargetTriple.isOSBinFormatELF() &&
       (ClInlineAllChecks.getNumOccurrences() ? !ClInlineAllChecks : !Recover);
 
   if (ClMatchAllTag.getNumOccurrences()) {
@@ -757,12 +759,13 @@ void HWAddressSanitizer::getInterestingMemoryOperands(
     if (!ClInstrumentAtomics || ignoreAccess(I, RMW->getPointerOperand()))
       return;
     Interesting.emplace_back(I, RMW->getPointerOperandIndex(), true,
-                             RMW->getValOperand()->getType(), None);
+                             RMW->getValOperand()->getType(), std::nullopt);
   } else if (AtomicCmpXchgInst *XCHG = dyn_cast<AtomicCmpXchgInst>(I)) {
     if (!ClInstrumentAtomics || ignoreAccess(I, XCHG->getPointerOperand()))
       return;
     Interesting.emplace_back(I, XCHG->getPointerOperandIndex(), true,
-                             XCHG->getCompareOperand()->getType(), None);
+                             XCHG->getCompareOperand()->getType(),
+                             std::nullopt);
   } else if (auto CI = dyn_cast<CallInst>(I)) {
     for (unsigned ArgNo = 0; ArgNo < CI->arg_size(); ArgNo++) {
       if (!ClInstrumentByval || !CI->isByValArgument(ArgNo) ||
@@ -794,7 +797,8 @@ static size_t TypeSizeToSizeIndex(uint32_t TypeSize) {
 }
 
 void HWAddressSanitizer::untagPointerOperand(Instruction *I, Value *Addr) {
-  if (TargetTriple.isAArch64() || TargetTriple.getArch() == Triple::x86_64)
+  if (TargetTriple.isAArch64() || TargetTriple.getArch() == Triple::x86_64 ||
+      TargetTriple.isRISCV64())
     return;
 
   IRBuilder<> IRB(I);
@@ -910,6 +914,15 @@ void HWAddressSanitizer::instrumentMemAccessInline(Value *Ptr, bool IsWrite,
         FunctionType::get(IRB.getVoidTy(), {PtrLong->getType()}, false),
         "brk #" + itostr(0x900 + (AccessInfo & HWASanAccessInfo::RuntimeMask)),
         "{x0}",
+        /*hasSideEffects=*/true);
+    break;
+  case Triple::riscv64:
+    // The signal handler will find the data address in x10.
+    Asm = InlineAsm::get(
+        FunctionType::get(IRB.getVoidTy(), {PtrLong->getType()}, false),
+        "ebreak\naddiw x0, x11, " +
+            itostr(0x40 + (AccessInfo & HWASanAccessInfo::RuntimeMask)),
+        "{x10}",
         /*hasSideEffects=*/true);
     break;
   default:
@@ -1031,7 +1044,7 @@ unsigned HWAddressSanitizer::retagMask(unsigned AllocaNo) {
                                  48, 16,  120, 248, 56,  24,  8,   124, 252,
                                  60, 28,  12,  4,   126, 254, 62,  30,  14,
                                  6,  2,   127, 63,  31,  15,  7,   3,   1};
-  return FastMasks[AllocaNo % (sizeof(FastMasks) / sizeof(FastMasks[0]))];
+  return FastMasks[AllocaNo % std::size(FastMasks)];
 }
 
 Value *HWAddressSanitizer::applyTagMask(IRBuilder<> &IRB, Value *OldTag) {

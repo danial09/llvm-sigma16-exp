@@ -10,6 +10,10 @@
 // Do the same run, but now with direct IR generation.
 // REDEFINE: %{option} = enable-runtime-library=false
 // RUN: %{command}
+//
+// Do the same run, but now with direct IR generation and vectorization.
+// REDEFINE: %{option} = "enable-runtime-library=false vl=2 reassociate-fp-reductions=true enable-index-optimizations=true"
+// RUN: %{command}
 
 #DCSR = #sparse_tensor.encoding<{ dimLevelType = [ "compressed", "compressed" ] }>
 
@@ -27,7 +31,7 @@ module {
 
   func.func @conv2d_sparse_out(%input:  tensor<8x8xi32>,
                %filter: tensor<3x3xi32, #DCSR>) -> tensor<6x6xi32, #DCSR> {
-    %s = bufferization.alloc_tensor() : tensor<6x6xi32, #DCSR>           
+    %s = bufferization.alloc_tensor() : tensor<6x6xi32, #DCSR>
     %0 = linalg.conv_2d
       ins  (%input, %filter: tensor<8x8xi32>, tensor<3x3xi32, #DCSR>)
       outs (%s: tensor<6x6xi32, #DCSR>) -> tensor<6x6xi32, #DCSR>
@@ -66,7 +70,7 @@ module {
     %1 = call @conv2d_sparse_out(%input, %sparse_filter)
        : (tensor<8x8xi32>,
           tensor<3x3xi32, #DCSR>) -> tensor<6x6xi32, #DCSR>
- 
+
     // Verify the output.
     //
     // CHECK:    ( ( 0, 0, -1, -6, -1, 6 ),

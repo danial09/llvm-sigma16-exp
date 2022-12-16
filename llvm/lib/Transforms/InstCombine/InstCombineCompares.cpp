@@ -1480,7 +1480,8 @@ Instruction *InstCombinerImpl::foldICmpWithDominatingICmp(ICmpInst &Cmp) {
     return nullptr;
 
   // Try to simplify this compare to T/F based on the dominating condition.
-  Optional<bool> Imp = isImpliedCondition(DomCond, &Cmp, DL, TrueBB == CmpBB);
+  std::optional<bool> Imp =
+      isImpliedCondition(DomCond, &Cmp, DL, TrueBB == CmpBB);
   if (Imp)
     return replaceInstUsesWith(Cmp, ConstantInt::get(Cmp.getType(), *Imp));
 
@@ -3672,8 +3673,8 @@ Instruction *InstCombinerImpl::foldSelectICmp(ICmpInst::Predicate Pred,
   auto SimplifyOp = [&](Value *Op, bool SelectCondIsTrue) -> Value * {
     if (Value *Res = simplifyICmpInst(Pred, Op, RHS, SQ))
       return Res;
-    if (Optional<bool> Impl = isImpliedCondition(SI->getCondition(), Pred, Op,
-                                                 RHS, DL, SelectCondIsTrue))
+    if (std::optional<bool> Impl = isImpliedCondition(
+            SI->getCondition(), Pred, Op, RHS, DL, SelectCondIsTrue))
       return ConstantInt::get(I.getType(), *Impl);
     return nullptr;
   };
@@ -5850,7 +5851,7 @@ static Instruction *foldICmpUsingBoolRange(ICmpInst &I,
   return nullptr;
 }
 
-llvm::Optional<std::pair<CmpInst::Predicate, Constant *>>
+std::optional<std::pair<CmpInst::Predicate, Constant *>>
 InstCombiner::getFlippedStrictnessPredicateAndConstant(CmpInst::Predicate Pred,
                                                        Constant *C) {
   assert(ICmpInst::isRelational(Pred) && ICmpInst::isIntPredicate(Pred) &&
@@ -5873,13 +5874,13 @@ InstCombiner::getFlippedStrictnessPredicateAndConstant(CmpInst::Predicate Pred,
   if (auto *CI = dyn_cast<ConstantInt>(C)) {
     // Bail out if the constant can't be safely incremented/decremented.
     if (!ConstantIsOk(CI))
-      return llvm::None;
+      return std::nullopt;
   } else if (auto *FVTy = dyn_cast<FixedVectorType>(Type)) {
     unsigned NumElts = FVTy->getNumElements();
     for (unsigned i = 0; i != NumElts; ++i) {
       Constant *Elt = C->getAggregateElement(i);
       if (!Elt)
-        return llvm::None;
+        return std::nullopt;
 
       if (isa<UndefValue>(Elt))
         continue;
@@ -5888,14 +5889,14 @@ InstCombiner::getFlippedStrictnessPredicateAndConstant(CmpInst::Predicate Pred,
       // know that this constant is min/max.
       auto *CI = dyn_cast<ConstantInt>(Elt);
       if (!CI || !ConstantIsOk(CI))
-        return llvm::None;
+        return std::nullopt;
 
       if (!SafeReplacementConstant)
         SafeReplacementConstant = CI;
     }
   } else {
     // ConstantExpr?
-    return llvm::None;
+    return std::nullopt;
   }
 
   // It may not be safe to change a compare predicate in the presence of
@@ -6780,7 +6781,7 @@ static Instruction *foldFabsWithFcmpZero(FCmpInst &I, InstCombinerImpl &IC) {
     return nullptr;
 
   if (!C->isPosZero()) {
-    if (*C != APFloat::getSmallestNormalized(C->getSemantics()))
+    if (!C->isSmallestNormalized())
       return nullptr;
 
     const Function *F = I.getFunction();
@@ -7076,7 +7077,7 @@ Instruction *InstCombinerImpl::visitFCmpInst(FCmpInst &I) {
       APFloat Fabs = TruncC;
       Fabs.clearSign();
       if (!Lossy &&
-          (!(Fabs < APFloat::getSmallestNormalized(FPSem)) || Fabs.isZero())) {
+          (Fabs.isZero() || !(Fabs < APFloat::getSmallestNormalized(FPSem)))) {
         Constant *NewC = ConstantFP::get(X->getType(), TruncC);
         return new FCmpInst(Pred, X, NewC, "", &I);
       }

@@ -1,13 +1,19 @@
-// RUN: mlir-opt %s --sparse-compiler=enable-runtime-library=true | \
-// RUN: mlir-cpu-runner -e entry -entry-point-result=void \
-// RUN:  -shared-libs=%mlir_lib_dir/libmlir_c_runner_utils%shlibext | \
-// RUN: FileCheck %s
-
-// RUN: mlir-opt %s --sparse-compiler="enable-runtime-library=false enable-buffer-initialization=true" | \
-// RUN: mlir-cpu-runner \
-// RUN:  -e entry -entry-point-result=void  \
-// RUN:  -shared-libs=%mlir_lib_dir/libmlir_c_runner_utils%shlibext | \
-// RUN: FileCheck %s
+// DEFINE: %{option} = enable-runtime-library=true
+// DEFINE: %{command} = mlir-opt %s --sparse-compiler=%{option} | \
+// DEFINE: mlir-cpu-runner \
+// DEFINE:  -e entry -entry-point-result=void  \
+// DEFINE:  -shared-libs=%mlir_lib_dir/libmlir_c_runner_utils%shlibext | \
+// DEFINE: FileCheck %s
+//
+// RUN: %{command}
+//
+// Do the same run, but now with direct IR generation.
+// REDEFINE: %{option} = "enable-runtime-library=false enable-buffer-initialization=true"
+// RUN: %{command}
+//
+// Do the same run, but now with direct IR generation and vectorization.
+// REDEFINE: %{option} = "enable-runtime-library=false enable-buffer-initialization=true vl=2 reassociate-fp-reductions=true enable-index-optimizations=true"
+// RUN: %{command}
 
 #CCC = #sparse_tensor.encoding<{
   dimLevelType = [ "compressed", "compressed", "compressed" ]
@@ -201,12 +207,12 @@ func.func @entry() {
   %v2 = vector.transfer_read %2[%c0, %c0, %c0], %zero
       : tensor<?x?x?xf32>, vector<6x6x6xf32>
   vector.print %v2 : vector<6x6x6xf32>
-  
+
   // Free the resources
   bufferization.dealloc_tensor %in3D : tensor<?x?x?xf32>
   bufferization.dealloc_tensor %filter3D : tensor<?x?x?xf32>
   bufferization.dealloc_tensor %out3D : tensor<?x?x?xf32>
-  
+
   bufferization.dealloc_tensor %in3D_CDC : tensor<?x?x?xf32, #CDC>
   bufferization.dealloc_tensor %filter3D_CDC : tensor<?x?x?xf32, #CDC>
   bufferization.dealloc_tensor %in3D_CCC : tensor<?x?x?xf32, #CCC>
