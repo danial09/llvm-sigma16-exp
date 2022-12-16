@@ -19,6 +19,29 @@ def Sigma16DivRem     : SDNode<"Sigma16ISD::Sigma16DivRem", SDT_Sigma16DivRem,
                                 [SDNPOutGlue]>;
 
 //===----------------------------------------------------------------------===//
+// Type profiles
+//===----------------------------------------------------------------------===//
+
+def MoveImm32Ty : SDTypeProfile<1, 1, [
+  SDTCisSameAs<0, 1>, SDTCisInt<0>
+]>;
+
+def SDT_Sigma16CallSeqStart : SDCallSeqStart<[ SDTCisVT<0, i16> ]>;
+
+def SDT_Sigma16CallSeqEnd   : SDCallSeqEnd<[
+  SDTCisVT<0, i16>, SDTCisVT<1, i16>
+]>;
+
+def Sigma16RetFlag    : SDNode<"Sigma16ISD::RET_FLAG", SDTNone,
+                           [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
+def callseq_start : SDNode<"ISD::CALLSEQ_START", SDT_Sigma16CallSeqStart,
+                           [SDNPHasChain, SDNPOutGlue]>;
+def callseq_end   : SDNode<"ISD::CALLSEQ_END",   SDT_Sigma16CallSeqEnd,
+                           [SDNPHasChain, SDNPOptInGlue, SDNPOutGlue]>;
+
+def SDT_Sigma16Call    : SDTypeProfile<0, -1, [SDTCisPtrTy<0>]>;
+
+//===----------------------------------------------------------------------===//
 // Instruction Formats
 //===----------------------------------------------------------------------===//
 
@@ -28,10 +51,21 @@ include "Sigma16InstrFormats.td"
 // Instruction operand types
 //===----------------------------------------------------------------------===//
 
-def memsrc : Operand<i16> {
+// def memsrc : Operand<i16> {
+//   let MIOperandInfo = (ops CPURegs, i16imm);
+//   let PrintMethod = "printAddrModeMemSrc";
+//   let EncoderMethod = "getMemSrcValue";
+// }
+
+
+def addr :
+  ComplexPattern<iPTR, 2, "SelectAddr", [frameindex], [SDNPWantParent]>;
+
+def mem : Operand<iPTR> {
+  let PrintMethod = "printMemOperand";
   let MIOperandInfo = (ops CPURegs, i16imm);
-  let PrintMethod = "printAddrModeMemSrc";
-  let EncoderMethod = "getMemSrcValue";
+  let EncoderMethod = "getMemEncoding";
+//  let ParserMatchClass = Cpu0MemAsmOperand;
 }
 
 //===----------------------------------------------------------------------===//
@@ -48,83 +82,59 @@ class ALU_rr<bits<4> op, string instr_asm, SDNode OpNode,
 }
 
 // Memory instructions
-class Mem<bits<4> opB, string instr_asm, list<dag> pattern,
-                  InstrItinClass itin>:
-    FRX<(outs CPURegs:$rd), (ins memsrc:$imm16),
-    !strconcat(instr_asm, "\t$rd,$imm16"),
-    [(set CPURegs:$rd, (OpNode RC:$imm16))], itin> {
+class Mem<bits<4> opB, dag outs, dag ins, string asmstr, list<dag> pattern,
+            InstrItinClass itin>: FRX<outs, ins, asmstr, pattern, itin> {
     let rb = opB;
     let ra = 0;
 
-    let DecoderMethod = "decodeMem";
-}
-
-class MemDisp<bits<4> opB, string instr_asm, list<dag> pattern,
-                  InstrItinClass itin>:
-    FRX<(outs CPURegs:$rd), (ins memsrc:$imm16, CPURegs:$ra),
-    !strconcat(instr_asm, "\t$rd,$imm16[$ra]"),
-    pattern, itin> {
-    let rb = opB;
+class FMem<bits<4> opB, dag outs, dag ins, string asmstr, list<dag> pattern,
+          InstrItinClass itin>: FL<op, outs, ins, asmstr, pattern, itin>
+    : FRX<outs, ins, asmstr, pattern, itin> {
+    let b = opB;
+    let a = 0;
 
     let DecoderMethod = "decodeMem";
 }
 
-
-
-// Memory instructions with 2 register operands and displacement
-//  (i.e. constant zero register as offset).
-class FMem2<bits<4> opB, dag outs, dag ins, string asmstr, list<dag> patterns,
-           InstrItinClass itin> :
-    FRX<outs, ins, asmstr, patterns, itin> {
+// Memory instructions with 16-bit displacement stored in ra
+class MemDisp<bits<4> opB, dag outs, dag ins, string asmstr, list<dag> pattern,
+            InstrItinClass itin>: FRX<outs, ins, asmstr, pattern, itin> {
     let rb = opB;
-    let ra = 0; // 0 since no register offset
-
-    let DecoderMethod = "DecodeMem";
+    let DecoderMethod = "decodeMem";
 }
 
-// Memory instruction with 3 register operands and displacement
-//  (i.e. register offset).
-class FMem3<bits<4> opB, bits<4> ir_sa, dag outs, dag ins, string asmstr,
-           list<dag> patterns, InstrItinClass itin> :
-    FRX<outs, ins, asmstr, patterns, itin> {
-    let rb = opB;
-    let ra = ir_sa;
+// Lea with no displacement is equivalent to mov
+let isMoveImm = 1 in
+class LeaM<bits<4> opB, string asmstr, RegisterClass RC, Operand MemOpnd>:
+    Mem<opB, (outs RC:$rd), (ins MemOpnd:$imm16),
+    !strconcat(asmstr, "\t$rd,$imm16"),
+    [(set CPURegs:$rd, (addr:$imm16))], IILea> {
 
-    let DecoderMethod = "DecodeMem";
 }
 
+let canFoldAsLoad = 1 in
+class LoadM<bits<4> opB, string asmstr, RegisterClass RC, Operand MemOpnd>:
+    Mem<opB, (outs RC:$rd), (ins MemOpnd:$imm16),
+    !strconcat(asmstr, "\t$rd,$imm16"),
+   [(set i16:$rd, (load addr:$imm16))], IILoad> {
+
+}
+
+// Load with 16-bit displacement(offset) stored in ra, similar to "lw $rd, 0x1234($ra)" in MIPS
+//let canFoldAsLoad = 1 in
+//class LoadDispM<bits<4> opB, string asmstr, RegisterClass RC, Operand MemOpnd>:
+//    MemDisp<opB, (outs RC:$rd), (ins MemOpnd:$imm16, CPURegs:$ra),
+//    !strconcat(asmstr, "\t$rd,$imm16[$ra]"),
 
 
-// // Memory Load/Store
-// let canFoldAsLoad = 1 in
-// class LoadM<bits<4> opB, string instr_asm, PatFrag OpNode, RegisterClass RC,
-//             Operand MemOpnd, bit Pseudo>:
-//   FMem<opB, (outs RC:$rd), (ins MemOpnd:$disp),
-//      !strconcat(instr_asm, "\t$rd,$disp"),
-//      [(set RC:$rd, (OpNode addr:$disp))], IILoad> {
-//   let isPseudo = Pseudo;
-// }
 
-// class StoreM<bits<4> opB, string instr_asm, PatFrag OpNode, RegisterClass RC,
-//              Operand MemOpnd, bit Pseudo>:
-//   FMem<opB, (outs), (ins RC:$rd, MemOpnd:$disp),
-//      !strconcat(instr_asm, "\t$rd,$disp"),
-//      [(OpNode RC:$rd, addr:$disp)], IIStore> {
-//   let isPseudo = Pseudo;
-// }
+class StoreM<bits<4> opB, string asmstr, RegisterClass RC, Operand MemOpnd>:
+    Mem<opB, (outs), (ins RC:$rd, MemOpnd:$imm16),
+    !strconcat(asmstr, "\t$rd,$imm16"),
+    [(store i16:$rd, addr:$imm16)], IIStore> {
+}
 
-// //@ 16-bit load.
-// class LoadM16<bits<4> opB, string    instr_asm, PatFrag OpNode,
-//                    bit Pseudo = 0>
-//   : LoadM<op, instr_asm, OpNode, CPURegs, mem, Pseudo> {
-// }
-
-// // 16-bit store.
-// class StoreM16<bits<4> op, string instr_asm, PatFrag OpNode,
-//                     bit Pseudo = 0>
-//   : StoreM<op, instr_asm, OpNode, CPURegs, mem, Pseudo> {
-// }
-
+//===----------------------------------------------------------------------===//
 /// Arithmetic Instructions (3-Operand, RRR-Type)
 
 def ADD     : ALU_rr<0x0, "add", add, IIAlu, CPURegs, /*isComm=*/ 1>;
@@ -135,7 +145,11 @@ def DIV     : ALU_rr<0x3, "div", sdiv, IIMulDiv, CPURegs>;
 /// Load/Store Instructions (2-Operand, RX-Type)
 def LD      : Mem<0x0, "load", load, IILoad, CPURegs>;
 
-/// Load and Store Instructions
-///  aligned
-// def LD     : LoadM32<0x01,  "load",  load_a>;
-// def ST     : StoreM32<0x02, "store",  store_a>;
+/// Load/Store Instructions (2-Operand, RX-Type)
+def LEA     : LeaM<0x0, "lea", CPURegs, mem>;
+def LD      : LoadM<0x1, "load", CPURegs, mem>;
+def ST      : StoreM<0x2, "store", CPURegs, mem>;
+
+/// Load/Store Instructions with 16-bit displacement (3-Operand, RX-Type)
+
+//TODO: implement this

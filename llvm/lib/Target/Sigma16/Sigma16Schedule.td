@@ -22,10 +22,10 @@ def IIAlu              : InstrItinClass;
 def IIMulDiv           : InstrItinClass;
 def II_CLO             : InstrItinClass;
 def II_CLZ             : InstrItinClass;
+def IILea              : InstrItinClass;
 def IILoad             : InstrItinClass;
 def IIStore            : InstrItinClass;
 def IIBranch           : InstrItinClass;
-
 def IIPseudo           : InstrItinClass;
 
 //===----------------------------------------------------------------------===//
