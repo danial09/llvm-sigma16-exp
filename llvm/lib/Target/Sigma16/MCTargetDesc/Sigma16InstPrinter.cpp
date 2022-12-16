@@ -29,10 +29,7 @@ using namespace llvm;
 #include "Sigma16GenAsmWriter.inc"
 
 void Sigma16InstPrinter::printRegName(raw_ostream &OS, unsigned RegNo) const {
-  //- getRegisterName(RegNo) defined in Sigma16GenAsmWriter.inc which indicate
-  // in
-  //   Sigma16.td.
-  OS << '$' << StringRef(getRegisterName(RegNo)).lower();
+  OS << StringRef(getRegisterName(RegNo));
 }
 
 //@1 {
@@ -41,10 +38,6 @@ void Sigma16InstPrinter::printInst(const MCInst *MI, uint64_t Address,
                                    raw_ostream &O) {
   // Try to print any aliases first.
   if (!printAliasInstr(MI, Address, O))
-    //@1 }
-    //- printInstruction(MI, O) defined in Sigma16GenAsmWriter.inc which came
-    // from
-    //   Sigma16.td indicate.
     printInstruction(MI, Address, O);
   printAnnotation(O, Annot);
 }
@@ -77,25 +70,25 @@ void Sigma16InstPrinter::printUnsignedImm(const MCInst *MI, int opNum,
 
 void Sigma16InstPrinter::printMemOperand(const MCInst *MI, int opNum,
                                          raw_ostream &O) {
-  // Load/Store memory operands -- imm($reg)
+  // Load/Store memory operands -- imm[reg]
   // If PIC target the target is loaded as the
-  // pattern ld $t9,%call16($gp)
+  // pattern load R3,imm[R5]
   printOperand(MI, opNum + 1, O);
-  O << "(";
+  O << "[";
   printOperand(MI, opNum, O);
-  O << ")";
+  O << "]";
 }
 
-//#if CH >= CH7_1
-// The DAG data node, mem_ea of Sigma16InstrInfo.td, cannot be disabled by
-// ch7_1, only opcode node can be disabled.
-// void Sigma16InstPrinter::
-// printMemOperandEA(const MCInst *MI, int opNum, raw_ostream &O) {
-//   // when using stack locations for not load/store instructions
-//   // print the same way as all normal 3 operand instructions.
-//   printOperand(MI, opNum, O);
-//   O << ", ";
-//   printOperand(MI, opNum+1, O);
-//   return;
-// }
-//#endif
+// #if CH >= CH7_1
+//  The DAG data node, mem_ea of Sigma16InstrInfo.td, cannot be disabled by
+//  ch7_1, only opcode node can be disabled.
+//  void Sigma16InstPrinter::
+//  printMemOperandEA(const MCInst *MI, int opNum, raw_ostream &O) {
+//    // when using stack locations for not load/store instructions
+//    // print the same way as all normal 3 operand instructions.
+//    printOperand(MI, opNum, O);
+//    O << ",";
+//    printOperand(MI, opNum+1, O);
+//    return;
+//  }
+// #endif

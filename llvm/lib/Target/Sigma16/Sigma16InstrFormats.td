@@ -15,11 +15,11 @@
 //
 //  op              4-bit major operation code
 //
-//  d               4-bit destination register
+//  rd              4-bit destination register
 //
-//  a               4-bit source register
+//  ra              4-bit source register
 //
-//  b              4-bit source or destination register
+//  rb              4-bit source register
 //
 //  displacement    16-bit immediate, branch displacement, or
 //  or disp         address displacement
@@ -41,9 +41,10 @@ class Sigma16Inst<dag outs, dag ins, int size, string asmstr,
     : Instruction {
     
     // Inst and Size for tablegen emitter. Note that although the largest 
-    // possible size is currently 32 bits, there are additional Sigma16 
+    // possible size is currently 32 bits, there are additional Sigma16
     // formats currently not implemented which can be of a larger size.
     field bits<32> Inst;
+    // SoftFail is not used, but is required to build the tablegen decode table.
     field bits<32> SoftFail = 0;
     InstFormat Format = f;
     let Size = size;
@@ -69,16 +70,16 @@ class FRRR<bits<4> op, dag outs, dag ins, string asmstr, list<dag> pattern,
 	InstrItinClass itin>: 
 		Sigma16Inst<outs, ins, 2, asmstr, pattern, itin, InstFormatRRR> {
 
-    bits<4> d;
-    bits<4> a;
-    bits<4> b;
+    bits<4> rd;
+    bits<4> ra;
+    bits<4> rb;
 
     let Opcode = op;
 
     let Inst{15-12} = op; 
-    let Inst{11-8} = d;
-    let Inst{7-4} = a;
-    let Inst{3-0} = b;
+    let Inst{11-8} = rd;
+    let Inst{7-4} = ra;
+    let Inst{3-0} = rb;
 }
 
 //===----------------------------------------------------------------------===//
@@ -89,15 +90,14 @@ class FRX<dag outs, dag ins, string asmstr, list<dag> pattern,
 	InstrItinClass itin>:
     	Sigma16Inst<outs, ins, 2, asmstr, pattern, itin, InstFormatRX> {
 	
-	bits<4> d;
-	bits<4> a;
-	bits<4> b;
-	bits<16> disp;
+	bits<4> rd;
+	bits<4> ra;
+	bits<4> rb;
+	bits<16> imm16;
 
 	let Inst{31-28} = 0b1111;
-  let Inst{27-24} = d;
-  let Inst{23-20} = a;
-  let Inst{19-16} = b;
-	let Inst{15-0} = disp;
+    let Inst{27-24} = rd;
+    let Inst{23-20} = ra;
+    let Inst{19-16} = rb;
+	let Inst{15-0} = imm16;
 }
-

@@ -1,4 +1,4 @@
-//===---- Sigma16ABIInfo.h - Information about SIGMA16 ABI's --------------------===//
+//=== Sigma16ABIInfo.h - Information about SIGMA16 ABI's ----- -*- C++ -*- ===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -65,7 +65,6 @@ public:
   unsigned GetEhDataReg(unsigned I) const;
   int EhDataRegSize() const;
 };
-}
+} // namespace llvm
 
 #endif
-

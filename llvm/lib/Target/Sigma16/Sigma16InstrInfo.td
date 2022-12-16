@@ -5,8 +5,18 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
+//
+// This file describes Sigma16 instructions.
+//
+//===----------------------------------------------------------------------===//
 
+//===----------------------------------------------------------------------===//
+// Sigma16 specific DAG nodes
+//===----------------------------------------------------------------------===//
 
+def SDT_Sigma16DivRem : SDTypeProfile<0, 2, [SDTCisInt<0>, SDTCisSameAs<0, 1>]>;
+def Sigma16DivRem     : SDNode<"Sigma16ISD::Sigma16DivRem", SDT_Sigma16DivRem,
+                                [SDNPOutGlue]>;
 
 //===----------------------------------------------------------------------===//
 // Type profiles
@@ -62,14 +72,13 @@ def mem : Operand<iPTR> {
 // Instructions specific formats
 //===----------------------------------------------------------------------===//
 
-// Arithmetic and logical instructions with 3 register operands.
-class ArithLogicR<bits<4> op, string instr_asm, SDNode OpNode,
+let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
+class ALU_rr<bits<4> op, string instr_asm, SDNode OpNode,
                   InstrItinClass itin, RegisterClass RC, bit isComm = 0>:
     FRRR<op, (outs CPURegs:$rd), (ins RC:$ra, RC:$rb),
     !strconcat(instr_asm, "\t$rd,$ra,$rb"),
     [(set CPURegs:$rd, (OpNode RC:$ra, RC:$rb))], itin> {
     let isCommutable = isComm;	// e.g. add ra rb =  add rb ra
-    let isReMaterializable = 1;
 }
 
 // Memory instructions
@@ -84,7 +93,7 @@ class FMem<bits<4> opB, dag outs, dag ins, string asmstr, list<dag> pattern,
     let b = opB;
     let a = 0;
 
-    let DecoderMethod = "DecodeMem";
+    let DecoderMethod = "decodeMem";
 }
 
 // Memory instructions with 16-bit displacement stored in ra
@@ -128,10 +137,13 @@ class StoreM<bits<4> opB, string asmstr, RegisterClass RC, Operand MemOpnd>:
 //===----------------------------------------------------------------------===//
 /// Arithmetic Instructions (3-Operand, RRR-Type)
 
-def ADD     : ArithLogicR<0x0, "add", add, IIAlu, CPURegs, 1>;
-def SUB     : ArithLogicR<0x1, "sub", sub, IIAlu, CPURegs>;
-def MUL     : ArithLogicR<0x2, "mul", mul, IIAlu, CPURegs, /*isComm=*/ 1>;
-// def DIV     : ArithLogicR<0x3, "div", div, IIAlu, CPURegs>
+def ADD     : ALU_rr<0x0, "add", add, IIAlu, CPURegs, /*isComm=*/ 1>;
+def SUB     : ALU_rr<0x1, "sub", sub, IIAlu, CPURegs>;
+def MUL     : ALU_rr<0x2, "mul", mul, IIMulDiv, CPURegs, /*isComm=*/ 1>;
+def DIV     : ALU_rr<0x3, "div", sdiv, IIMulDiv, CPURegs>;
+
+/// Load/Store Instructions (2-Operand, RX-Type)
+def LD      : Mem<0x0, "load", load, IILoad, CPURegs>;
 
 /// Load/Store Instructions (2-Operand, RX-Type)
 def LEA     : LeaM<0x0, "lea", CPURegs, mem>;
