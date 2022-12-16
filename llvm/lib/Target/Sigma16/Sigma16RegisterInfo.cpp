@@ -46,13 +46,13 @@ Sigma16RegisterInfo::Sigma16RegisterInfo(const Sigma16Subtarget &ST)
 // llc create CSR_O32_SaveList and CSR_O32_RegMask from above defined.
 const MCPhysReg *
 Sigma16RegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
-  return CSR_O16_SaveList;
+  return CC_Save_SaveList;
 }
 
 const uint32_t *
 Sigma16RegisterInfo::getCallPreservedMask(const MachineFunction &MF,
                                           CallingConv::ID) const {
-  return CSR_O16_RegMask;
+  return CC_Save_RegMask;
 }
 
 // pure virtual method
@@ -77,9 +77,23 @@ Sigma16RegisterInfo::getReservedRegs(const MachineFunction &MF) const {
 // FrameIndex represent objects inside a abstract stack.
 // We must replace FrameIndex with an stack/frame pointer
 // direct reference.
-void Sigma16RegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
+bool Sigma16RegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
                                               int SPAdj, unsigned FIOperandNum,
-                                              RegScavenger *RS) const {}
+                                              RegScavenger *RS) const {
+  // TODO: Implement remaining cases.
+
+  MachineInstr &MI = *II;
+  const MachineFunction &MF = *MI.getParent()->getParent();
+  const MachineFrameInfo &MFI = MF.getFrameInfo();
+  MachineOperand &FIOp = MI.getOperand(FIOperandNum);
+  unsigned FI = FIOp.getIndex();
+
+  // Determine whether we can eliminate the frame index.
+  // If not, we must spill it.
+  unsigned ImmOpIdx = 0;
+  switch (MI.getOpcode()) {}
+  return false;
+}
 //}
 
 bool Sigma16RegisterInfo::requiresRegisterScavenging(
@@ -95,6 +109,9 @@ bool Sigma16RegisterInfo::trackLivenessAfterRegAlloc(
 // pure virtual method
 Register
 Sigma16RegisterInfo::getFrameRegister(const MachineFunction &MF) const {
-  const TargetFrameLowering *TFI = MF.getSubtarget().getFrameLowering();
-  return TFI->hasFP(MF) ? (Sigma16::R13) : (Sigma16::R14);
+  return Sigma16::R14;
+  //  const TargetFrameLowering *TFI = MF.getSubtarget().getFrameLowering();
+  //  return TFI->hasFP(MF) ? (Sigma16::R13) : (Sigma16::R14);
 }
+
+Register Sigma16RegisterInfo::getStackRegister() const { return Sigma16::R13; }
