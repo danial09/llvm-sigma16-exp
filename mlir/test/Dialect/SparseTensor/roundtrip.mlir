@@ -106,6 +106,48 @@ func.func @sparse_values(%arg0: tensor<128xf64, #SparseVector>) -> memref<?xf64>
 
 #SparseVector = #sparse_tensor.encoding<{dimLevelType = ["compressed"]}>
 
+// CHECK-LABEL: func @sparse_metadata_init(
+//       CHECK: %[[T:.*]] = sparse_tensor.storage_specifier.init : !sparse_tensor.storage_specifier<#{{.*}}>
+//       CHECK: return %[[T]] : !sparse_tensor.storage_specifier<#{{.*}}>
+func.func @sparse_metadata_init() -> !sparse_tensor.storage_specifier<#SparseVector> {
+  %0 = sparse_tensor.storage_specifier.init : !sparse_tensor.storage_specifier<#SparseVector>
+  return %0 : !sparse_tensor.storage_specifier<#SparseVector>
+}
+
+// -----
+
+#SparseVector = #sparse_tensor.encoding<{dimLevelType = ["compressed"]}>
+
+// CHECK-LABEL: func @sparse_get_md(
+//  CHECK-SAME: %[[A:.*]]: !sparse_tensor.storage_specifier<#{{.*}}>
+//       CHECK: %[[T:.*]] = sparse_tensor.storage_specifier.get %[[A]] dim_sz at 0
+//       CHECK: return %[[T]] : i64
+func.func @sparse_get_md(%arg0: !sparse_tensor.storage_specifier<#SparseVector>) -> i64 {
+  %0 = sparse_tensor.storage_specifier.get %arg0 dim_sz at 0
+       : !sparse_tensor.storage_specifier<#SparseVector> to i64
+  return %0 : i64
+}
+
+// -----
+
+#SparseVector = #sparse_tensor.encoding<{dimLevelType = ["compressed"]}>
+
+// CHECK-LABEL: func @sparse_set_md(
+//  CHECK-SAME: %[[A:.*]]: !sparse_tensor.storage_specifier<#{{.*}}>,
+//  CHECK-SAME: %[[I:.*]]: i64)
+//       CHECK: %[[T:.*]] = sparse_tensor.storage_specifier.set %[[A]] dim_sz at 0 with %[[I]]
+//       CHECK: return %[[T]] : !sparse_tensor.storage_specifier<#{{.*}}>
+func.func @sparse_set_md(%arg0: !sparse_tensor.storage_specifier<#SparseVector>, %arg1: i64)
+          -> !sparse_tensor.storage_specifier<#SparseVector> {
+  %0 = sparse_tensor.storage_specifier.set %arg0 dim_sz at 0 with %arg1
+       : i64, !sparse_tensor.storage_specifier<#SparseVector>
+  return %0 : !sparse_tensor.storage_specifier<#SparseVector>
+}
+
+// -----
+
+#SparseVector = #sparse_tensor.encoding<{dimLevelType = ["compressed"]}>
+
 // CHECK-LABEL: func @sparse_noe(
 //  CHECK-SAME: %[[A:.*]]: tensor<128xf64, #{{.*}}>)
 //       CHECK: %[[T:.*]] = sparse_tensor.number_of_entries %[[A]] : tensor<128xf64, #{{.*}}>
@@ -415,7 +457,7 @@ func.func @concat_sparse_sparse(%arg0: tensor<2x4xf64, #SparseMatrix>,
 
 // CHECK-LABEL: func @sparse_tensor_foreach(
 //  CHECK-SAME: %[[A0:.*]]: tensor<2x4xf64
-//       CHECK: sparse_tensor.foreach in %[[A0]] : 
+//       CHECK: sparse_tensor.foreach in %[[A0]] :
 //       CHECK:  ^bb0(%arg1: index, %arg2: index, %arg3: f64):
 func.func @sparse_tensor_foreach(%arg0: tensor<2x4xf64, #DCSR>) -> () {
   sparse_tensor.foreach in %arg0 : tensor<2x4xf64, #DCSR> do {
@@ -429,7 +471,7 @@ func.func @sparse_tensor_foreach(%arg0: tensor<2x4xf64, #DCSR>) -> () {
 #DCSR = #sparse_tensor.encoding<{dimLevelType = ["compressed", "compressed"]}>
 
 // CHECK-LABEL: func @sparse_tensor_foreach(
-//  CHECK-SAME:   %[[A0:.*]]: tensor<2x4xf64, #sparse_tensor.encoding<{{{.*}}}>>, 
+//  CHECK-SAME:   %[[A0:.*]]: tensor<2x4xf64, #sparse_tensor.encoding<{{{.*}}}>>,
 //  CHECK-SAME:   %[[A1:.*]]: f32
 //  CHECK-NEXT:   %[[RET:.*]] = sparse_tensor.foreach in %[[A0]] init(%[[A1]])
 //  CHECK-NEXT:    ^bb0(%[[TMP_1:.*]]: index, %[[TMP_2:.*]]: index, %[[TMP_v:.*]]: f64, %[[TMP_r:.*]]: f32)
@@ -438,13 +480,13 @@ func.func @sparse_tensor_foreach(%arg0: tensor<2x4xf64, #DCSR>) -> () {
 func.func @sparse_tensor_foreach(%arg0: tensor<2x4xf64, #DCSR>, %arg1: f32) -> () {
   %ret = sparse_tensor.foreach in %arg0 init(%arg1): tensor<2x4xf64, #DCSR>, f32 -> f32
   do {
-    ^bb0(%1: index, %2: index, %v: f64, %r: f32) : 
+    ^bb0(%1: index, %2: index, %v: f64, %r: f32) :
       sparse_tensor.yield %r : f32
   }
   return
 }
 
-// ----
+// -----
 
 // CHECK-LABEL: func @sparse_sort_1d0v(
 //  CHECK-SAME: %[[A:.*]]: index,
@@ -511,4 +553,3 @@ func.func @sparse_sort_coo_stable(%arg0: index, %arg1: memref<?xi64>, %arg2: mem
   sparse_tensor.sort_coo stable %arg0, %arg1 jointly %arg2 { nx=2 : index, ny=1 : index}: memref<?xi64> jointly memref<?xf32>
   return %arg1, %arg2 : memref<?xi64>, memref<?xf32>
 }
-

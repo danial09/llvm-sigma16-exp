@@ -5,6 +5,7 @@
     "cmake.configureOnEdit": false,
     "cmake.generator": "Ninja",
     "cmake.configureSettings": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
         "LLVM_ENABLE_PROJECTS": [
             "clang"
         ],

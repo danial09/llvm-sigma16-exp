@@ -43,12 +43,6 @@ public:
   // getNextToken().
   virtual FormatToken *peekNextToken() = 0;
 
-  // Returns the token that would be returned after the next N calls to
-  // getNextToken(). N needs to be greater than zero, and small enough that
-  // there are still tokens. Check for tok::eof with N-1 before calling it with
-  // N.
-  virtual FormatToken *peekNextToken(int N) = 0;
-
   // Returns whether we are at the end of the file.
   // This can be different from whether getNextToken() returned an eof token
   // when the FormatTokenSource is a view on a part of the token stream.
@@ -181,13 +175,6 @@ public:
     return PreviousTokenSource->peekNextToken();
   }
 
-  FormatToken *peekNextToken(int N) override {
-    assert(N > 0);
-    if (eof())
-      return &FakeEOF;
-    return PreviousTokenSource->peekNextToken(N);
-  }
-
   bool isEOF() override { return PreviousTokenSource->isEOF(); }
 
   unsigned getPosition() override { return PreviousTokenSource->getPosition(); }
@@ -305,16 +292,6 @@ public:
     int Next = Position + 1;
     LLVM_DEBUG({
       llvm::dbgs() << "Peeking ";
-      dbgToken(Next);
-    });
-    return Tokens[Next];
-  }
-
-  FormatToken *peekNextToken(int N) override {
-    assert(N > 0);
-    int Next = Position + N;
-    LLVM_DEBUG({
-      llvm::dbgs() << "Peeking (+" << (N - 1) << ") ";
       dbgToken(Next);
     });
     return Tokens[Next];
@@ -2752,6 +2729,14 @@ bool UnwrappedLineParser::handleCppAttributes() {
   return false;
 }
 
+/// Returns whether \c Tok begins a block.
+bool UnwrappedLineParser::isBlockBegin(const FormatToken &Tok) const {
+  // FIXME: rename the function or make
+  // Tok.isOneOf(tok::l_brace, TT_MacroBlockBegin) work.
+  return Style.isVerilog() ? Keywords.isVerilogBegin(Tok)
+                           : Tok.is(tok::l_brace);
+}
+
 FormatToken *UnwrappedLineParser::parseIfThenElse(IfStmtKind *IfKind,
                                                   bool KeepBraces) {
   assert(FormatTok->is(tok::kw_if) && "'if' expected");
@@ -2777,7 +2762,7 @@ FormatToken *UnwrappedLineParser::parseIfThenElse(IfStmtKind *IfKind,
   FormatToken *IfLeftBrace = nullptr;
   IfStmtKind IfBlockKind = IfStmtKind::NotIf;
 
-  if (Keywords.isBlockBegin(*FormatTok, Style)) {
+  if (isBlockBegin(*FormatTok)) {
     FormatTok->setFinalizedType(TT_ControlStatementLBrace);
     IfLeftBrace = FormatTok;
     CompoundStatementIndenter Indenter(this, Style, Line->Level);
@@ -2810,7 +2795,7 @@ FormatToken *UnwrappedLineParser::parseIfThenElse(IfStmtKind *IfKind,
     }
     nextToken();
     handleAttributes();
-    if (Keywords.isBlockBegin(*FormatTok, Style)) {
+    if (isBlockBegin(*FormatTok)) {
       const bool FollowedByIf = Tokens->peekNextToken()->is(tok::kw_if);
       FormatTok->setFinalizedType(TT_ElseLBrace);
       ElseLeftBrace = FormatTok;
@@ -3082,7 +3067,7 @@ void UnwrappedLineParser::parseNew() {
 void UnwrappedLineParser::parseLoopBody(bool KeepBraces, bool WrapRightBrace) {
   keepAncestorBraces();
 
-  if (Keywords.isBlockBegin(*FormatTok, Style)) {
+  if (isBlockBegin(*FormatTok)) {
     if (!KeepBraces)
       FormatTok->setFinalizedType(TT_ControlStatementLBrace);
     FormatToken *LeftBrace = FormatTok;
@@ -3389,37 +3374,41 @@ bool clang::format::UnwrappedLineParser::parseRequires() {
   // So we want basically to check for TYPE NAME, but TYPE can contain all kinds
   // of stuff: typename, const, *, &, &&, ::, identifiers.
 
-  int NextTokenOffset = 1;
-  auto NextToken = Tokens->peekNextToken(NextTokenOffset);
-  auto PeekNext = [&NextTokenOffset, &NextToken, this] {
-    ++NextTokenOffset;
-    NextToken = Tokens->peekNextToken(NextTokenOffset);
+  unsigned StoredPosition = Tokens->getPosition();
+  FormatToken *NextToken = Tokens->getNextToken();
+  int Lookahead = 0;
+  auto PeekNext = [&Lookahead, &NextToken, this] {
+    ++Lookahead;
+    NextToken = Tokens->getNextToken();
   };
 
   bool FoundType = false;
   bool LastWasColonColon = false;
   int OpenAngles = 0;
 
-  for (; NextTokenOffset < 50; PeekNext()) {
+  for (; Lookahead < 50; PeekNext()) {
     switch (NextToken->Tok.getKind()) {
     case tok::kw_volatile:
     case tok::kw_const:
     case tok::comma:
+      FormatTok = Tokens->setPosition(StoredPosition);
       parseRequiresExpression(RequiresToken);
       return false;
     case tok::r_paren:
     case tok::pipepipe:
+      FormatTok = Tokens->setPosition(StoredPosition);
       parseRequiresClause(RequiresToken);
       return true;
     case tok::eof:
       // Break out of the loop.
-      NextTokenOffset = 50;
+      Lookahead = 50;
       break;
     case tok::coloncolon:
       LastWasColonColon = true;
       break;
     case tok::identifier:
       if (FoundType && !LastWasColonColon && OpenAngles == 0) {
+        FormatTok = Tokens->setPosition(StoredPosition);
         parseRequiresExpression(RequiresToken);
         return false;
       }
@@ -3434,14 +3423,15 @@ bool clang::format::UnwrappedLineParser::parseRequires() {
       break;
     default:
       if (NextToken->isSimpleTypeSpecifier()) {
+        FormatTok = Tokens->setPosition(StoredPosition);
         parseRequiresExpression(RequiresToken);
         return false;
       }
       break;
     }
   }
-
   // This seems to be a complicated expression, just assume it's a clause.
+  FormatTok = Tokens->setPosition(StoredPosition);
   parseRequiresClause(RequiresToken);
   return true;
 }

@@ -14,6 +14,7 @@
 #define FORTRAN_OPTIMIZER_BUILDER_HLFIRTOOLS_H
 
 #include "flang/Optimizer/Builder/BoxValue.h"
+#include "flang/Optimizer/Dialect/FIROps.h"
 #include "flang/Optimizer/Dialect/FortranVariableInterface.h"
 #include "flang/Optimizer/HLFIR/HLFIRDialect.h"
 
@@ -22,6 +23,10 @@ class FirOpBuilder;
 }
 
 namespace hlfir {
+
+class AssociateOp;
+class ElementalOp;
+class YieldElementOp;
 
 /// Is this an SSA value type for the value of a Fortran expression?
 inline bool isFortranValueType(mlir::Type type) {
@@ -68,6 +73,9 @@ public:
   bool isValue() const { return isFortranValue(*this); }
   bool isVariable() const { return !isValue(); }
   bool isMutableBox() const { return hlfir::isBoxAddressType(getType()); }
+  bool isBoxAddressOrValue() const {
+    return hlfir::isBoxAddressOrValueType(getType());
+  }
   bool isArray() const {
     mlir::Type type = fir::unwrapPassByRefType(fir::unwrapRefType(getType()));
     if (type.isa<fir::SequenceType>())
@@ -77,6 +85,12 @@ public:
     return false;
   }
   bool isScalar() const { return !isArray(); }
+
+  bool isPolymorphic() const {
+    if (auto exprType = getType().dyn_cast<hlfir::ExprType>())
+      return exprType.isPolymorphic();
+    return fir::isPolymorphicType(getType());
+  }
 
   mlir::Type getFortranElementType() const {
     return hlfir::getFortranElementType(getType());
@@ -90,6 +104,20 @@ public:
 
   bool isCharacter() const {
     return getFortranElementType().isa<fir::CharacterType>();
+  }
+
+  bool hasNonDefaultLowerBounds() const {
+    if (!isBoxAddressOrValue() || isScalar())
+      return false;
+    if (isMutableBox())
+      return true;
+    if (auto varIface = getIfVariableInterface())
+      if (auto shape = varIface.getShape()) {
+        auto shapeTy = shape.getType();
+        return shapeTy.isa<fir::ShiftType>() ||
+               shapeTy.isa<fir::ShapeShiftType>();
+      }
+    return true;
   }
 
   fir::FortranVariableOpInterface getIfVariableInterface() const {
@@ -151,15 +179,53 @@ EntityWithAttributes genDeclare(mlir::Location loc, fir::FirOpBuilder &builder,
                                 llvm::StringRef name,
                                 fir::FortranVariableFlagsAttr flags);
 
+/// Generate an hlfir.associate to build a variable from an expression value.
+/// The type of the variable must be provided so that scalar logicals are
+/// properly typed when placed in memory.
+hlfir::AssociateOp genAssociateExpr(mlir::Location loc,
+                                    fir::FirOpBuilder &builder,
+                                    hlfir::Entity value,
+                                    mlir::Type variableType,
+                                    llvm::StringRef name);
+
+/// Get the raw address of a variable (simple fir.ref/fir.ptr, or fir.heap
+/// value). The returned value should be used with care, it does not contain any
+/// stride, shape, and type parameter information. For pointers and
+/// allocatables, this returns the address of the target.
+mlir::Value genVariableRawAddress(mlir::Location loc,
+                                  fir::FirOpBuilder &builder,
+                                  hlfir::Entity var);
+
+/// Get a fir.boxchar for character scalar or array variable (the shape is lost
+/// for arrays).
+mlir::Value genVariableBoxChar(mlir::Location loc, fir::FirOpBuilder &builder,
+                               hlfir::Entity var);
+
 /// If the entity is a variable, load its value (dereference pointers and
-/// allocatables if needed). Do nothing if the entity os already a variable or
-/// if it is not a scalar entity of numerical or logical type.
+/// allocatables if needed). Do nothing if the entity is already a value, and
+/// only dereference pointers and allocatables if it is not a scalar entity
+/// of numerical or logical type.
 Entity loadTrivialScalar(mlir::Location loc, fir::FirOpBuilder &builder,
                          Entity entity);
 
+/// If \p entity is a POINTER or ALLOCATABLE, dereference it and return the
+/// target entity. Return \p entity otherwise.
+hlfir::Entity derefPointersAndAllocatables(mlir::Location loc,
+                                           fir::FirOpBuilder &builder,
+                                           Entity entity);
+
+/// Get element entity(oneBasedIndices) if entity is an array, or return entity
+/// if it is a scalar. The indices are one based. If the entity has non default
+/// lower bounds, the function will adapt the indices in the indexing operation.
+hlfir::Entity getElementAt(mlir::Location loc, fir::FirOpBuilder &builder,
+                           Entity entity, mlir::ValueRange oneBasedIndices);
 /// Compute the lower and upper bounds of an entity.
 llvm::SmallVector<std::pair<mlir::Value, mlir::Value>>
 genBounds(mlir::Location loc, fir::FirOpBuilder &builder, Entity entity);
+
+/// Compute fir.shape<> (no lower bounds) for an entity.
+mlir::Value genShape(mlir::Location loc, fir::FirOpBuilder &builder,
+                     Entity entity);
 
 /// Read length parameters into result if this entity has any.
 void genLengthParameters(mlir::Location loc, fir::FirOpBuilder &builder,
@@ -173,6 +239,37 @@ void genLengthParameters(mlir::Location loc, fir::FirOpBuilder &builder,
 std::pair<mlir::Value, mlir::Value> genVariableFirBaseShapeAndParams(
     mlir::Location loc, fir::FirOpBuilder &builder, Entity entity,
     llvm::SmallVectorImpl<mlir::Value> &typeParams);
+
+/// Get the variable type for an element of an array type entity. Returns the
+/// input entity type if it is scalar. Will crash if the entity is not a
+/// variable.
+mlir::Type getVariableElementType(hlfir::Entity variable);
+
+using ElementalKernelGenerator = std::function<hlfir::Entity(
+    mlir::Location, fir::FirOpBuilder &, mlir::ValueRange)>;
+/// Generate an hlfir.elementalOp given call back to generate the element
+/// value at for each iteration.
+hlfir::ElementalOp genElementalOp(mlir::Location loc,
+                                  fir::FirOpBuilder &builder,
+                                  mlir::Type elementType, mlir::Value shape,
+                                  mlir::ValueRange typeParams,
+                                  const ElementalKernelGenerator &genKernel);
+
+/// Generate a fir.do_loop nest looping from 1 to extents[i].
+/// Return the inner fir.do_loop and the indices of the loops.
+std::pair<fir::DoLoopOp, llvm::SmallVector<mlir::Value>>
+genLoopNest(mlir::Location loc, fir::FirOpBuilder &builder,
+            mlir::ValueRange extents);
+
+/// Inline the body of an hlfir.elemental at the current insertion point
+/// given a list of one based indices. This generates the computation
+/// of one element of the elemental expression. Return the YieldElementOp
+/// whose value argument is the element value.
+/// The original hlfir::ElementalOp is left untouched.
+hlfir::YieldElementOp inlineElementalOp(mlir::Location loc,
+                                        fir::FirOpBuilder &builder,
+                                        hlfir::ElementalOp elemental,
+                                        mlir::ValueRange oneBasedIndices);
 
 } // namespace hlfir
 

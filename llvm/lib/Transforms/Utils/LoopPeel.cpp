@@ -11,7 +11,6 @@
 
 #include "llvm/Transforms/Utils/LoopPeel.h"
 #include "llvm/ADT/DenseMap.h"
-#include "llvm/ADT/Optional.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/Analysis/Loads.h"
@@ -42,6 +41,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <optional>
 
 using namespace llvm;
 using namespace llvm::PatternMatch;
@@ -160,11 +160,11 @@ public:
 
   // Calculate the sufficient minimum number of iterations of the loop to peel
   // such that phi instructions become determined (subject to allowable limits)
-  Optional<unsigned> calculateIterationsToPeel();
+  std::optional<unsigned> calculateIterationsToPeel();
 
 protected:
-  using PeelCounter = Optional<unsigned>;
-  const PeelCounter Unknown = None;
+  using PeelCounter = std::optional<unsigned>;
+  const PeelCounter Unknown = std::nullopt;
 
   // Add 1 respecting Unknown and return Unknown if result over MaxIterations
   PeelCounter addOne(PeelCounter PC) const {
@@ -230,14 +230,29 @@ PhiAnalyzer::PeelCounter PhiAnalyzer::calculate(const Value &V) {
            "unexpected value saved");
     return (IterationsToInvariance[Phi] = addOne(Iterations));
   }
-  // TODO: handle expressions
+  if (const Instruction *I = dyn_cast<Instruction>(&V)) {
+    if (isa<CmpInst>(I) || I->isBinaryOp()) {
+      // Binary instructions get the max of the operands.
+      PeelCounter LHS = calculate(*I->getOperand(0));
+      if (LHS == Unknown)
+        return Unknown;
+      PeelCounter RHS = calculate(*I->getOperand(1));
+      if (RHS == Unknown)
+        return Unknown;
+      return (IterationsToInvariance[I] = {std::max(*LHS, *RHS)});
+    }
+    if (I->isCast())
+      // Cast instructions get the value of the operand.
+      return (IterationsToInvariance[I] = calculate(*I->getOperand(0)));
+  }
+  // TODO: handle more expressions
 
   // Everything else is Unknown.
   assert(IterationsToInvariance[&V] == Unknown && "unexpected value saved");
   return Unknown;
 }
 
-Optional<unsigned> PhiAnalyzer::calculateIterationsToPeel() {
+std::optional<unsigned> PhiAnalyzer::calculateIterationsToPeel() {
   unsigned Iterations = 0;
   for (auto &PHI : L.getHeader()->phis()) {
     PeelCounter ToInvariance = calculate(PHI);
@@ -249,7 +264,7 @@ Optional<unsigned> PhiAnalyzer::calculateIterationsToPeel() {
     }
   }
   assert((Iterations <= MaxIterations) && "bad result in phi analysis");
-  return Iterations ? Optional<unsigned>(Iterations) : None;
+  return Iterations ? std::optional<unsigned>(Iterations) : std::nullopt;
 }
 
 } // unnamed namespace
@@ -554,7 +569,7 @@ void llvm::computePeelCount(Loop *L, unsigned LoopSize,
   if (L->getHeader()->getParent()->hasProfileData()) {
     if (violatesLegacyMultiExitLoopCheck(L))
       return;
-    Optional<unsigned> EstimatedTripCount = getLoopEstimatedTripCount(L);
+    std::optional<unsigned> EstimatedTripCount = getLoopEstimatedTripCount(L);
     if (!EstimatedTripCount)
       return;
 
@@ -792,10 +807,12 @@ static void cloneLoopBlocks(
     LVMap[KV.first] = KV.second;
 }
 
-TargetTransformInfo::PeelingPreferences llvm::gatherPeelingPreferences(
-    Loop *L, ScalarEvolution &SE, const TargetTransformInfo &TTI,
-    Optional<bool> UserAllowPeeling,
-    Optional<bool> UserAllowProfileBasedPeeling, bool UnrollingSpecficValues) {
+TargetTransformInfo::PeelingPreferences
+llvm::gatherPeelingPreferences(Loop *L, ScalarEvolution &SE,
+                               const TargetTransformInfo &TTI,
+                               std::optional<bool> UserAllowPeeling,
+                               std::optional<bool> UserAllowProfileBasedPeeling,
+                               bool UnrollingSpecficValues) {
   TargetTransformInfo::PeelingPreferences PP;
 
   // Set the default values.
@@ -980,9 +997,8 @@ bool llvm::peelLoop(Loop *L, unsigned PeelCount, LoopInfo *LI,
     InsertBot = SplitBlock(InsertBot, InsertBot->getTerminator(), &DT, LI);
     InsertBot->setName(Header->getName() + ".peel.next");
 
-    F->getBasicBlockList().splice(InsertTop->getIterator(),
-                                  F->getBasicBlockList(),
-                                  NewBlocks[0]->getIterator(), F->end());
+    F->splice(InsertTop->getIterator(), F, NewBlocks[0]->getIterator(),
+              F->end());
   }
 
   // Now adjust the phi nodes in the loop header to get their initial values

@@ -194,6 +194,7 @@ def hlfir_DesignateOp : hlfir_Op<"designate", [AttrSizedOperandSegments,
   let extraClassDeclaration = [{
     using Triplet = std::tuple<mlir::Value, mlir::Value, mlir::Value>;
     using Subscript = std::variant<mlir::Value, Triplet>;
+    using Subscripts = llvm::SmallVector<Subscript, 8>;
   }];
 
   let builders = [
@@ -203,7 +204,13 @@ def hlfir_DesignateOp : hlfir_Op<"designate", [AttrSizedOperandSegments,
       CArg<"mlir::ValueRange", "{}">:$substring,
       CArg<"llvm::Optional<bool>", "{}">:$complex_part,
       CArg<"mlir::Value", "{}">:$shape, CArg<"mlir::ValueRange", "{}">:$typeparams,
-      CArg<"fir::FortranVariableFlagsAttr", "{}">:$fortran_attrs)>];
+      CArg<"fir::FortranVariableFlagsAttr", "{}">:$fortran_attrs)>,
+
+    OpBuilder<(ins "mlir::Type":$result_type, "mlir::Value":$memref,
+      "mlir::ValueRange":$indices,
+      CArg<"mlir::ValueRange", "{}">:$typeparams,
+      CArg<"fir::FortranVariableFlagsAttr", "{}">:$fortran_attrs)>
+    ];
 
   let hasVerifier = 1;
 }
@@ -227,6 +234,207 @@ def hlfir_ConcatOp : hlfir_Op<"concat", []> {
   let builders = [OpBuilder<(ins "mlir::ValueRange":$strings,"mlir::Value":$len)>];
 
   let hasVerifier = 1;
+}
+
+def hlfir_AssociateOp : hlfir_Op<"associate", [AttrSizedOperandSegments,
+    DeclareOpInterfaceMethods<fir_FortranVariableOpInterface>]> {
+  let summary = "Create a variable from an expression value";
+  let description = [{
+    Create a variable from an expression value.
+    For expressions, this operation is an incentive to re-use the expression
+    storage, if any, after the bufferization pass when possible (if the
+    expression is not used afterwards).
+  }];
+
+  let arguments = (ins
+    AnyFortranValue:$source,
+    Optional<AnyShapeOrShiftType>:$shape,
+    Variadic<AnyIntegerType>:$typeparams,
+    Builtin_StringAttr:$uniq_name,
+    OptionalAttr<fir_FortranVariableFlagsAttr>:$fortran_attrs
+  );
+
+  let results = (outs AnyFortranVariable, AnyRefOrBoxLike, I1);
+
+  let assemblyFormat = [{
+    $source (`(` $shape^ `)`)? (`typeparams` $typeparams^)?
+     attr-dict `:` functional-type(operands, results)
+  }];
+
+  let builders = [
+    OpBuilder<(ins "mlir::Value":$source, "llvm::StringRef":$uniq_name,
+      CArg<"mlir::Value", "{}">:$shape, CArg<"mlir::ValueRange", "{}">:$typeparams,
+      CArg<"fir::FortranVariableFlagsAttr", "{}">:$fortran_attrs)>];
+
+  let extraClassDeclaration = [{
+    /// Override FortranVariableInterface default implementation
+    mlir::Value getBase() {
+      return getResult(0);
+    }
+
+    /// Get the variable FIR base (same as input). It lacks
+    /// any explicit lower bounds and the extents might not be retrievable
+    /// from it. This matches what is used as a "base" in FIR. All non
+    /// polymorphic expressions FIR base is a simple raw address (they are
+    /// contiguous in memory).
+    mlir::Value getFirBase() {
+      return getResult(1);
+    }
+
+    /// Return the result value that indicates if the variable storage
+    /// was allocated on the heap. At the HLFIR level, this may not be
+    /// known yet, and lowering will need to conditionally free the storage.
+    mlir::Value getMustFreeStrorageFlag() {
+      return getResult(2);
+    }
+  }];
+}
+
+def hlfir_EndAssociateOp : hlfir_Op<"end_associate", []> {
+  let summary = "Mark the end of life of a variable associated to an expression";
+
+  let description = [{
+    Mark the end of life of a variable associated to an expression.
+  }];
+
+  let arguments = (ins AnyRefOrBoxLike:$var,
+                   I1:$must_free);
+
+  let assemblyFormat = [{
+    $var `,` $must_free attr-dict `:` type(operands)
+  }];
+
+  let builders = [OpBuilder<(ins "hlfir::AssociateOp":$associate)>];
+}
+
+def hlfir_AsExprOp : hlfir_Op<"as_expr", []> {
+  let summary = "Take the value of an array, character or derived expression";
+
+  let description = [{
+    Take the value of an array, character or derived expression.
+  }];
+
+  let arguments = (ins AnyFortranVariable:$var);
+  let results = (outs hlfir_ExprType);
+
+  let assemblyFormat = [{
+    $var attr-dict `:` functional-type(operands, results)
+  }];
+
+
+  let builders = [OpBuilder<(ins "mlir::Value":$var)>];
+}
+
+def hlfir_NoReassocOp : hlfir_Op<"no_reassoc", [NoMemoryEffect, SameOperandsAndResultType]> {
+  let summary = "synthetic op to prevent reassociation";
+
+  let description = [{
+    Same as fir.reassoc, except it accepts hlfir.expr arguments.
+  }];
+
+  let arguments = (ins AnyFortranEntity:$val);
+  let results = (outs AnyFortranEntity);
+
+  let assemblyFormat = "$val attr-dict `:` type($val)";
+}
+
+def hlfir_ElementalOp : hlfir_Op<"elemental", []> {
+  let summary = "elemental expression";
+  let description = [{
+    Represent an elemental expression as a function of the indices.
+    This operation contain a region whose block arguments are one
+    based indices iterating over the elemental expression shape.
+    Given these indices, the element value for the given iteration
+    can be computed in the region and yielded with the hlfir.yield_element
+    operation.
+
+    The shape and typeparams operands represent the extents and type
+    parameters of the resulting array value.
+
+
+    Example: Y + X,  with Integer :: X(10, 20), Y(10,20)
+    ```
+      %0 = fir.shape %c10, %c20 : (index, index) -> !fir.shape<2>
+      %5 = hlfir.elemental %0 : (!fir.shape<2>) -> !hlfir.expr<10x20xi32> {
+      ^bb0(%i: index, %j: index):
+        %6 = hlfir.designate %x (%i, %j)  : (!fir.ref<!fir.array<10x20xi32>>, index, index) -> !fir.ref<i32>
+        %7 = hlfir.designate %y (%i, %j)  : (!fir.ref<!fir.array<10x20xi32>>, index, index) -> !fir.ref<i32>
+        %8 = fir.load %6 : !fir.ref<i32>
+        %9 = fir.load %7 : !fir.ref<i32>
+        %10 = arith.addi %8, %9 : i32
+        hlfir.yield_element %10 : i32
+      }
+    ```
+  }];
+
+  let arguments = (ins
+    AnyShapeType:$shape,
+    Variadic<AnyIntegerType>:$typeparams
+  );
+
+  let results = (outs hlfir_ExprType);
+  let regions = (region SizedRegion<1>:$region);
+
+  let assemblyFormat = [{
+    $shape (`typeparams` $typeparams^)?
+    attr-dict `:` functional-type(operands, results)
+    $region
+    }];
+
+  let extraClassDeclaration = [{
+      mlir::Block *getBody() { return &getRegion().front(); }
+
+      // Get the indices iterating over the shape.
+      mlir::Block::BlockArgListType getIndices() {
+       return getBody()->getArguments();
+      }
+  }];
+
+  let skipDefaultBuilders = 1;
+  let builders = [
+    OpBuilder<(ins "mlir::Type":$result_type, "mlir::Value":$shape,
+      CArg<"mlir::ValueRange", "{}">:$typeparams)>];
+
+}
+
+def hlfir_YieldElementOp : hlfir_Op<"yield_element", [Terminator, HasParent<"ElementalOp">]> {
+  let summary = "Yield the elemental value in an ElementalOp";
+  let description = [{
+    Yield the element value of the current elemental expression iteration
+    in an hlfir.elemental region. See hlfir.elemental description for an
+    example.
+  }];
+
+  let arguments = (ins AnyType:$element_value);
+
+  let assemblyFormat = "$element_value attr-dict `:` type($element_value)";
+}
+
+def hlfir_ApplyOp : hlfir_Op<"apply", [NoMemoryEffect, AttrSizedOperandSegments]> {
+  let summary = "get the element value of an expression";
+  let description = [{
+    Given an hlfir.expr array value, hlfir.apply allow retrieving
+    the value for an element given one based indices.
+    When hlfir.apply is used on an hlfir.elemental, and if the hlfir.elemental
+    operation evaluation can be moved to the location of the hlfir.apply, it is
+    as if the hlfir.elemental body was evaluated given the hlfir.apply indices.
+  }];
+
+  let arguments = (ins hlfir_ExprType:$expr,
+                   Variadic<Index>:$indices,
+                   Variadic<AnyIntegerType>:$typeparams
+                  );
+  let results = (outs AnyFortranValue:$element_value);
+
+  let assemblyFormat = [{
+    $expr `,` $indices (`typeparams` $typeparams^)?
+    attr-dict `:` functional-type(operands, results)
+  }];
+
+  let builders = [
+    OpBuilder<(ins "mlir::Value":$expr, "mlir::ValueRange":$indices,
+      "mlir::ValueRange":$typeparams)>
+  ];
 }
 
 #endif // FORTRAN_DIALECT_HLFIR_OPS
