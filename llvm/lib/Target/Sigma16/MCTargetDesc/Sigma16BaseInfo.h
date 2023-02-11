@@ -23,6 +23,25 @@ namespace llvm {
 /// Sigma16InstrFormats.td.
 ///@Sigma16II {
 namespace Sigma16II {
+// Target Operand Flag enum.
+enum TOF {
+  //===------------------------------------------------------------------===//
+  // Sigma16 Specific MachineOperand flags.
+
+        MO_NO_FLAG,
+  //===------------------------------------------------------------------===//
+
+  /// MO_GOT_CALL - Represents the offset into the global offset table at
+  /// which the address of a call site relocation entry symbol resides
+  /// during execution. This is different from the above since this flag
+  /// can only be present in call instructions.
+  MO_GOT_CALL,
+
+  /// MO_GPREL - Represents the offset from the current gp value to be used
+  /// for the relocatable object file being produced.
+  MO_GPREL,
+
+};
 enum {
   InstFormatPseudo = 0,
   InstFormatRRR = 1,
@@ -30,11 +49,6 @@ enum {
   InstFormatROther = 3,
 
   InstFormatMask = 15
-};
-
-// Sigma16 Specific MachineOperand flags.
-enum {
-  MO_NO_FLAG,
 };
 } // end namespace Sigma16II
 } // end namespace llvm

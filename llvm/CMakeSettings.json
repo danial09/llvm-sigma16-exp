@@ -1,0 +1,129 @@
+﻿{
+  "environments": [ { "CCACHEDIR": "${workspaceRoot}\\build\\Release\\.ccache" } ],
+  "configurations": [
+    {
+      "name": "X86",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [ "msvc_x64" ],
+      "buildRoot": "${workspaceRoot}\\build\\Release\\${name}",
+      "installRoot": "${workspaceWoot}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CMAKE_CXX_COMPILER_LAUNCHER",
+          "value": "ccache",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_ENABLE_PROJECTS",
+          "value": "clang",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_ENABLE_IDE",
+          "value": "TRUE",
+          "type": "BOOL"
+        },
+        {
+          "name": "LLVM_TARGETS_TO_BUILD",
+          "value": "X86",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_ENABLE_ASSERTIONS",
+          "value": "FALSE",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "MIPS-RISCV",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${workspaceRoot}\\build\\Release\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_CXX_COMPILER_LAUNCHER",
+          "value": "ccache",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_ENABLE_PROJECTS",
+          "value": "clang",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_ENABLE_IDE",
+          "value": "TRUE",
+          "type": "BOOL"
+        },
+        {
+          "name": "LLVM_TARGETS_TO_BUILD",
+          "value": "Mips",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_EXPERIMENTAL_TARGETS_TO_BUILD",
+          "value": "RISCV",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_ENABLE_ASSERTIONS",
+          "value": "FALSE",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "Sigma16",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${workspaceRoot}\\build\\Release\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_CXX_COMPILER_LAUNCHER",
+          "value": "ccache",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_ENABLE_PROJECTS",
+          "value": "clang",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_ENABLE_IDE",
+          "value": "TRUE",
+          "type": "BOOL"
+        },
+        {
+          "name": "LLVM_TARGETS_TO_BUILD",
+          "value": "X86",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_EXPERIMENTAL_TARGETS_TO_BUILD",
+          "value": "Sigma16",
+          "type": "STRING"
+        },
+        {
+          "name": "LLVM_ENABLE_ASSERTIONS",
+          "value": "FALSE",
+          "type": "BOOL"
+        }
+      ]
+    }
+  ]
+}

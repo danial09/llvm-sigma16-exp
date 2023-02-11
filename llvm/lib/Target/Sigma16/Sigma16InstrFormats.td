@@ -33,7 +33,8 @@ class InstFormat<bits<5> val> {
 def InstFormatPseudo : InstFormat<0>;
 def InstFormatRRR    : InstFormat<1>;
 def InstFormatRX     : InstFormat<2>;
-def InstFormatOther  : InstFormat<3>;
+def InstFormatRRRK   : InstFormat<3>;
+def InstFormatOther  : InstFormat<4>;
 
 // Generic Sigma16 Format
 class Sigma16Inst<dag outs, dag ins, int size, string asmstr, 
@@ -62,6 +63,13 @@ class Sigma16Inst<dag outs, dag ins, int size, string asmstr,
 }
 
 
+class Sigma16Pseudo<dag outs, dag ins, string asmstr, list<dag> pattern,
+    InstrItinClass itin> : Sigma16Inst<outs, ins, 0, asmstr, pattern, itin,
+    InstFormatPseudo> {
+    let isPseudo = 1;
+    let isCodeGenOnly = 1;
+}
+
 //===----------------------------------------------------------------------===//
 // Format RRR Instruction : <|op|d|a|b|>
 //===----------------------------------------------------------------------===//
@@ -83,7 +91,7 @@ class FRRR<bits<4> op, dag outs, dag ins, string asmstr, list<dag> pattern,
 }
 
 //===----------------------------------------------------------------------===//
-// Format RX Instruction : <|op|d|a|b|disp|>
+// Format RX Instruction : <|'f'|d|a|b|disp|>
 //===----------------------------------------------------------------------===//
 
 class FRX<dag outs, dag ins, string asmstr, list<dag> pattern,
@@ -100,4 +108,26 @@ class FRX<dag outs, dag ins, string asmstr, list<dag> pattern,
     let Inst{23-20} = ra;
     let Inst{19-16} = rb;
 	let Inst{15-0} = imm16;
+}
+
+//===----------------------------------------------------------------------===//
+// Format RRRK Instruction : <|'e'|d|b|a|b|k|>
+//===----------------------------------------------------------------------===//
+
+class FRRRK<dag outs, dag ins, string asmstr, list<dag> pattern,
+    InstrItinClass itin>:
+        Sigma16Inst<outs, ins, 2, asmstr, pattern, itin, InstFormatRRRK> {
+
+    bits<4> rd;
+    bits<4> ra;
+    bits<4> rb;
+    bits<8> b;
+    bits<8> k;
+
+    let Inst{31-28} = 0b1110;
+    let Inst{27-24} = rd;
+    let Inst{23-16} = b;
+    let Inst{15-12} = ra;
+    let Inst{11-8} = rb;
+    let Inst{7-0} = k;
 }

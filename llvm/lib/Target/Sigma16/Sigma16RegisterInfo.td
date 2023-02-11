@@ -28,3 +28,5 @@ def CPURegs : RegisterClass<"Sigma16", [i16], 16,
     R14,                        // Stack Pointer
     R15                         // Reserved
     )>;
+
+def SR     : RegisterClass<"Sigma16", [i16], 16, (add R15)>;

@@ -38,6 +38,7 @@ private:
   // lowerOperand - Convert a MachineOperand into the equivalent MCOperand.
   bool lowerOperand(const MachineOperand &MO, MCOperand &MCOp);
 
+
 public:
   const Sigma16Subtarget *Subtarget;
   const Sigma16FunctionInfo *Sigma16FI;
@@ -45,7 +46,7 @@ public:
 
   explicit Sigma16AsmPrinter(TargetMachine &TM,
                              std::unique_ptr<MCStreamer> Streamer)
-      : AsmPrinter(TM, std::move(Streamer)), MCInstLowering(*this) {
+      : AsmPrinter(TM, std::move(Streamer)), MCInstLowering(OutContext, *this) {
     Subtarget = static_cast<Sigma16TargetMachine &>(TM).getSubtargetImpl();
   }
 
@@ -54,15 +55,14 @@ public:
   virtual bool runOnMachineFunction(MachineFunction &MF) override;
 
   void emitInstruction(const MachineInstr *MI) override;
-  void printSavedRegsBitmask(raw_ostream &O);
-  void printHex32(unsigned int Value, raw_ostream &O);
-  void emitFrameDirective();
-  const char *getCurrentABIString() const;
-  void emitFunctionEntryLabel() override;
-  void emitFunctionBodyStart() override;
-  void emitFunctionBodyEnd() override;
+//  void emitFunctionEntryLabel() override;
+//  void emitFunctionBodyStart() override;
+//  void emitFunctionBodyEnd() override;
+  void printDebugValueComment(const MachineInstr *MI, raw_ostream &OS);
+
   void emitStartOfAsmFile(Module &M) override;
-  void PrintDebugValueComment(const MachineInstr *MI, raw_ostream &OS);
+  void emitEndOfAsmFile(Module &M) override;
+//  void emitGlobalVariable(const GlobalVariable *GV) override {}
 };
 } // end namespace llvm
 

@@ -6,6 +6,7 @@ add_llvm_component_library(LLVMSigma16Desc
         Sigma16CodeEmitter.cpp
         Sigma16InstPrinter.cpp
         Sigma16MCAsmInfo.cpp
+        Sigma16MCExpr.cpp
         Sigma16MCTargetDesc.cpp
         Sigma16TargetStreamer.cpp
 

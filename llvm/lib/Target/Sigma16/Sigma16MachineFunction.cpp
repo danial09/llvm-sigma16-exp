@@ -22,3 +22,7 @@ bool FixGlobalBaseReg;
 Sigma16FunctionInfo::~Sigma16FunctionInfo() {}
 
 void Sigma16FunctionInfo::anchor() {}
+void 
+test() {}
+
+

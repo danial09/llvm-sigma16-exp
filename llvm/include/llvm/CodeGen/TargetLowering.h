@@ -2383,7 +2383,8 @@ protected:
 
   /// Indicate that the specified load with extension does not work with the
   /// specified type and indicate what to do about it.
-  void setLoadExtAction(unsigned ExtType, MVT ValVT, MVT MemVT,
+  void
+  setLoadExtAction(unsigned ExtType, MVT ValVT, MVT MemVT,
                         LegalizeAction Action) {
     assert(ExtType < ISD::LAST_LOADEXT_TYPE && ValVT.isValid() &&
            MemVT.isValid() && "Table isn't big enough!");
