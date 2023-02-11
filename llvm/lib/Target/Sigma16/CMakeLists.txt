@@ -24,6 +24,7 @@ add_public_tablegen_target(Sigma16CommonTableGen)
 add_llvm_target(Sigma16CodeGen
         Sigma16AsmPrinter.cpp
         Sigma16FrameLowering.cpp
+        Sigma16ISelDAGToDAG.cpp
         Sigma16InstrInfo.cpp
         Sigma16ISelLowering.cpp
         Sigma16MachineFunction.cpp
@@ -31,11 +32,12 @@ add_llvm_target(Sigma16CodeGen
         Sigma16RegisterInfo.cpp
         Sigma16SEFrameLowering.cpp
         Sigma16SEInstrInfo.cpp
+        Sigma16SEISelDAGToDAG.cpp
         Sigma16SEISelLowering.cpp
         Sigma16SERegisterInfo.cpp
         Sigma16Subtarget.cpp
-        Sigma16TargetObjectFile.cpp
         Sigma16TargetMachine.cpp
+        Sigma16TargetObjectFile.cpp
 
         LINK_COMPONENTS
         Analysis

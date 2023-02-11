@@ -54,7 +54,7 @@ void Sigma16AsmPrinter::emitInstruction(const MachineInstr *MI) {
     SmallString<128> Str;
     raw_svector_ostream OS(Str);
 
-    PrintDebugValueComment(MI, OS);
+    printDebugValueComment(MI, OS);
     return;
   }
 
@@ -74,21 +74,29 @@ void Sigma16AsmPrinter::emitInstruction(const MachineInstr *MI) {
   } while ((++I != E) && I->isInsideBundle()); // Delay slot check
 }
 
-void Sigma16AsmPrinter::printSavedRegsBitmask(raw_ostream &O) {
-  // In Sigma16, all registers apart from R0 and R15 are saved.
-  O << "0x7ffe";
-}
-
-void Sigma16AsmPrinter::emitFrameDirective() {
-  // Sigma16 doesn't have a frame directive.
-}
-
-void Sigma16AsmPrinter::PrintDebugValueComment(const MachineInstr *MI,
+void Sigma16AsmPrinter::printDebugValueComment(const MachineInstr *MI,
                                                raw_ostream &OS) {
   // TODO: implement this
   OS << "PrintDebugValueComment()";
 }
 
+void Sigma16AsmPrinter::emitStartOfAsmFile(Module &M) {
+  // Sigma16 requires us to initialise the stack as the first thing in the
+  // assembly file IF the main function is defined in this file.
+
+  if (M.getFunction("main")) {
+    // TODO: Generalise this in case the stack or frame pointer changes.
+    OutStreamer->emitRawText("; Initialise the stack\n"
+        "\tlea\tR14,stack[R0]\t; R14 = stack pointer\n"
+        "\tstore\tR0,0[R14]\t; Previous frame pointer = nil\n");
+  }
+}
+
+void Sigma16AsmPrinter::emitEndOfAsmFile(Module &M) {
+  // TODO: This is horrible, change it
+  // Emit the globals
+}
+
 extern "C" void LLVMInitializeSigma16AsmPrinter() {
-  //  RegisterAsmPrinter<Sigma16AsmPrinter> X(TheSigma16Target);
+  RegisterAsmPrinter<Sigma16AsmPrinter> X(TheSigma16Target);
 }

@@ -31,10 +31,16 @@ class LLVM_LIBRARY_VISIBILITY Sigma16MCInstLower {
   Sigma16AsmPrinter &AsmPrinter;
 
 public:
-  Sigma16MCInstLower(Sigma16AsmPrinter &Asmprinter);
-  void initialize(MCContext *C);
+  Sigma16MCInstLower(MCContext &ctx, Sigma16AsmPrinter &asmprinter)
+      : Ctx(&ctx), AsmPrinter(asmprinter) {}
+//  void Initialize(MCContext *C);
   void lower(const MachineInstr *MI, MCInst &OutMI) const;
   MCOperand lowerOperand(const MachineOperand &MO, unsigned offset = 0) const;
+
+private:
+  MCOperand LowerSymbolOperand(const MachineOperand &MO, MCSymbol *Sym) const;
+
+  MCSymbol *GetGlobalAddressSymbol(const MachineOperand &MO) const;
 };
 } // namespace llvm
 

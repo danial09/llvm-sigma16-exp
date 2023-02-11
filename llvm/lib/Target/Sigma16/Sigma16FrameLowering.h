@@ -25,11 +25,13 @@ protected:
 
 public:
   explicit Sigma16FrameLowering(const Sigma16Subtarget &sti, unsigned Alignment)
-      : TargetFrameLowering(StackGrowsDown, Align(Alignment), 0,
+      : TargetFrameLowering(StackGrowsUp, Align(Alignment), 0,
                             Align(Alignment)),
         STI(sti) {}
 
   static const Sigma16FrameLowering *create(const Sigma16Subtarget &ST);
+
+//  unsigned getStackAlignmentSkew(const MachineFunction &MF) const override;
 
   bool hasFP(const MachineFunction &MF) const override;
 };

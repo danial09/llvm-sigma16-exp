@@ -28,6 +28,12 @@ public:
   explicit Sigma16SEInstrInfo(const Sigma16Subtarget &STI);
 
   const Sigma16RegisterInfo &getRegisterInfo() const override;
+
+  bool expandPostRAPseudo(MachineInstr &MI) const override;
+
+private:
+  void expandRetLR(MachineBasicBlock &MBB, MachineBasicBlock::iterator I) const;
+
 };
 
 } // namespace llvm

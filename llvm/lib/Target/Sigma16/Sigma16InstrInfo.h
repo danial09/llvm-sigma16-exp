@@ -44,7 +44,24 @@ public:
   /// Return the number of bytes of code the specified instruction may be.
   unsigned getInstSizeInBytes(const MachineInstr &MI) const;
 
+  void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator MI,
+                   const DebugLoc &DL, MCRegister DestReg, MCRegister SrcReg,
+                   bool KillSrc) const override;
+
+  void storeRegToStackSlot(MachineBasicBlock &MBB,
+                           MachineBasicBlock::iterator MBBI, Register SrcReg,
+                           bool isKill, int FrameIndex,
+                           const TargetRegisterClass *RC,
+                           const TargetRegisterInfo *TRI) const override;
+
+  void loadRegFromStackSlot(MachineBasicBlock &MBB,
+                            MachineBasicBlock::iterator MBBI, Register DestReg,
+                            int FrameIndex, const TargetRegisterClass *RC,
+                            const TargetRegisterInfo *TRI) const override;
+
 protected:
+  MachineMemOperand *GetMemOperand(MachineBasicBlock &MBB, int FI,
+                                   MachineMemOperand::Flags Flags) const;
 };
 const Sigma16InstrInfo *createSigma16SEInstrInfo(const Sigma16Subtarget &STI);
 } // namespace llvm
