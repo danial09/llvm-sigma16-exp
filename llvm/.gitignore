@@ -28,6 +28,8 @@ cscope.out
 autoconf/aclocal.m4
 autoconf/autom4te.cache
 /compile_commands.json
+# Visual Studio built-in CMake configuration
+/CMakeSettings.json
 # Qt Creator project configuration
 /CMakeLists.txt.user
 
