@@ -49,8 +49,6 @@ autoconf/autom4te.cache
 /compile_commands.json
 # Visual Studio built-in CMake configuration
 /CMakeSettings.json
-# CLion project configuration
-/.idea
 # VSCode user specific files
 .vscode/c_cpp_properties.json
 .vscode/launch.json
