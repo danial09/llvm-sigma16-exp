@@ -9,9 +9,7 @@
       "name": "X86",
       "generator": "Ninja",
       "configurationType": "Release",
-      "inheritEnvironments": [
-        "msvc_x64"
-      ],
+      "inheritEnvironments": ["msvc_x64"],
       "buildRoot": "${workspaceRoot}\\build\\Release\\${name}",
       "installRoot": "${workspaceWoot}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
@@ -54,9 +52,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [
-        "msvc_x64"
-      ],
+      "inheritEnvironments": ["msvc_x64"],
       "variables": [
         {
           "name": "CMAKE_CXX_COMPILER_LAUNCHER",
@@ -99,9 +95,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [
-        "msvc_x64"
-      ],
+      "inheritEnvironments": ["msvc_x64"],
       "variables": [
         {
           "name": "CMAKE_CXX_COMPILER_LAUNCHER",
