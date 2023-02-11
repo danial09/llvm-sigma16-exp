@@ -10,7 +10,7 @@
 class Sigma16Reg<bits<16> Enc, string n> : Register<n> {
   // For tablegen(... -gen-emitter)  in CMakeLists.txt
   let HWEncoding = Enc;
-  
+
   let Namespace = "Sigma16";
 }
 
@@ -24,7 +24,7 @@ def CPURegs : RegisterClass<"Sigma16", [i16], 16,
     R0,                         // Constant zero
     R1,                         // First function parameter and result
     (sequence "R%i", 2, 12),    // Volatile registers
-    R13,                        // Return address                     
+    R13,                        // Return address
     R14,                        // Stack Pointer
     R15                         // Reserved
     )>;

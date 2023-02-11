@@ -37,11 +37,11 @@ def InstFormatRRRK   : InstFormat<3>;
 def InstFormatOther  : InstFormat<4>;
 
 // Generic Sigma16 Format
-class Sigma16Inst<dag outs, dag ins, int size, string asmstr, 
-    list<dag> pattern, InstrItinClass itin, InstFormat f> 
+class Sigma16Inst<dag outs, dag ins, int size, string asmstr,
+    list<dag> pattern, InstrItinClass itin, InstFormat f>
     : Instruction {
-    
-    // Inst and Size for tablegen emitter. Note that although the largest 
+
+    // Inst and Size for tablegen emitter. Note that although the largest
     // possible size is currently 32 bits, there are additional Sigma16
     // formats currently not implemented which can be of a larger size.
     field bits<32> Inst;
@@ -75,7 +75,7 @@ class Sigma16Pseudo<dag outs, dag ins, string asmstr, list<dag> pattern,
 //===----------------------------------------------------------------------===//
 
 class FRRR<bits<4> op, dag outs, dag ins, string asmstr, list<dag> pattern,
-	InstrItinClass itin>: 
+	InstrItinClass itin>:
 		Sigma16Inst<outs, ins, 2, asmstr, pattern, itin, InstFormatRRR> {
 
     bits<4> rd;
@@ -84,7 +84,7 @@ class FRRR<bits<4> op, dag outs, dag ins, string asmstr, list<dag> pattern,
 
     let Opcode = op;
 
-    let Inst{15-12} = op; 
+    let Inst{15-12} = op;
     let Inst{11-8} = rd;
     let Inst{7-4} = ra;
     let Inst{3-0} = rb;
@@ -97,7 +97,7 @@ class FRRR<bits<4> op, dag outs, dag ins, string asmstr, list<dag> pattern,
 class FRX<dag outs, dag ins, string asmstr, list<dag> pattern,
 	InstrItinClass itin>:
     	Sigma16Inst<outs, ins, 2, asmstr, pattern, itin, InstFormatRX> {
-	
+
 	bits<4> rd;
 	bits<4> ra;
 	bits<4> rb;

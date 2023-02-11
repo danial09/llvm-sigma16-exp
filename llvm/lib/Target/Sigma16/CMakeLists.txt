@@ -2,9 +2,9 @@ add_llvm_component_group(Sigma16)
 
 set(LLVM_TARGET_DEFINITIONS Sigma16.td)
 
-# Generate Sigma16GenRegisterInfo.inc and Sigma16GenInstrInfo.inc which included by 
-#  your hand code C++ files. 
-# Sigma16GenRegisterInfo.inc came from Sigma16RegisterInfo.td, Sigma16GenInstrInfo.inc 
+# Generate Sigma16GenRegisterInfo.inc and Sigma16GenInstrInfo.inc which included by
+#  your hand code C++ files.
+# Sigma16GenRegisterInfo.inc came from Sigma16RegisterInfo.td, Sigma16GenInstrInfo.inc
 #  came from Sigma16InstrInfo.td.
 tablegen(LLVM Sigma16GenAsmMatcher.inc -gen-asm-matcher)
 tablegen(LLVM Sigma16GenRegisterInfo.inc -gen-register-info)
