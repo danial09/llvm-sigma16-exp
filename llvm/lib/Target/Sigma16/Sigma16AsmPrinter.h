@@ -32,36 +32,38 @@ class raw_ostream;
 
 class LLVM_LIBRARY_VISIBILITY Sigma16AsmPrinter : public AsmPrinter {
 
-  void EmitInstructionWithMacroNoAT(const MachineInstr *MI);
+    void EmitInstructionWithMacroNoAT(const MachineInstr *MI);
 
 private:
-  // lowerOperand - Convert a MachineOperand into the equivalent MCOperand.
-  bool lowerOperand(const MachineOperand &MO, MCOperand &MCOp);
+    // lowerOperand - Convert a MachineOperand into the equivalent MCOperand.
+    bool lowerOperand(const MachineOperand &MO, MCOperand &MCOp);
 
 
 public:
-  const Sigma16Subtarget *Subtarget;
-  const Sigma16FunctionInfo *Sigma16FI;
-  const Sigma16MCInstLower MCInstLowering;
+    const Sigma16Subtarget *Subtarget;
+    const Sigma16FunctionInfo *Sigma16FI;
+    const Sigma16MCInstLower MCInstLowering;
 
-  explicit Sigma16AsmPrinter(TargetMachine &TM,
-                             std::unique_ptr<MCStreamer> Streamer)
-      : AsmPrinter(TM, std::move(Streamer)), MCInstLowering(OutContext, *this) {
-    Subtarget = static_cast<Sigma16TargetMachine &>(TM).getSubtargetImpl();
-  }
+    explicit Sigma16AsmPrinter(TargetMachine &TM,
+                               std::unique_ptr<MCStreamer> Streamer)
+        : AsmPrinter(TM, std::move(Streamer)), MCInstLowering(OutContext, *this) {
+        Subtarget = static_cast<Sigma16TargetMachine &>(TM).getSubtargetImpl();
+    }
 
-  StringRef getPassName() const override { return "Sigma16 Assembly Printer"; }
+    StringRef getPassName() const override {
+        return "Sigma16 Assembly Printer";
+    }
 
-  virtual bool runOnMachineFunction(MachineFunction &MF) override;
+    virtual bool runOnMachineFunction(MachineFunction &MF) override;
 
-  void emitInstruction(const MachineInstr *MI) override;
+    void emitInstruction(const MachineInstr *MI) override;
 //  void emitFunctionEntryLabel() override;
 //  void emitFunctionBodyStart() override;
 //  void emitFunctionBodyEnd() override;
-  void printDebugValueComment(const MachineInstr *MI, raw_ostream &OS);
+    void printDebugValueComment(const MachineInstr *MI, raw_ostream &OS);
 
-  void emitStartOfAsmFile(Module &M) override;
-  void emitEndOfAsmFile(Module &M) override;
+    void emitStartOfAsmFile(Module &M) override;
+    void emitEndOfAsmFile(Module &M) override;
 //  void emitGlobalVariable(const GlobalVariable *GV) override {}
 };
 } // end namespace llvm

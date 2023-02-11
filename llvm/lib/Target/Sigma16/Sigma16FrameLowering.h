@@ -21,19 +21,19 @@ class Sigma16Subtarget;
 
 class Sigma16FrameLowering : public TargetFrameLowering {
 protected:
-  const Sigma16Subtarget &STI;
+    const Sigma16Subtarget &STI;
 
 public:
-  explicit Sigma16FrameLowering(const Sigma16Subtarget &sti, unsigned Alignment)
-      : TargetFrameLowering(StackGrowsUp, Align(Alignment), 0,
-                            Align(Alignment)),
-        STI(sti) {}
+    explicit Sigma16FrameLowering(const Sigma16Subtarget &sti, unsigned Alignment)
+        : TargetFrameLowering(StackGrowsUp, Align(Alignment), 0,
+                              Align(Alignment)),
+          STI(sti) {}
 
-  static const Sigma16FrameLowering *create(const Sigma16Subtarget &ST);
+    static const Sigma16FrameLowering *create(const Sigma16Subtarget &ST);
 
 //  unsigned getStackAlignmentSkew(const MachineFunction &MF) const override;
 
-  bool hasFP(const MachineFunction &MF) const override;
+    bool hasFP(const MachineFunction &MF) const override;
 };
 
 /// Create Sigma16FrameLowering objects.

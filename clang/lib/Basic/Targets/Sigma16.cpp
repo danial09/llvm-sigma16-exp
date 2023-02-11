@@ -22,13 +22,13 @@ const char *const Sigma16TargetInfo::GCCRegNames[] = {
 };
 
 ArrayRef<const char *> Sigma16TargetInfo::getGCCRegNames() const {
-  return llvm::makeArrayRef(GCCRegNames);
+    return llvm::makeArrayRef(GCCRegNames);
 }
 
 void Sigma16TargetInfo::getTargetDefines(const LangOptions &Opts,
-                                        MacroBuilder &Builder) const {
-  Builder.defineMacro("sigma16");
-  Builder.defineMacro("__sigma16__");
-  Builder.defineMacro("__ELF__");
-  // FIXME: defines for different 'flavours' of MCU
+        MacroBuilder &Builder) const {
+    Builder.defineMacro("sigma16");
+    Builder.defineMacro("__sigma16__");
+    Builder.defineMacro("__ELF__");
+    // FIXME: defines for different 'flavours' of MCU
 }

@@ -38,77 +38,77 @@ using namespace llvm;
 static void createMcInst(MCInst &Inst, unsigned Opc, const MCOperand &Opnd0,
                          const MCOperand &Opnd1,
                          const MCOperand &Opnd2 = MCOperand()) {
-  Inst.setOpcode(Opc);
-  Inst.addOperand(Opnd0);
-  Inst.addOperand(Opnd1);
-  if (Opnd2.isValid())
-    Inst.addOperand(Opnd2);
+    Inst.setOpcode(Opc);
+    Inst.addOperand(Opnd0);
+    Inst.addOperand(Opnd1);
+    if (Opnd2.isValid())
+        Inst.addOperand(Opnd2);
 }
 
 //@LowerOperand {
 MCOperand Sigma16MCInstLower::lowerOperand(const MachineOperand &MO,
-                                           unsigned Offset) const {
-  MachineOperandType MOTy = MO.getType();
+        unsigned Offset) const {
+    MachineOperandType MOTy = MO.getType();
 
-  switch (MOTy) {
-  //@2
-  default:
-    llvm_unreachable("unknown operand type");
-  case MachineOperand::MO_Register:
-    // Ignore all implicit register operands.
-    if (MO.isImplicit())
-      break;
-    return MCOperand::createReg(MO.getReg());
-  case MachineOperand::MO_Immediate:
-    return MCOperand::createImm(MO.getImm() + Offset);
-  case MachineOperand::MO_RegisterMask:
-    break;
-  case MachineOperand::MO_GlobalAddress:
-    return LowerSymbolOperand(MO, GetGlobalAddressSymbol(MO));
-  }
+    switch (MOTy) {
+    //@2
+    default:
+        llvm_unreachable("unknown operand type");
+    case MachineOperand::MO_Register:
+        // Ignore all implicit register operands.
+        if (MO.isImplicit())
+            break;
+        return MCOperand::createReg(MO.getReg());
+    case MachineOperand::MO_Immediate:
+        return MCOperand::createImm(MO.getImm() + Offset);
+    case MachineOperand::MO_RegisterMask:
+        break;
+    case MachineOperand::MO_GlobalAddress:
+        return LowerSymbolOperand(MO, GetGlobalAddressSymbol(MO));
+    }
 
-  return MCOperand();
+    return MCOperand();
 }
 
 void Sigma16MCInstLower::lower(const MachineInstr *MI, MCInst &OutMI) const {
-  OutMI.setOpcode(MI->getOpcode());
+    OutMI.setOpcode(MI->getOpcode());
 
-  for (unsigned I = 0, E = MI->getNumOperands(); I != E; ++I) {
-    const MachineOperand &MO = MI->getOperand(I);
-    MCOperand MCOp = lowerOperand(MO);
+    for (unsigned I = 0, E = MI->getNumOperands(); I != E; ++I) {
+        const MachineOperand &MO = MI->getOperand(I);
+        MCOperand MCOp = lowerOperand(MO);
 
-    if (MCOp.isValid())
-      OutMI.addOperand(MCOp);
-  }
+        if (MCOp.isValid())
+            OutMI.addOperand(MCOp);
+    }
 }
 
 MCOperand Sigma16MCInstLower::LowerSymbolOperand(const MachineOperand &MO,
-                                                 MCSymbol *Sym) const {
-  // FIXME: We would like an efficient form for this, so we don't have to do a
-  // lot of extra uniquing.
-  const MCExpr *Expr = MCSymbolRefExpr::create(Sym, *Ctx);
+        MCSymbol *Sym) const {
+    // FIXME: We would like an efficient form for this, so we don't have to do a
+    // lot of extra uniquing.
+    const MCExpr *Expr = MCSymbolRefExpr::create(Sym, *Ctx);
 
-  switch (MO.getTargetFlags()) {
-  default:
-    llvm_unreachable("Unknown target flag on GV operand");
-  case 0:
-    break;
-  }
+    switch (MO.getTargetFlags()) {
+    default:
+        llvm_unreachable("Unknown target flag on GV operand");
+    case 0:
+        break;
+    }
 
-  if (!MO.isJTI() && MO.getOffset())
-    Expr = MCBinaryExpr::createAdd(
-        Expr, MCConstantExpr::create(MO.getOffset(), *Ctx), *Ctx);
-  return MCOperand::createExpr(Expr);
+    if (!MO.isJTI() && MO.getOffset())
+        Expr = MCBinaryExpr::createAdd(
+                   Expr, MCConstantExpr::create(MO.getOffset(), *Ctx), *Ctx);
+    return MCOperand::createExpr(Expr);
 }
 
 MCSymbol *
 Sigma16MCInstLower::GetGlobalAddressSymbol(const MachineOperand &MO) const {
-  switch (MO.getTargetFlags()) {
-  default:
-    llvm_unreachable("Unknown target flag on GV operand");
-  case 0:
-    break;
-  }
+    switch (MO.getTargetFlags()) {
+    default:
+        llvm_unreachable("Unknown target flag on GV operand");
+    case 0:
+        break;
+    }
 
-  return AsmPrinter.getSymbol(MO.getGlobal());
+    return AsmPrinter.getSymbol(MO.getGlobal());
 }

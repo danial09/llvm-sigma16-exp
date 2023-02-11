@@ -29,33 +29,33 @@ Sigma16SEInstrInfo::Sigma16SEInstrInfo(const Sigma16Subtarget &STI)
     : Sigma16InstrInfo(STI), RI(STI) {}
 
 const Sigma16RegisterInfo &Sigma16SEInstrInfo::getRegisterInfo() const {
-  return RI;
+    return RI;
 }
 
 //@expandPostRAPseudo
 /// Expand Pseudo instructions into real backend instructions
 bool Sigma16SEInstrInfo::expandPostRAPseudo(MachineInstr &MI) const {
-  //@expandPostRAPseudo-body
-  MachineBasicBlock &MBB = *MI.getParent();
+    //@expandPostRAPseudo-body
+    MachineBasicBlock &MBB = *MI.getParent();
 
-  switch (MI.getDesc().getOpcode()) {
-  default:
-    return false;
-  case Sigma16::RetLR:
-    expandRetLR(MBB, MI);
-    break;
-  }
+    switch (MI.getDesc().getOpcode()) {
+    default:
+        return false;
+    case Sigma16::RetLR:
+        expandRetLR(MBB, MI);
+        break;
+    }
 
-  MBB.erase(MI);
-  return true;
+    MBB.erase(MI);
+    return true;
 }
 
 void Sigma16SEInstrInfo::expandRetLR(MachineBasicBlock &MBB,
                                      MachineBasicBlock::iterator I) const {
-  BuildMI(MBB, I, I->getDebugLoc(), get(Sigma16::RET)).addReg(Sigma16::R13);
+    BuildMI(MBB, I, I->getDebugLoc(), get(Sigma16::RET)).addReg(Sigma16::R13);
 }
 
 const Sigma16InstrInfo *
 llvm::createSigma16SEInstrInfo(const Sigma16Subtarget &STI) {
-  return new Sigma16SEInstrInfo(STI);
+    return new Sigma16SEInstrInfo(STI);
 }

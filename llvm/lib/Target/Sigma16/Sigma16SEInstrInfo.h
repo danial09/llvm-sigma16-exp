@@ -22,17 +22,17 @@
 namespace llvm {
 
 class Sigma16SEInstrInfo : public Sigma16InstrInfo {
-  const Sigma16SERegisterInfo RI;
+    const Sigma16SERegisterInfo RI;
 
 public:
-  explicit Sigma16SEInstrInfo(const Sigma16Subtarget &STI);
+    explicit Sigma16SEInstrInfo(const Sigma16Subtarget &STI);
 
-  const Sigma16RegisterInfo &getRegisterInfo() const override;
+    const Sigma16RegisterInfo &getRegisterInfo() const override;
 
-  bool expandPostRAPseudo(MachineInstr &MI) const override;
+    bool expandPostRAPseudo(MachineInstr &MI) const override;
 
 private:
-  void expandRetLR(MachineBasicBlock &MBB, MachineBasicBlock::iterator I) const;
+    void expandRetLR(MachineBasicBlock &MBB, MachineBasicBlock::iterator I) const;
 
 };
 

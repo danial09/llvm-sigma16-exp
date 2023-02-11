@@ -18,54 +18,58 @@ namespace llvm {
 
 class Sigma16MCExpr : public MCTargetExpr {
 public:
-  enum Sigma16ExprKind {
-    CEK_None,
-    CEK_GlobalAddress,
-    CEK_Special,
-  };
+    enum Sigma16ExprKind {
+        CEK_None,
+        CEK_GlobalAddress,
+        CEK_Special,
+    };
 
 private:
-  const Sigma16ExprKind Kind;
-  const MCExpr *Expr;
+    const Sigma16ExprKind Kind;
+    const MCExpr *Expr;
 
-  explicit Sigma16MCExpr(Sigma16ExprKind Kind, const MCExpr *Expr)
-      : Kind(Kind), Expr(Expr) {}
+    explicit Sigma16MCExpr(Sigma16ExprKind Kind, const MCExpr *Expr)
+        : Kind(Kind), Expr(Expr) {}
 
 public:
 
-  static const Sigma16MCExpr *create(Sigma16ExprKind Kind, const MCExpr *Expr,
-                                  MCContext &Ctx);
-  static const Sigma16MCExpr *create(const MCSymbol *Symbol, 
-                                  Sigma16MCExpr::Sigma16ExprKind Kind, MCContext &Ctx);
-  static const Sigma16MCExpr *createGpOff(Sigma16ExprKind Kind, const MCExpr *Expr,
+    static const Sigma16MCExpr *create(Sigma16ExprKind Kind, const MCExpr *Expr,
                                        MCContext &Ctx);
-  
-  /// Get the kind of this expression.
-  Sigma16ExprKind getKind() const { return Kind; }
+    static const Sigma16MCExpr *create(const MCSymbol *Symbol,
+                                       Sigma16MCExpr::Sigma16ExprKind Kind, MCContext &Ctx);
+    static const Sigma16MCExpr *createGpOff(Sigma16ExprKind Kind, const MCExpr *Expr,
+                                            MCContext &Ctx);
 
-  /// Get the child of this expression.
-  const MCExpr *getSubExpr() const { return Expr; }
+    /// Get the kind of this expression.
+    Sigma16ExprKind getKind() const {
+        return Kind;
+    }
 
-  void printImpl(raw_ostream &OS, const MCAsmInfo *MAI) const override;
-  bool evaluateAsRelocatableImpl(MCValue &Res, const MCAsmLayout *Layout,
-                                 const MCFixup *Fixup) const override;
-  void visitUsedExpr(MCStreamer &Streamer) const override;
-  MCFragment *findAssociatedFragment() const override {
-    return getSubExpr()->findAssociatedFragment();
-  }
+    /// Get the child of this expression.
+    const MCExpr *getSubExpr() const {
+        return Expr;
+    }
 
-  void fixELFSymbolsInTLSFixups(MCAssembler &Asm) const override;
+    void printImpl(raw_ostream &OS, const MCAsmInfo *MAI) const override;
+    bool evaluateAsRelocatableImpl(MCValue &Res, const MCAsmLayout *Layout,
+                                   const MCFixup *Fixup) const override;
+    void visitUsedExpr(MCStreamer &Streamer) const override;
+    MCFragment *findAssociatedFragment() const override {
+        return getSubExpr()->findAssociatedFragment();
+    }
 
-  static bool classof(const MCExpr *E) {
-    return E->getKind() == MCExpr::Target;
-  }
+    void fixELFSymbolsInTLSFixups(MCAssembler &Asm) const override;
 
-  bool isGpOff(Sigma16ExprKind &Kind) const;
-  bool isGpOff() const {
-    Sigma16ExprKind Kind;
-    return isGpOff(Kind);
-  }
-  
+    static bool classof(const MCExpr *E) {
+        return E->getKind() == MCExpr::Target;
+    }
+
+    bool isGpOff(Sigma16ExprKind &Kind) const;
+    bool isGpOff() const {
+        Sigma16ExprKind Kind;
+        return isGpOff(Kind);
+    }
+
 };
 } // end namespace llvm
 

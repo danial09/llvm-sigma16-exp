@@ -37,8 +37,8 @@ using namespace llvm;
 #define DEBUG_TYPE "sigma16-isel"
 
 bool Sigma16SEDAGToDAGISel::runOnMachineFunction(MachineFunction &MF) {
-  Subtarget = &static_cast<const Sigma16Subtarget &>(MF.getSubtarget());
-  return Sigma16DAGToDAGISel::runOnMachineFunction(MF);
+    Subtarget = &static_cast<const Sigma16Subtarget &>(MF.getSubtarget());
+    return Sigma16DAGToDAGISel::runOnMachineFunction(MF);
 }
 
 void Sigma16SEDAGToDAGISel::processFunctionAfterISel(MachineFunction &MF) {
@@ -46,31 +46,31 @@ void Sigma16SEDAGToDAGISel::processFunctionAfterISel(MachineFunction &MF) {
 
 //@selectNode
 bool Sigma16SEDAGToDAGISel::trySelect(SDNode *Node) {
-  unsigned Opcode = Node->getOpcode();
-  SDLoc DL(Node);
+    unsigned Opcode = Node->getOpcode();
+    SDLoc DL(Node);
 
-  ///
-  // Instruction Selection not handled by the auto-generated
-  // tablegen selection should be handled here.
-  ///
+    ///
+    // Instruction Selection not handled by the auto-generated
+    // tablegen selection should be handled here.
+    ///
 
-  ///
-  // Instruction Selection not handled by the auto-generated
-  // tablegen selection should be handled here.
-  ///
-  EVT NodeTy = Node->getValueType(0);
-  unsigned MultOpc;
+    ///
+    // Instruction Selection not handled by the auto-generated
+    // tablegen selection should be handled here.
+    ///
+    EVT NodeTy = Node->getValueType(0);
+    unsigned MultOpc;
 
 //  switch(Opcode) {
 //  default: break;
 //
 //  }
 
-  return false;
+    return false;
 }
 
 FunctionPass *llvm::createSigma16SEISelDag(Sigma16TargetMachine &TM,
-                                        CodeGenOpt::Level OptLevel) {
-  return new Sigma16SEDAGToDAGISel(TM, OptLevel);
+        CodeGenOpt::Level OptLevel) {
+    return new Sigma16SEDAGToDAGISel(TM, OptLevel);
 }
 
