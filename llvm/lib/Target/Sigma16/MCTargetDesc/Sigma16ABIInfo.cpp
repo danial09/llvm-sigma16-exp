@@ -54,14 +54,14 @@ Sigma16ABIInfo::GetCalleeAllocdArgSizeInBytes(CallingConv::ID CC) const {
 }
 
 Sigma16ABIInfo Sigma16ABIInfo::computeTargetABI() {
-  Sigma16ABIInfo Abi(ABI::Unknown);
+  Sigma16ABIInfo Abi(ABI::S16);
 
   if (EnableSigma16S16Calls)
     Abi = ABI::S16;
   else
     Abi = ABI::O16;
   // Assert exactly one ABI was chosen.
-  assert(abi.ThisABI != ABI::Unknown);
+  assert(Abi.ThisABI != ABI::Unknown);
 
   return Abi;
 }

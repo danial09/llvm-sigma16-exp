@@ -34,6 +34,7 @@
 #include "Targets/PPC.h"
 #include "Targets/RISCV.h"
 #include "Targets/SPIR.h"
+#include "Targets/Sigma16.h"
 #include "Targets/Sparc.h"
 #include "Targets/SystemZ.h"
 #include "Targets/TCE.h"
@@ -624,6 +625,8 @@ TargetInfo *AllocateTarget(const llvm::Triple &Triple,
       return nullptr;
     return new SPIRV64TargetInfo(Triple, Opts);
   }
+  case llvm::Triple::sigma16:
+        return new Sigma16TargetInfo(Triple, Opts);
   case llvm::Triple::wasm32:
     if (Triple.getSubArch() != llvm::Triple::NoSubArch ||
         Triple.getVendor() != llvm::Triple::UnknownVendor ||

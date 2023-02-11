@@ -74,12 +74,13 @@
                     ]
                 }
             },
-            "MIPS-RISCV": {
-                "short": "MIPS-RISCV",
-                "long": "The MIPS and RISC-V Architectures",
+            "RISC": {
+                "short": "RISC",
+                "long": "A collection of useful RISC architectures",
                 "settings": {
                     "LLVM_TARGETS_TO_BUILD": [
-                        "Mips"
+                        "Mips",
+                        "Lanai"
                     ],
                     "LLVM_EXPERIMENTAL_TARGETS_TO_BUILD": [
                         "RISCV"

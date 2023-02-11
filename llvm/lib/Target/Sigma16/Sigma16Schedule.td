@@ -39,6 +39,6 @@ def Sigma16GenericItineraries : ProcessorItineraries<[ALU, IMULDIV], [], [
   InstrItinData<II_CLO             , [InstrStage<1,  [ALU]>]>,
   InstrItinData<II_CLZ             , [InstrStage<1,  [ALU]>]>,
   InstrItinData<IILoad             , [InstrStage<3,  [ALU]>]>,
-  InstrItinData<IIStore            , [InstrStage<1,  [ALU]>]>,
-  InstrItinData<IIBranch           , [InstrStage<1,  [ALU]>]>
+  InstrItinData<IIStore            , [InstrStage<3,  [ALU]>]>,
+  InstrItinData<IIBranch           , [InstrStage<3,  [ALU]>]>
 ]>;

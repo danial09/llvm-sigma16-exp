@@ -92,6 +92,7 @@ add_clang_library(clangBasic
   Targets/PPC.cpp
   Targets/RISCV.cpp
   Targets/SPIR.cpp
+  Targets/Sigma16.cpp
   Targets/Sparc.cpp
   Targets/SystemZ.cpp
   Targets/TCE.cpp

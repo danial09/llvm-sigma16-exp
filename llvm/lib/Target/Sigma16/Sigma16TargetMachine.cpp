@@ -15,6 +15,7 @@
 #include "Sigma16.h"
 #include "Sigma16TargetObjectFile.h"
 
+#include "Sigma16SEISelDAGToDAG.h"
 #include "llvm/CodeGen/Passes.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
 #include "llvm/IR/Attributes.h"
@@ -37,7 +38,7 @@ static std::string computeDataLayout(const Triple &TT, StringRef CPU,
 }
 
 static Reloc::Model getEffectiveRelocModel(bool JIT,
-                                           Optional<Reloc::Model> RM) {
+                                           std::optional<Reloc::Model> RM) {
   if (!RM.has_value() || JIT)
     return Reloc::Static;
   return *RM;
@@ -53,8 +54,8 @@ static Reloc::Model getEffectiveRelocModel(bool JIT,
 Sigma16TargetMachine::Sigma16TargetMachine(const Target &T, const Triple &TT,
                                            StringRef CPU, StringRef FS,
                                            const TargetOptions &Options,
-                                           Optional<Reloc::Model> RM,
-                                           Optional<CodeModel::Model> CM,
+                                           std::optional<Reloc::Model> RM,
+                                           std::optional<CodeModel::Model> CM,
                                            CodeGenOpt::Level OL, bool JIT)
     : LLVMTargetMachine(T, computeDataLayout(TT, CPU, Options), TT, CPU, FS,
                         Options, getEffectiveRelocModel(JIT, RM),
@@ -96,9 +97,16 @@ public:
   const Sigma16Subtarget &getSigma16Subtarget() const {
     return *getSigma16TargetMachine().getSubtargetImpl();
   }
+
+  bool addInstSelector() override;
 };
 } // namespace
 
 TargetPassConfig *Sigma16TargetMachine::createPassConfig(PassManagerBase &PM) {
   return new Sigma16PassConfig(*this, PM);
+}
+
+bool Sigma16PassConfig::addInstSelector() {
+  addPass(createSigma16SEISelDag(getSigma16TargetMachine(), getOptLevel()));
+  return false;
 }

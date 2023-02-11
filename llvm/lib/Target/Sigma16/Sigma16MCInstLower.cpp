@@ -15,6 +15,7 @@
 #include "Sigma16MCInstLower.h"
 
 #include "MCTargetDesc/Sigma16BaseInfo.h"
+#include "MCTargetDesc/Sigma16MCExpr.h"
 #include "Sigma16AsmPrinter.h"
 #include "Sigma16InstrInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
@@ -27,10 +28,12 @@
 
 using namespace llvm;
 
-Sigma16MCInstLower::Sigma16MCInstLower(Sigma16AsmPrinter &Asmprinter)
-    : AsmPrinter(Asmprinter) {}
+//Sigma16MCInstLower::Sigma16MCInstLower(Sigma16AsmPrinter &Asmprinter)
+//    : AsmPrinter(Asmprinter) {}
 
-void Sigma16MCInstLower::initialize(MCContext *C) { Ctx = C; }
+//void Sigma16MCInstLower::Initialize(MCContext *C) {
+//  Ctx = C;
+//}
 
 static void createMcInst(MCInst &Inst, unsigned Opc, const MCOperand &Opnd0,
                          const MCOperand &Opnd1,
@@ -60,6 +63,8 @@ MCOperand Sigma16MCInstLower::lowerOperand(const MachineOperand &MO,
     return MCOperand::createImm(MO.getImm() + Offset);
   case MachineOperand::MO_RegisterMask:
     break;
+  case MachineOperand::MO_GlobalAddress:
+    return LowerSymbolOperand(MO, GetGlobalAddressSymbol(MO));
   }
 
   return MCOperand();
@@ -75,4 +80,35 @@ void Sigma16MCInstLower::lower(const MachineInstr *MI, MCInst &OutMI) const {
     if (MCOp.isValid())
       OutMI.addOperand(MCOp);
   }
+}
+
+MCOperand Sigma16MCInstLower::LowerSymbolOperand(const MachineOperand &MO,
+                                                 MCSymbol *Sym) const {
+  // FIXME: We would like an efficient form for this, so we don't have to do a
+  // lot of extra uniquing.
+  const MCExpr *Expr = MCSymbolRefExpr::create(Sym, *Ctx);
+
+  switch (MO.getTargetFlags()) {
+  default:
+    llvm_unreachable("Unknown target flag on GV operand");
+  case 0:
+    break;
+  }
+
+  if (!MO.isJTI() && MO.getOffset())
+    Expr = MCBinaryExpr::createAdd(
+        Expr, MCConstantExpr::create(MO.getOffset(), *Ctx), *Ctx);
+  return MCOperand::createExpr(Expr);
+}
+
+MCSymbol *
+Sigma16MCInstLower::GetGlobalAddressSymbol(const MachineOperand &MO) const {
+  switch (MO.getTargetFlags()) {
+  default:
+    llvm_unreachable("Unknown target flag on GV operand");
+  case 0:
+    break;
+  }
+
+  return AsmPrinter.getSymbol(MO.getGlobal());
 }

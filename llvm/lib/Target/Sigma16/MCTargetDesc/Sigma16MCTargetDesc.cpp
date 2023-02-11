@@ -125,6 +125,9 @@ extern "C" void LLVMInitializeSigma16TargetMC() {
     // Register the MC register info.
     TargetRegistry::RegisterMCRegInfo(*T, createSigma16MCRegisterInfo);
 
+    // Register the asm target streamer.
+    TargetRegistry::RegisterAsmTargetStreamer(*T, createSigma16AsmTargetStreamer);
+
     // Register the MC subtarget info.
     TargetRegistry::RegisterMCSubtargetInfo(*T, createSigma16MCSubtargetInfo);
 

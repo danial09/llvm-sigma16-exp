@@ -91,7 +91,7 @@ public:
 
   bool enableLongBranchPass() const { return hasSigma16(); }
 
-  unsigned stackAlignment() const { return 8; }
+  unsigned stackAlignment() const { return 16; }
 
   Sigma16Subtarget &initializeSubtargetDependencies(StringRef CPU, StringRef FS,
                                                     const TargetMachine &TM);
