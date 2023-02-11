@@ -28,105 +28,71 @@ namespace llvm {
 /// Sigma16 target-specific information for each MachineFunction.
 class Sigma16FunctionInfo : public MachineFunctionInfo {
 public:
-    Sigma16FunctionInfo(MachineFunction& MF)
-        : MF(MF),
-          VarArgsFrameIndex(0),
-          SRetReturnReg(0), CallsEhReturn(false), CallsEhDwarf(false),
-          EmitNOAT(false),
-          MaxCallFrameSize(0)
-    {}
+  Sigma16FunctionInfo(MachineFunction &MF)
+      : MF(MF), VarArgsFrameIndex(0), SRetReturnReg(0), CallsEhReturn(false),
+        CallsEhDwarf(false), EmitNOAT(false), MaxCallFrameSize(0) {}
 
-    ~Sigma16FunctionInfo();
+  ~Sigma16FunctionInfo();
 
-    unsigned getSRetReturnReg() const {
-        return SRetReturnReg;
-    }
-    void setSRetReturnReg(unsigned Reg) {
-        SRetReturnReg = Reg;
-    }
+  unsigned getSRetReturnReg() const { return SRetReturnReg; }
+  void setSRetReturnReg(unsigned Reg) { SRetReturnReg = Reg; }
 
-    int getVarArgsFrameIndex() const {
-        return VarArgsFrameIndex;
-    }
-    void setVarArgsFrameIndex(int Index) {
-        VarArgsFrameIndex = Index;
-    }
+  int getVarArgsFrameIndex() const { return VarArgsFrameIndex; }
+  void setVarArgsFrameIndex(int Index) { VarArgsFrameIndex = Index; }
 
-    bool hasByvalArg() const {
-        return HasByvalArg;
-    }
-    void setFormalArgInfo(unsigned Size, bool HasByval) {
-        IncomingArgSize = Size;
-        HasByvalArg = HasByval;
-    }
+  bool hasByvalArg() const { return HasByvalArg; }
+  void setFormalArgInfo(unsigned Size, bool HasByval) {
+    IncomingArgSize = Size;
+    HasByvalArg = HasByval;
+  }
 
-    unsigned getIncomingArgSize() const {
-        return IncomingArgSize;
-    }
+  unsigned getIncomingArgSize() const { return IncomingArgSize; }
 
-    bool callsEhReturn() const {
-        return CallsEhReturn;
-    }
-    void setCallsEhReturn() {
-        CallsEhReturn = true;
-    }
+  bool callsEhReturn() const { return CallsEhReturn; }
+  void setCallsEhReturn() { CallsEhReturn = true; }
 
-    bool callsEhDwarf() const {
-        return CallsEhDwarf;
-    }
-    void setCallsEhDwarf() {
-        CallsEhDwarf = true;
-    }
+  bool callsEhDwarf() const { return CallsEhDwarf; }
+  void setCallsEhDwarf() { CallsEhDwarf = true; }
 
-    void createEhDataRegsFI();
-    int getEhDataRegFI(unsigned Reg) const {
-        return EhDataRegFI[Reg];
-    }
+  void createEhDataRegsFI();
+  int getEhDataRegFI(unsigned Reg) const { return EhDataRegFI[Reg]; }
 
-    unsigned getMaxCallFrameSize() const {
-        return MaxCallFrameSize;
-    }
-    void setMaxCallFrameSize(unsigned S) {
-        MaxCallFrameSize = S;
-    }
+  unsigned getMaxCallFrameSize() const { return MaxCallFrameSize; }
+  void setMaxCallFrameSize(unsigned S) { MaxCallFrameSize = S; }
 
-    bool getEmitNOAT() const {
-        return EmitNOAT;
-    }
-    void setEmitNOAT() {
-        EmitNOAT = true;
-    }
+  bool getEmitNOAT() const { return EmitNOAT; }
+  void setEmitNOAT() { EmitNOAT = true; }
 
 private:
-    virtual void anchor();
+  virtual void anchor();
 
-    MachineFunction& MF;
+  MachineFunction &MF;
 
-    /// VarArgsFrameIndex - FrameIndex for start of varargs area.
-    int VarArgsFrameIndex;
+  /// VarArgsFrameIndex - FrameIndex for start of varargs area.
+  int VarArgsFrameIndex;
 
-    /// SRetReturnReg - Some subtargets require that sret lowering includes
-    /// returning the value of the returned struct in a register. This field
-    /// holds the virtual register into which the sret argument is passed.
-    unsigned SRetReturnReg;
+  /// SRetReturnReg - Some subtargets require that sret lowering includes
+  /// returning the value of the returned struct in a register. This field
+  /// holds the virtual register into which the sret argument is passed.
+  unsigned SRetReturnReg;
 
-    /// True if function has a byval argument.
-    bool HasByvalArg;
+  /// True if function has a byval argument.
+  bool HasByvalArg;
 
-    /// Size of incoming argument area.
-    unsigned IncomingArgSize;
+  /// Size of incoming argument area.
+  unsigned IncomingArgSize;
 
-    /// CallsEhReturn - Whether the function calls llvm.eh.return.
-    bool CallsEhReturn;
+  /// CallsEhReturn - Whether the function calls llvm.eh.return.
+  bool CallsEhReturn;
 
-    /// CallsEhDwarf - Whether the function calls llvm.eh.dwarf.
-    bool CallsEhDwarf;
+  /// CallsEhDwarf - Whether the function calls llvm.eh.dwarf.
+  bool CallsEhDwarf;
 
-    /// Frame objects for spilling eh data registers.
-    int EhDataRegFI[2];
+  /// Frame objects for spilling eh data registers.
+  int EhDataRegFI[2];
 
-    bool EmitNOAT;
-    unsigned MaxCallFrameSize;
+  bool EmitNOAT;
+  unsigned MaxCallFrameSize;
 };
 //@1 }
 

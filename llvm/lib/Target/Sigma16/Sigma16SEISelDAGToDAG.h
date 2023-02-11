@@ -1,4 +1,5 @@
-//===-- Sigma16SEISelDAGToDAG.h - A Dag to Dag Inst Selector for Sigma16SE -----===//
+//===-- Sigma16SEISelDAGToDAG.h - A Dag to Dag Inst Selector for Sigma16SE
+//-----===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -21,21 +22,19 @@ namespace llvm {
 class Sigma16SEDAGToDAGISel : public Sigma16DAGToDAGISel {
 
 public:
-    explicit Sigma16SEDAGToDAGISel(Sigma16TargetMachine &TM, CodeGenOpt::Level OL)
-        : Sigma16DAGToDAGISel(TM, OL) {}
+  explicit Sigma16SEDAGToDAGISel(Sigma16TargetMachine &TM, CodeGenOpt::Level OL)
+      : Sigma16DAGToDAGISel(TM, OL) {}
 
 private:
+  bool runOnMachineFunction(MachineFunction &MF) override;
 
-    bool runOnMachineFunction(MachineFunction &MF) override;
+  bool trySelect(SDNode *Node) override;
 
-    bool trySelect(SDNode *Node) override;
+  void processFunctionAfterISel(MachineFunction &MF) override;
 
-    void processFunctionAfterISel(MachineFunction &MF) override;
-
-    // Insert instructions to initialize the global base register in the
-    // first MBB of the function.
-    //  void initGlobalBaseReg(MachineFunction &MF);
-
+  // Insert instructions to initialize the global base register in the
+  // first MBB of the function.
+  //  void initGlobalBaseReg(MachineFunction &MF);
 };
 
 FunctionPass *createSigma16SEISelDag(Sigma16TargetMachine &TM,
@@ -44,4 +43,3 @@ FunctionPass *createSigma16SEISelDag(Sigma16TargetMachine &TM,
 } // namespace llvm
 
 #endif
-

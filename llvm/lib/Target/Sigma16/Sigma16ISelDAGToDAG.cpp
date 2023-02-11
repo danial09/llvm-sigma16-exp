@@ -48,67 +48,67 @@ using namespace llvm;
 //===----------------------------------------------------------------------===//
 
 bool Sigma16DAGToDAGISel::runOnMachineFunction(MachineFunction &MF) {
-    bool Ret = SelectionDAGISel::runOnMachineFunction(MF);
+  bool Ret = SelectionDAGISel::runOnMachineFunction(MF);
 
-    return Ret;
+  return Ret;
 }
 
 // SelectAddr - Complex Pattern for Load/Store Address
-bool Sigma16DAGToDAGISel::SelectAddr(SDValue Addr,
-                                     SDValue &Base, SDValue &Offset) {
-    EVT ValTy = Addr.getValueType();
-    SDLoc DL(Addr);
+bool Sigma16DAGToDAGISel::SelectAddr(SDValue Addr, SDValue &Base,
+                                     SDValue &Offset) {
+  EVT ValTy = Addr.getValueType();
+  SDLoc DL(Addr);
 
-    // if Address is FI, get the TargetFrameIndex.
-    if (FrameIndexSDNode *FIN = dyn_cast<FrameIndexSDNode>(Addr)) {
-        Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), ValTy);
-        Offset = CurDAG->getTargetConstant(0, DL, ValTy);
-        return true;
-    }
-
-    if (Addr.getOpcode() == Sigma16ISD::Wrapper) {
-        Base = Addr.getOperand(1);
-        Offset = Addr.getOperand(0);
-        return true;
-    }
-
-    //@relocation model: static
-    if (TM.getRelocationModel() != Reloc::PIC_) {
-        if ((Addr.getOpcode() == ISD::TargetExternalSymbol ||
-                Addr.getOpcode() == ISD::TargetGlobalAddress))
-            return false;
-    }
-
-    Base   = Addr;
+  // if Address is FI, get the TargetFrameIndex.
+  if (FrameIndexSDNode *FIN = dyn_cast<FrameIndexSDNode>(Addr)) {
+    Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), ValTy);
     Offset = CurDAG->getTargetConstant(0, DL, ValTy);
     return true;
+  }
+
+  if (Addr.getOpcode() == Sigma16ISD::Wrapper) {
+    Base = Addr.getOperand(1);
+    Offset = Addr.getOperand(0);
+    return true;
+  }
+
+  //@relocation model: static
+  if (TM.getRelocationModel() != Reloc::PIC_) {
+    if ((Addr.getOpcode() == ISD::TargetExternalSymbol ||
+         Addr.getOpcode() == ISD::TargetGlobalAddress))
+      return false;
+  }
+
+  Base = Addr;
+  Offset = CurDAG->getTargetConstant(0, DL, ValTy);
+  return true;
 }
 
 void Sigma16DAGToDAGISel::Select(SDNode *Node) {
-    unsigned Opcode = Node->getOpcode();
+  unsigned Opcode = Node->getOpcode();
 
-    // If we have a custom node, we already have selected!
-    if (Node->isMachineOpcode()) {
-        LLVM_DEBUG(errs() << "== "; Node->dump(CurDAG); errs() << "\n");
-        Node->setNodeId(-1);
-        return;
-    }
+  // If we have a custom node, we already have selected!
+  if (Node->isMachineOpcode()) {
+    LLVM_DEBUG(errs() << "== "; Node->dump(CurDAG); errs() << "\n");
+    Node->setNodeId(-1);
+    return;
+  }
 
-    // See if subclasses can handle this node.
-    if (trySelect(Node))
-        return;
+  // See if subclasses can handle this node.
+  if (trySelect(Node))
+    return;
 
-    switch (Opcode) {
-    default:
-        break;
+  switch (Opcode) {
+  default:
+    break;
 
-    // Get target GOT address.
-    case ISD::GLOBAL_OFFSET_TABLE: // TODO: Handle this.
-        report_fatal_error("GLOBAL_OFFSET_TABLE not implemented");
-        //    ReplaceNode(Node, getGlobalBaseReg());
-        return;
-    }
+  // Get target GOT address.
+  case ISD::GLOBAL_OFFSET_TABLE: // TODO: Handle this.
+    report_fatal_error("GLOBAL_OFFSET_TABLE not implemented");
+    //    ReplaceNode(Node, getGlobalBaseReg());
+    return;
+  }
 
-    // Select the default instruction
-    SelectCode(Node);
+  // Select the default instruction
+  SelectCode(Node);
 }

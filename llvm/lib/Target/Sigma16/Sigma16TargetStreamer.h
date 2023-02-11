@@ -19,16 +19,16 @@ namespace llvm {
 
 class Sigma16TargetStreamer : public MCTargetStreamer {
 public:
-    Sigma16TargetStreamer(MCStreamer &S);
+  Sigma16TargetStreamer(MCStreamer &S);
 };
 
 // This part is for ascii assembly output
 class Sigma16TargetAsmStreamer : public Sigma16TargetStreamer {
-    formatted_raw_ostream &OS;
-//  void emitFileDirective(StringRef Filename) override;
+  formatted_raw_ostream &OS;
+  //  void emitFileDirective(StringRef Filename) override;
 
 public:
-    Sigma16TargetAsmStreamer(MCStreamer &S, formatted_raw_ostream &OS);
+  Sigma16TargetAsmStreamer(MCStreamer &S, formatted_raw_ostream &OS);
 };
 
 } // namespace llvm

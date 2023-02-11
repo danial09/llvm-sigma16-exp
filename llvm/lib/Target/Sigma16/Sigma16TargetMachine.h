@@ -27,36 +27,33 @@ class formatted_raw_ostream;
 class Sigma16RegisterInfo;
 
 class Sigma16TargetMachine : public LLVMTargetMachine {
-    std::unique_ptr<TargetLoweringObjectFile> TLOF;
-    // Selected ABI
-    Sigma16ABIInfo ABI;
-    Sigma16Subtarget DefaultSubtarget;
+  std::unique_ptr<TargetLoweringObjectFile> TLOF;
+  // Selected ABI
+  Sigma16ABIInfo ABI;
+  Sigma16Subtarget DefaultSubtarget;
 
-    mutable StringMap<std::unique_ptr<Sigma16Subtarget>> SubtargetMap;
+  mutable StringMap<std::unique_ptr<Sigma16Subtarget>> SubtargetMap;
 
 public:
-    Sigma16TargetMachine(const Target &T, const Triple &TT, StringRef CPU,
-                         StringRef FS, const TargetOptions &Options,
-                         std::optional<Reloc::Model> RM, std::optional<CodeModel::Model> CM,
-                         CodeGenOpt::Level OL, bool JIT);
-    ~Sigma16TargetMachine() override = default;
+  Sigma16TargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+                       StringRef FS, const TargetOptions &Options,
+                       std::optional<Reloc::Model> RM,
+                       std::optional<CodeModel::Model> CM, CodeGenOpt::Level OL,
+                       bool JIT);
+  ~Sigma16TargetMachine() override = default;
 
-    const Sigma16Subtarget *getSubtargetImpl() const {
-        return &DefaultSubtarget;
-    }
+  const Sigma16Subtarget *getSubtargetImpl() const { return &DefaultSubtarget; }
 
-    const Sigma16Subtarget *getSubtargetImpl(const Function &F) const override;
+  const Sigma16Subtarget *getSubtargetImpl(const Function &F) const override;
 
-    // Pass Pipeline Configuration
-    TargetPassConfig *createPassConfig(PassManagerBase &PM) override;
+  // Pass Pipeline Configuration
+  TargetPassConfig *createPassConfig(PassManagerBase &PM) override;
 
-    TargetLoweringObjectFile *getObjFileLowering() const override {
-        return TLOF.get();
-    }
+  TargetLoweringObjectFile *getObjFileLowering() const override {
+    return TLOF.get();
+  }
 
-    const Sigma16ABIInfo &getABI() const {
-        return ABI;
-    }
+  const Sigma16ABIInfo &getABI() const { return ABI; }
 };
 } // end namespace llvm
 
