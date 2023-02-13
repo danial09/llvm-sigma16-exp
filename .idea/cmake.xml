@@ -2,7 +2,7 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Sigma16" ENABLED="true" GENERATION_DIR="$PROJECT_DIR$/build/Release/Sigma16" CONFIG_NAME="Release" TOOLCHAIN_NAME="Visual Studio" GENERATION_OPTIONS="-G Ninja -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DLLVM_ENABLE_PROJECTS=&quot;clang&quot; -DLLVM_TARGETS_TO_BUILD=&quot;X86&quot; -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=&quot;Sigma16&quot; -DLLVM_ENABLE_IDE:BOOL=TRUE -DLLVM_ENABLE_ASSERTIONS=&quot;OFF&quot;">
+      <configuration PROFILE_NAME="Sigma16" ENABLED="true" GENERATION_DIR="$PROJECT_DIR$/build/Release/Sigma16" CONFIG_NAME="Release" GENERATION_OPTIONS="-G Ninja -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DLLVM_ENABLE_PROJECTS=&quot;clang&quot; -DLLVM_TARGETS_TO_BUILD=&quot;X86&quot; -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=&quot;Sigma16&quot; -DLLVM_ENABLE_IDE:BOOL=TRUE -DLLVM_ENABLE_ASSERTIONS=&quot;OFF&quot;">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
             <env name="CCACHE_DIR" value="C:\Users\dania\uni\llvm-project\build\.ccache" />
