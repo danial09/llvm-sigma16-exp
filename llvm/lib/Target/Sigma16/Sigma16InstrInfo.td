@@ -71,14 +71,6 @@ include "Sigma16InstrFormats.td"
 //===----------------------------------------------------------------------===//
 // Instruction operand types
 //===----------------------------------------------------------------------===//
-
-// def memsrc : Operand<i16> {
-//   let MIOperandInfo = (ops CPURegs, i16imm);
-//   let PrintMethod = "printAddrModeMemSrc";
-//   let EncoderMethod = "getMemSrcValue";
-// }
-
-
 def addr :
   ComplexPattern<iPTR, 2, "SelectAddr", [frameindex], []>;
 
@@ -111,7 +103,6 @@ def mem : Operand<iPTR> {
   let PrintMethod = "printMemOperand";
   let MIOperandInfo = (ops CPURegs, simm16);
   let EncoderMethod = "getMemEncoding";
-//  let ParserMatchClass = Sigma16MemAsmOperand;
 }
 
 class Sigma16InstAlias<string Asm, dag Result, bit Emit = 0b1> :
@@ -200,11 +191,10 @@ class FMem<bits<4> opB, dag outs, dag ins, string asmstr, list<dag> pattern,
     let DecoderMethod = "decodeMem";
 }
 
-// FIXME: Pointers to local variables do not work properly.
-
-class EffectiveAddress<bits<4> opB, string instr_asm, RegisterClass RC, Operand Mem> :
+class Address<bits<4> opB, string instr_asm, RegisterClass RC, Operand Mem> :
   FMem<opB, (outs RC:$rd), (ins Mem:$imm16),
-     instr_asm, [(set RC:$rd, addr:$imm16)], IIAlu> {
+    !strconcat(instr_asm, "\t$rd,$imm16"),
+    [(set RC:$rd, addr:$imm16)], IIAlu> {
 }
 
 // Memory instructions with 16-bit displacement stored in ra
@@ -371,13 +361,12 @@ def NOR     : LogicWNot<or, 0x8, CPURegs>;
 def NAND    : LogicWNot<and, 0x14, CPURegs>;
 
 /// Load/Store Instructions (2-Operand, RX-Type)
-def LEA     : ALU_ri<0x0, "lea", add, simm16, immSExt16, CPURegs>;
-def LEA_SET : EffectiveAddress<0x0, "lea", CPURegs, mem>;
+def LEA     : Address<0x0, "lea", CPURegs, mem>;
 def LD      : LoadM16<0x1, "load">;
 def ST      : StoreM16<0x2, "store">;
 
 // Load/Store Instructions with 16-bit displacement (3-Operand, RX-Type)
-// LEADISP : LeaMDisp<0x0, "lea", CPURegs, simm16>;
+def LEADISP     : ALU_ri<0x0, "lea", add, simm16, immSExt16, CPURegs>;
 def LDDISP  : LoadDispM16<0x1, "load">;
 def STDISP  : StoreDispM16<0x2, "store">;
 
@@ -415,7 +404,6 @@ def JAL    : JumpLinkReg<0xf, "jal", CPURegs>;
 
 def : Pat<(i16 immSExt16:$in),
           (LEA R0, imm:$in)>;
-
 
 def : Pat<(i16 (Sigma16GlobalAddr tglobaladdr:$dst)), (LEA R0, tglobaladdr:$dst)>;
 def : Pat<(add CPURegs:$src, (Sigma16GlobalAddr tglobaladdr:$src2)),
